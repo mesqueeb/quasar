@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QCard',
 
@@ -8,8 +10,7 @@ export default Vue.extend({
 
     square: Boolean,
     flat: Boolean,
-    bordered: Boolean,
-    inline: Boolean
+    bordered: Boolean
   },
 
   render (h) {
@@ -19,9 +20,9 @@ export default Vue.extend({
         'q-card--dark': this.dark,
         'q-card--bordered': this.bordered,
         'q-card--square no-border-radius': this.square,
-        'q-card--flat no-shadow': this.flat,
-        'inline-block': this.inline
-      }
-    }, this.$slots.default)
+        'q-card--flat no-shadow': this.flat
+      },
+      on: this.$listeners
+    }, slot(this, 'default'))
   }
 })

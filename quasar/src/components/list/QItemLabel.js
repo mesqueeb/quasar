@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QItemLabel',
 
@@ -13,11 +15,8 @@ export default Vue.extend({
 
   computed: {
     classes () {
-      const title = !this.overline && !this.caption
-
       return {
         'q-item__label--overline text-overline': this.overline,
-        'q-item__label--title': title,
         'q-item__label--caption text-caption': this.caption,
         'q-item__label--header': this.header,
         'q-item__label--inset': this.inset,
@@ -41,7 +40,8 @@ export default Vue.extend({
     return h('div', {
       staticClass: 'q-item__label',
       style: this.style,
-      class: this.classes
-    }, this.$slots.default)
+      class: this.classes,
+      on: this.$listeners
+    }, slot(this, 'default'))
   }
 })

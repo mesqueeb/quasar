@@ -1,164 +1,80 @@
 <template lang="pug">
-q-layout.doc-layout(view="hHh LpR lff", @scroll="onScroll")
-  q-header.bg-black(elevated)
+q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
+  q-header.header(elevated)
     q-toolbar
-      q-btn.q-mr-sm(v-if="hasDrawer", flat, dense, round, @click="leftDrawerState = !leftDrawerState", aria-label="Menu")
+      q-btn.q-mr-sm(flat, dense, round, @click="leftDrawerState = !leftDrawerState", aria-label="Menu")
         q-icon(name="menu")
 
-      q-btn.quasar-logo.text-bold(key="logo", flat, no-caps, stretch, to="/")
+      q-btn.quasar-logo.text-bold(key="logo", flat, no-caps, no-wrap, stretch, to="/")
         q-avatar
           img(src="https://cdn.quasar-framework.org/img/quasar-logo.png")
         q-toolbar-title(shrink) Quasar
 
-      template(v-if="hasDrawer !== true")
-        q-separator.q-mx-xs(vertical, dark, inset)
-        q-btn.text-bold(key="docs", flat, stretch, no-caps, to="/docs", label="Docs")
-
       q-space
 
-      q-btn-dropdown.header-squared.text-bold(flat, no-caps, stretch, :label="`v${$q.version}`", auto-close)
-        q-list
-          q-item(
-            v-for="version in ['17', '16', '15', '14', '13']"
-            :key="version"
-            clickable
-            tag="a"
-            :href="`https://v0-${version}.quasar-framework.org/`"
-            target="_blank"
-          )
-            q-item-section {{ `v0.${version}` }}
+      header-menu.self-stretch.row.no-wrap(v-if="$q.screen.gt.xs")
 
-      q-btn-dropdown.header-squared.text-bold(flat, no-caps, stretch, label="Quick Links", auto-close)
-        q-list
-          q-item(clickable, tag="a", href="https://github.com/quasarframework/quasar-awesome", target="_blank")
-            q-item-section.text-yellow-9(avatar)
-              q-icon(name="flare")
-            q-item-section Awesome Quasar
-
-          q-item(clickable, tag="a", href="https://medium.com/quasar-framework", target="_blank")
-            q-item-section.text-primary(avatar)
-              q-icon(name="fab fa-medium")
-            q-item-section Quasar Blog
-
-          q-item(clickable, tag="a", href="https://github.com/quasarframework/quasar", target="_blank")
-            q-item-section(avatar)
-              q-icon(name="fab fa-github")
-            q-item-section Github
-
-          q-item-label(header) Playground
-
-          q-item(clickable, tag="a", href="https://codepen.io/rstoenescu/pen/KQRZJg", target="_blank")
-            q-item-section.text-brown-5(avatar)
-              q-icon(name="fab fa-codepen")
-            q-item-section Codepen
-
-          q-item(clickable, tag="a", href="https://jsfiddle.net/rstoenescu/waugrryy/", target="_blank")
-            q-item-section.text-primary(avatar)
-              q-icon(name="fab fa-jsfiddle")
-            q-item-section jsFiddle
-
-          q-item-label(header) Social
-
-          q-item(clickable, tag="a", href="https://forum.quasar-framework.org/category/1/announcements", target="_blank")
-            q-item-section.text-purple(avatar)
-              q-icon(name="announcement")
-            q-item-section Announcements
-
-          q-item(clickable, tag="a", href="https://twitter.com/quasarframework", target="_blank")
-            q-item-section.text-blue(avatar)
-              q-icon(name="fab fa-twitter")
-            q-item-section Twitter
-
-      q-btn-dropdown.header-squared.text-bold(flat, no-caps, stretch, label="Support", auto-close)
-        q-list
-
-          q-item(clickable, tag="a", href="https://discord.gg/5TDhbDg", target="_blank")
-            q-item-section.text-primary(avatar)
-              q-icon(name="fab fa-discord")
-            q-item-section Chat
-
-          q-item(clickable, tag="a", href="https://forum.quasar-framework.org/", target="_blank")
-            q-item-section.text-secondary(avatar)
-              q-icon(name="fas fa-comments")
-            q-item-section Forum
-
-          q-item(clickable, tag="a", href="https://stackoverflow.com/search?q=quasarframework", target="_blank")
-            q-item-section.text-red(avatar)
-              q-icon(name="fab fa-stack-overflow")
-            q-item-section Stack Overflow
-
-          q-separator
-
-          q-item(clickable, tag="a", href="https://www.patreon.com/quasarframework", target="_blank")
-            q-item-section.text-red(avatar)
-              q-icon(name="fab fa-patreon")
-            q-item-section Patreon
-
-      q-btn.q-ml-xs(v-show="hasDrawer", flat, dense, round, @click="rightDrawerState = !rightDrawerState", aria-label="Menu")
+      q-btn.q-ml-xs(flat, dense, round, @click="rightDrawerState = !rightDrawerState", aria-label="Menu")
         q-icon(name="assignment")
 
-  q-footer.bg-black.text-white.text-center.footer
-    div.footer__icons.row.flex-center
-      a(href="https://github.com/quasarframework/quasar", target="_blank")
-        q-icon(name="fab fa-github")
-
-      a(href="https://twitter.com/quasarframework", target="_blank")
-        q-icon(name="fab fa-twitter")
-
-      a(href="https://medium.com/quasar-framework", target="_blank")
-        q-icon(name="fab fa-medium")
-
-      a(href="https://discord.gg/5TDhbDg", target="_blank")
-        q-icon(name="fab fa-discord")
-
-      a(href="https://forum.quasar-framework.org/", target="_blank")
-        q-icon(name="fas fa-comments")
-    div
-      | Released under the <doc-link to="https://github.com/quasarframework/quasar/blob/dev/LICENSE">MIT LICENSE</doc-link>
-
-    div Copyright © 2015 - {{ year }} Razvan Stoenescu
-
   q-drawer(
-    v-if="hasDrawer"
     v-model="leftDrawerState"
     bordered
     show-if-above
+    content-class="doc-left-drawer"
   )
-    q-scroll-area.fit
-      .flex.justify-center
-        q-btn.q-mt-lg(
+    q-scroll-area(style="height: calc(100% - 50px); margin-top: 50px")
+      .row.justify-center.q-my-lg
+        q-btn(
           type="a"
           href="https://www.patreon.com/quasarframework"
           target="_blank"
           size="13px"
-          color="red"
+          color="primary"
           icon="fab fa-patreon"
           label="Become a Patron"
         )
 
-        q-input.q-my-lg(v-model="search", filled, dense)
-          q-icon(slot="append", name="search")
+      app-menu.q-my-lg
 
-      app-menu
+    .absolute-top.bg-white.layout-drawer-toolbar
+      q-input.full-width.doc-algolia(
+        ref="docAlgolia"
+        v-model="search"
+        dense
+        standout
+        square
+        placeholder="Search..."
+      )
+        template(v-slot:append)
+          q-icon(
+            name="search"
+            @click="$refs.docAlgolia.focus()"
+          )
 
   q-drawer(
-    v-if="hasDrawer"
     v-model="rightDrawerState"
     side="right"
-    content-class="bg-grey-3"
+    content-class="bg-grey-1"
     :width="180"
     show-if-above
     @on-layout="updateRightDrawerOnLayout"
   )
     q-scroll-area.fit
-      q-list.docs-toc.q-my-lg.text-grey-8
-        q-item(v-for="toc in $store.state.toc", :key="toc.id", clickable, v-ripple, @click="scrollTo(toc.id)", :active="activeToc === toc.id")
-          q-item-section {{ toc.title }}
+      header-menu.q-mt-sm.text-primary.column(v-if="$q.screen.lt.sm", align="right")
 
-      .flex.justify-center.q-mt-sm
-        .bg-grey.flex.flex-center.text-white(
-          style="width: 160px; height: 243px"
-        ) Ad
+      q-list.doc-toc.q-my-lg.text-grey-8
+        q-item(
+          v-for="toc in $store.state.toc",
+          :key="toc.id",
+          clickable,
+          v-ripple,
+          dense,
+          @click="scrollTo(toc.id)",
+          :active="activeToc === toc.id"
+        )
+          q-item-section(v-if="toc.sub === true", side) •
+          q-item-section {{ toc.title }}
 
   q-page-container
     transition(
@@ -177,6 +93,7 @@ q-layout.doc-layout(view="hHh LpR lff", @scroll="onScroll")
 <script>
 import { scroll } from 'quasar'
 import AppMenu from 'components/AppMenu'
+import HeaderMenu from 'components/HeaderMenu'
 
 export default {
   name: 'Layout',
@@ -187,14 +104,15 @@ export default {
   },
 
   components: {
-    AppMenu
+    AppMenu,
+    HeaderMenu
   },
 
   watch: {
     $route () {
       this.leftDrawerState = true
       this.rightDrawerState = true
-      this.hasDrawer === true && this.$nextTick(() => {
+      this.$nextTick(() => {
         this.updateActiveToc(document.documentElement.scrollTop || document.body.scrollTop)
       })
     }
@@ -202,7 +120,6 @@ export default {
 
   data () {
     return {
-      year: (new Date()).getFullYear(),
       search: '',
       rightDrawerOnLayout: false,
       activeToc: void 0
@@ -210,10 +127,6 @@ export default {
   },
 
   computed: {
-    hasDrawer () {
-      return this.$store.getters.hasDrawer
-    },
-
     leftDrawerState: {
       get () {
         return this.$store.state.leftDrawerState
@@ -274,11 +187,9 @@ export default {
     },
 
     onScroll ({ position }) {
-      if (this.scrollingPage === true || this.hasDrawer !== true) {
-        return
+      if (this.scrollingPage !== true) {
+        this.updateActiveToc(position)
       }
-
-      this.updateActiveToc(position)
     },
 
     updateActiveToc (position) {
@@ -310,6 +221,25 @@ export default {
     }
   },
 
+  mounted () {
+    import('docsearch.js').then(docsearch => docsearch.default({
+      apiKey: '5c15f3938ef24ae49e3a0e69dc4a140f',
+      indexName: 'quasar-framework',
+      inputSelector: '.doc-algolia input',
+      algoliaOptions: {
+        hitsPerPage: 7
+      },
+      handleSelected: (a, b, suggestion, c, context) => {
+        const url = suggestion.url
+          .replace('https://v1.quasar-framework.org', '')
+
+        this.search = ''
+        this.$router.push(url)
+        this.$refs.docAlgolia.blur()
+      }
+    }))
+  },
+
   beforeDestroy () {
     clearTimeout(this.scrollTimer)
   }
@@ -318,34 +248,39 @@ export default {
 
 <style lang="stylus">
 @import '~quasar-variables'
+@import '../css/docsearch'
 
-.doc-layout
-  background $grey-3
-.header-squared
-  border-radius 0
+.header
+  background linear-gradient(145deg, $primary 11%, $dark-primary 75%)
+
 .header-logo
   width 25px
   height 25px
-.q-drawer--standard .docs-toc .q-item
-  border-radius 5px 0 0 5px
-.footer
-  padding 24px 0
 
-  &__icons
-    font-size 2em
-    a
-      margin 0 8px 8px
-      text-decoration none
-      outline 0
-      color inherit
-  .doc-link
-    color inherit
-.docs-toc .q-item--active
-  font-weight 600
+.layout-drawer-toolbar
+  border-bottom 1px solid $separator-color
+
+.q-drawer--mobile .doc-toc
+  .q-item
+    margin-left 3px
+  .q-item--active
+    font-weight 600
+
+.doc-toc .q-item
+  border-radius 10px 0 0 10px
+  margin-top 1px
+  margin-bottom 1px
+
+  &.q-item--active
+    background lighten($primary, 90%)
+
+.doc-left-drawer
+  overflow inherit !important
 
 .quasar-logo
   img
+    transform rotate(0deg)
     transition transform .8s ease-in-out
   &:hover img
-    transform rotate(360deg)
+    transform rotate(-360deg)
 </style>

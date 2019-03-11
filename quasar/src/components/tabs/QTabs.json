@@ -1,4 +1,8 @@
 {
+  "behavior": {
+    "$listeners": true
+  },
+
   "props": {
     "value":{
       "type": [ "Number", "String" ],
@@ -46,6 +50,11 @@
       "type": "String",
       "desc": "The name of an icon to replace the default arrow used to scroll through the tabs to the right, when the tabs extend past the width of the tabs container",
       "examples": [ "arrow_right" ]
+    },
+
+    "shrink": {
+      "type": "Boolean",
+      "desc": "By default, QTabs is set to grow to the available space; However, you can reverse that with this prop; Useful (and required) when placing the component in a QToolbar"
     },
 
     "top-indicator": {

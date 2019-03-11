@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QTimeline',
 
@@ -14,7 +16,16 @@ export default Vue.extend({
       type: String,
       default: 'primary'
     },
-    responsive: Boolean,
+    side: {
+      type: String,
+      default: 'right',
+      validator: v => ['left', 'right'].includes(v)
+    },
+    layout: {
+      type: String,
+      default: 'dense',
+      validator: v => ['dense', 'comfortable', 'loose'].includes(v)
+    },
     dark: Boolean
   },
 
@@ -22,7 +33,8 @@ export default Vue.extend({
     classes () {
       return {
         'q-timeline--dark': this.dark,
-        'q-timeline--responsive': this.responsive
+        [`q-timeline--${this.layout}`]: true,
+        [`q-timeline--${this.layout}--${this.side}`]: true
       }
     }
   },
@@ -30,7 +42,8 @@ export default Vue.extend({
   render (h) {
     return h('ul', {
       staticClass: 'q-timeline',
-      class: this.classes
-    }, this.$slots.default)
+      class: this.classes,
+      on: this.$listeners
+    }, slot(this, 'default'))
   }
 })

@@ -1,83 +1,77 @@
 ---
-title: Docs
+title: QMenu
+related:
+  - /vue-directives/close-menu
+  - /options/transitions
+  - /vue-components/popup-proxy
+components:
+  - menu/MenuPositioning
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
-
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
-
-::: tip
-Some tip
-:::
-
-::: warning
-Some tip
-:::
-
-::: danger
-Some tip
-:::
-
-::: warning CUSTOM TITLE
-Some tip
-:::
-
-* Something
-  * something
-  * else
-* Back
-  * wee
+The QMenu component is a convenient way to show menus. Goes very well with [QList](/vue-components/lists-and-list-items) as dropdown content, but it's by no means limited to it.
 
 ## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+<doc-installation components="QMenu" directives="CloseMenu" />
 
 ## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
 
-## API
-<doc-api file="QTh" />
+The idea with QMenu is to place it inside your DOM element / component that you want to be the trigger as direct child. Don’t worry about QMenu content inheriting CSS from the container as the QMenu will be injected as a direct child of `<body>` through a Quasar Portal.
+
+::: tip
+Don't forget to use the directive `v-close-menu` in your clickable menu items if you want the menu to close automatically.
+Alternatively, you can use the QMenu's property `auto-close` or handle closing the menu yourself through its v-model.
+:::
+
+### Basic
+
+<doc-example title="Basic" file="QMenu/Basic" />
+
+<doc-example title="Idea for content" file="QMenu/VariousContent" />
+
+<doc-example title="Toggle through v-model" file="QMenu/VModel" />
+
+### Submenus
+
+<doc-example title="Menus in menus" file="QMenu/MenuInMenu" />
+
+### Sizing and styling
+
+<doc-example title="Sizing" file="QMenu/Sizing" />
+
+<doc-example title="Style" file="QMenu/Style" />
+
+### Context menu
+
+You can also set QMenu to act as a context menu. On desktop, you need to right click the parent target to trigger it, and on mobile a long tap will do the job.
+
+<doc-example title="Context Menu" file="QMenu/ContextMenu" />
+
+### Persistent
+
+If you want the QMenu to not close if app route changes or if hitting ESCAPE key or if clicking/tapping outside of the menu, then use `persistent` prop:
+
+<doc-example title="Persistent" file="QMenu/Persistent" />
+
+### Transitions
+
+In the example below there's a few transitions showcased. For a full list of transitions available, go to [Transitions](/options/transitions).
+
+<doc-example title="Transition examples" file="QMenu/Transitions" />
+
+### Reusable
+
+The example below shows how to create a re-usable menu that can be shared with different targets.
+
+<doc-example title="Using target" file="QMenu/Target" />
+
+### Positioning
+
+<doc-example title="Position examples" file="QMenu/Positions" />
+
+The position of QMenu can be customized. It keeps account of the `anchor` and `self` optional props.
+The final position of QMenu popup is calculated so that it will be displayed on the available screen real estate, switching to the right-side and/or top-side when necessary.
+
+<menu-positioning />
+
+## QMenu API
+<doc-api file="QMenu" />

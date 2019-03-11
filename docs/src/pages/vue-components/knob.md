@@ -1,5 +1,7 @@
 ---
 title: Knob
+related:
+  - /vue-components/circular-progress
 ---
 
 The QKnob component is used to take a number input from the user through mouse/touch panning. It is based on [QCircularProgress](/vue-components/circular-progress) and inherits all its properties and behavior.
@@ -9,10 +11,12 @@ The QKnob component is used to take a number input from the user through mouse/t
 
 ## Usage
 By default, QKnob inherits current text color (as arc progress color and inner label color) and current font size (as component size). For customization, you can use the size and color related props.
+
 <doc-example title="Basic" file="QKnob/Basic" />
 
 In the example below, `show-value` property also enables the default slot, so you can fill it with custom content, like even a QAvatar or a QTooltip. The `font-size` prop refers to the inner label font size.
-<doc-example title="Show Value" file="QKnob/ShowValue" />
+
+<doc-example title="Show value" file="QKnob/ShowValue" />
 
 <doc-example title="Custom min/max" file="QKnob/MinMax" />
 
@@ -20,7 +24,7 @@ In the example below, `show-value` property also enables the default slot, so yo
 
 <doc-example title="Offset angle" file="QKnob/Angle" />
 
-<doc-example title="Disable and Read only" file="QKnob/DisableReadonly" />
+<doc-example title="Disable and readonly" file="QKnob/DisableReadonly" />
 
-## API
+## QKnob API
 <doc-api file="QKnob" />

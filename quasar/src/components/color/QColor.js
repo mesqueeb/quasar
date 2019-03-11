@@ -1,7 +1,6 @@
 import Vue from 'vue'
 
 import { testPattern } from '../../utils/patterns.js'
-import { stopAndPrevent } from '../../utils/event.js'
 import throttle from '../../utils/throttle.js'
 import { hexToRgb, rgbToHex, rgbToString, stringToRgb, rgbToHsv, hsvToRgb, luminosity } from '../../utils/colors.js'
 
@@ -12,8 +11,8 @@ import QIcon from '../icon/QIcon.js'
 
 import QTabs from '../tabs/QTabs.js'
 import QTab from '../tabs/QTab.js'
-import QTabPanels from '../tabs/QTabPanels.js'
-import QTabPanel from '../tabs/QTabPanel.js'
+import QTabPanels from '../tab-panels/QTabPanels.js'
+import QTabPanel from '../tab-panels/QTabPanel.js'
 
 const palette = [
   'rgb(255,204,204)', 'rgb(255,230,204)', 'rgb(255,255,204)', 'rgb(204,255,204)', 'rgb(204,255,230)', 'rgb(204,255,255)', 'rgb(204,230,255)', 'rgb(204,204,255)', 'rgb(230,204,255)', 'rgb(255,204,255)',
@@ -48,7 +47,6 @@ export default Vue.extend({
 
     disable: Boolean,
     readonly: Boolean,
-    inline: Boolean,
     dark: Boolean
   },
 
@@ -140,7 +138,7 @@ export default Vue.extend({
 
     spectrumPointerStyle () {
       return {
-        top: `${101 - this.model.v}%`,
+        top: `${100 - this.model.v}%`,
         [this.$q.lang.rtl ? 'right' : 'left']: `${this.model.s}%`
       }
     },
@@ -163,8 +161,7 @@ export default Vue.extend({
       staticClass: 'q-color-picker',
       class: {
         disabled: this.disable,
-        'q-color-picker--dark': this.dark,
-        'inline-block': this.inline
+        'q-color-picker--dark': this.dark
       }
     }, [
       this.__getHeader(h),
@@ -235,7 +232,7 @@ export default Vue.extend({
             h(QIcon, {
               ref: 'errorIcon',
               staticClass: 'q-color-picker__error-icon absolute no-pointer-events',
-              props: { name: this.$q.icon.type.negative }
+              props: { name: this.$q.iconSet.type.negative }
             })
           ])
         ])
@@ -250,7 +247,7 @@ export default Vue.extend({
         }
       }, [
         h(QTabPanel, {
-          staticClass: 'q-pa-sm q-color-picker__spectrum-tab',
+          staticClass: 'q-color-picker__spectrum-tab',
           props: { name: 'spectrum' }
         }, this.__getSpectrumTab(h)),
 
@@ -280,7 +277,7 @@ export default Vue.extend({
       }, [
         h(QTab, {
           props: {
-            icon: this.$q.icon.colorPicker.spectrum,
+            icon: this.$q.iconSet.colorPicker.spectrum,
             name: 'spectrum',
             ripple: false
           }
@@ -288,7 +285,7 @@ export default Vue.extend({
 
         h(QTab, {
           props: {
-            icon: this.$q.icon.colorPicker.tune,
+            icon: this.$q.iconSet.colorPicker.tune,
             name: 'tune',
             ripple: false
           }
@@ -296,7 +293,7 @@ export default Vue.extend({
 
         h(QTab, {
           props: {
-            icon: this.$q.icon.colorPicker.palette,
+            icon: this.$q.iconSet.colorPicker.palette,
             name: 'palette',
             ripple: false
           }
@@ -318,7 +315,11 @@ export default Vue.extend({
             ? [{
               name: 'touch-pan',
               modifiers: {
-                mightPrevent: true
+                prevent: true,
+                stop: true,
+                mouse: true,
+                mousePrevent: true,
+                mouseStop: true
               },
               value: this.__spectrumPan
             }]
@@ -765,44 +766,18 @@ export default Vue.extend({
 
     __spectrumPan (evt) {
       if (evt.isFinal) {
-        this.__dragStop(evt)
-      }
-      else if (evt.isFirst) {
-        this.__dragStart(evt)
+        this.__onSpectrumChange(
+          evt.position.left,
+          evt.position.top,
+          true
+        )
       }
       else {
-        this.__dragMove(evt)
+        this.__spectrumChange(evt)
       }
     },
 
-    __dragStart (event) {
-      stopAndPrevent(event.evt)
-
-      this.spectrumDragging = true
-      this.__spectrumChange(event)
-    },
-
-    __dragMove (event) {
-      if (!this.spectrumDragging) {
-        return
-      }
-      stopAndPrevent(event.evt)
-
-      this.__spectrumChange(event)
-    },
-
-    __dragStop (event) {
-      stopAndPrevent(event.evt)
-      setTimeout(() => {
-        this.spectrumDragging = false
-      }, 100)
-      this.__onSpectrumChange(
-        event.position.left,
-        event.position.top,
-        true
-      )
-    },
-
+    // throttled in created()
     __spectrumChange (evt) {
       this.__onSpectrumChange(
         evt.position.left,
@@ -811,9 +786,6 @@ export default Vue.extend({
     },
 
     __spectrumClick (evt) {
-      if (this.spectrumDragging) {
-        return
-      }
       this.__onSpectrumChange(
         evt.pageX - window.pageXOffset,
         evt.pageY - window.pageYOffset,

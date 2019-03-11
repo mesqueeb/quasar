@@ -1,27 +1,21 @@
 ---
-title: QRating
+title: Rating
 ---
 
 Quasar Rating is a Component which allows users to rate items, usually known as “Star Rating”.
 
 ## Installation
+
 <doc-installation components="QRating" />
 
 ## Usage
+
 <doc-example title="Basic" file="QRating/Basic" />
 
-<doc-example title="Size" file="QRating/Size" />
+<doc-example title="Custom number of stars" file="QRating/Max" />
 
-<doc-example title="Max" file="QRating/Max" />
+<doc-example title="Readonly and disable" file="QRating/ReadonlyDisable" />
 
-<doc-example title="Color" file="QRating/Color" />
+## QRating API
 
-<doc-example title="Icon" file="QRating/Icon" />
-
-<doc-example title="Read Only" file="QRating/ReadOnly" />
-
-<doc-example title="Disable" file="QRating/Disable" />
-
-
-## API
 <doc-api file="QRating" />

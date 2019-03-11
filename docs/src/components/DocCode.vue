@@ -1,14 +1,11 @@
 <template lang="pug">
-.doc-code.relative-position
+div
   code-prism(:lang="lang")
     slot
 
-  .absolute(
-    v-if="copy"
-    style="top: 8px; right: 8px;"
-  )
+  .absolute(style="top: 8px; right: 8px;")
     q-btn(
-      color="white"
+      color="primary"
       round
       dense
       flat
@@ -17,21 +14,13 @@
     )
       q-tooltip Copy to Clipboard
 
-  .absolute(
-    v-else
-    class="text-grey"
-    style="top: 8px; right: 8px;"
-  ) {{ lang }}
-
   transition(
-    v-if="copy"
     enter-active-class="animated fadeIn"
     leave-active-class="animated fadeOut"
   )
-    .absolute(
+    q-badge.absolute(
       v-show="copied"
-      class="text-white"
-      style="top: 18px; right: 58px;"
+      style="top: 16px; right: 58px;"
     ) Copied to clipboard
 </template>
 
@@ -49,8 +38,7 @@ export default {
     lang: {
       type: String,
       default: 'js'
-    },
-    copy: Boolean
+    }
   },
 
   data: () => ({ copied: false }),
@@ -90,18 +78,3 @@ export default {
   }
 }
 </script>
-
-<style lang="stylus">
-@import '~quasar-variables'
-
-.doc-code
-  font-size 12px
-  margin 16px 0
-
-  > pre
-    border-radius $generic-border-radius !important
-    margin 0 !important
-
-.q-tab-panel .doc-code
-  margin 0
-</style>

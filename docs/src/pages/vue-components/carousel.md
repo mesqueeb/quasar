@@ -1,83 +1,53 @@
 ---
-title: Docs
+title: Carousel
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
-
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
-
-::: tip
-Some tip
-:::
-
-::: warning
-Some tip
-:::
-
-::: danger
-Some tip
-:::
-
-::: warning CUSTOM TITLE
-Some tip
-:::
-
-* Something
-  * something
-  * else
-* Back
-  * wee
+The QCarousel component allows you to display more information with less real estate, using slides. Useful for creating Wizards too.
 
 ## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+<doc-installation :components="['QCarousel', 'QCarouselControl', 'QCarouselSlide']" />
 
 ## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
+Below is an almost stripped down basic Carousel (it is just animated and only has custom transitions specified) with no navigation embedded. For this reason, we are controlling the current slide through the model.
 
-## API
-<doc-api file="QTh" />
+<doc-example title="Basic" file="QCarousel/Basic" />
+
+::: tip
+In the example below there are just a few transitions demoed. For a complete list of transitions, head to the [Transitions](/options/transitions) page.
+:::
+
+<doc-example title="Transitions, bottom navigation, arrows and auto padding" file="QCarousel/Transitions" />
+
+::: tip
+In the examples above, you can also swipe with your finger (or swiping with the mouse -- clicking and quickly dragging to left/right then releasing).
+:::
+
+### Media content
+<doc-example title="Image slides" file="QCarousel/ImageSlides" />
+
+<doc-example title="Captions" file="QCarousel/Captions" />
+
+<doc-example title="Video slides" file="QCarousel/VideoSlides" />
+
+In the example below there are thumbnails being generated automatically. Thumbnails only applies to image slides.
+
+<doc-example title="Thumbnails" file="QCarousel/Thumbnails" />
+
+::: tip
+Don't use the property `navigation` with `thumbnails` as it supercedes and thumbnails will not be displayed.
+:::
+
+### Infinite and autoplay
+<doc-example title="Autoplay" file="QCarousel/InfiniteAutoplay" />
+
+### Controls
+<doc-example title="Controls" file="QCarousel/Controls" />
+
+## QCarousel API
+<doc-api file="QCarousel" />
+
+## QCarouselControl API
+<doc-api file="QCarouselControl" />
+
+## QCarouselSlide API
+<doc-api file="QCarouselSlide" />

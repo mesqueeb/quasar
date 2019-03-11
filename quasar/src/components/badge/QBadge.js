@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QBadge',
 
@@ -37,7 +39,8 @@ export default Vue.extend({
   render (h) {
     return h('div', {
       style: this.style,
-      class: this.classes
-    }, this.label !== void 0 ? [ this.label ] : this.$slots.default)
+      class: this.classes,
+      on: this.$listeners
+    }, this.label !== void 0 ? [ this.label ] : slot(this, 'default'))
   }
 })

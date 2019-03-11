@@ -1,83 +1,44 @@
 ---
-title: Docs
+title: Card
+related:
+  - /vue-components/separator
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
+The QCard component is a great way to display important pieces of grouped content. This pattern is quickly emerging as a core design pattern for Apps, website previews and email content. It assists the viewer by containing and organizing information, while also setting up predictable expectations.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
+With so much content to display at once, and often so little screen real-estate, Cards have fast become the design pattern of choice for many companies, including the likes of Google and Twitter.
 
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
-
-::: tip
-Some tip
-:::
-
-::: warning
-Some tip
-:::
-
-::: danger
-Some tip
-:::
-
-::: warning CUSTOM TITLE
-Some tip
-:::
-
-* Something
-  * something
-  * else
-* Back
-  * wee
+The QCard component is intentionally lightweight and essentially a containing element that is capable of "hosting" any other component that is appropriate.
 
 ## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+<doc-installation :components="['QCard', 'QCardSection', 'QCardActions']" />
 
 ## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
+<doc-example title="Basic cards" file="QCard/Basic" />
 
-## API
-<doc-api file="QTh" />
+### With actions
+<doc-example title="Cards with actions" file="QCard/Actions" />
+
+### Media content
+<doc-example title="Cards with media content" file="QCard/Media" />
+
+<doc-example title="Card with video" file="QCard/Video" />
+
+<doc-example title="Card with parallax" file="QCard/Parallax" />
+
+### Various content
+<doc-example title="Various content" file="QCard/VariousContent" />
+
+<doc-example title="Table" file="QCard/Table" />
+
+<doc-example title="Tabs" file="QCard/Tabs" />
+
+## QCard API
+<doc-api file="QCard" />
+
+## QCardSection API
+<doc-api file="QCardSection" />
+
+## QCardActions API
+<doc-api file="QCardActions" />
+

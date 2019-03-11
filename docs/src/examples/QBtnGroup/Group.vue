@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md q-gutter-md column items-start">
+  <div class="q-pa-md q-gutter-y-md column items-start">
     <q-btn-group push>
       <q-btn push label="First" icon="timeline" />
       <q-btn push label="Second" icon="visibility" />
@@ -26,9 +26,9 @@
     </q-btn-group>
 
     <q-btn-group>
-      <q-btn color="tertiary" icon="timeline" />
-      <q-btn color="tertiary" icon="visibility" />
-      <q-btn color="tertiary" icon="update" />
+      <q-btn color="accent" icon="timeline" />
+      <q-btn color="accent" icon="visibility" />
+      <q-btn color="accent" icon="update" />
     </q-btn-group>
 
     <q-btn-group rounded>

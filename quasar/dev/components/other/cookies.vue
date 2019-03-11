@@ -5,14 +5,18 @@
     <q-btn label="Set Cookie B" no-caps @click="add('b')" color="secondary" class="q-ma-sm" />
     <q-btn label="DEL Cookie B" no-caps @click="del('b')" color="secondary" class="q-ma-sm" />
     <br>
-    <q-btn label="Refresh" no-caps @click="refresh" color="tertiary" class="q-ma-sm" />
-    <q-btn label="DEL ssr_cookie" no-caps @click="del('ssr_cookie')" color="tertiary" class="q-ma-sm" />
+    <q-btn label="Refresh" no-caps @click="refresh" color="accent" class="q-ma-sm" />
+    <q-btn label="DEL ssr_cookie" no-caps @click="del('ssr_cookie')" color="accent" class="q-ma-sm" />
     <br><br>
     <table class="q-table striped" style="width: 400px">
       <thead>
         <tr>
-          <th class="text-left">Cookie Name</th>
-          <th class="text-left">Value</th>
+          <th class="text-left">
+            Cookie Name
+          </th>
+          <th class="text-left">
+            Value
+          </th>
         </tr>
       </thead>
 
@@ -30,12 +34,12 @@
 export default {
   data () {
     return {
-      cookies: this.$q.cookies.all()
+      cookies: this.$q.cookies.getAll()
     }
   },
   methods: {
     refresh () {
-      this.cookies = this.$q.cookies.all()
+      this.cookies = this.$q.cookies.getAll()
     },
     add (name) {
       this.$q.cookies.set(name, 'val')

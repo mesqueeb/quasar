@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QCarouselControl',
 
@@ -29,7 +31,8 @@ export default Vue.extend({
     return h('div', {
       staticClass: 'q-carousel__control absolute',
       style: this.style,
-      class: this.classes
-    }, this.$slots.default)
+      class: this.classes,
+      on: this.$listeners
+    }, slot(this, 'default'))
   }
 })

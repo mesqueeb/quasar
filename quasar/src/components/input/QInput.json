@@ -1,5 +1,11 @@
 {
-  "mixins": [ "components/field/QField", "mixins/mask" ],
+  "mixins": [ "components/field/__QField", "mixins/mask" ],
+
+  "behavior": {
+    "$listeners": {
+      "target": "to the inner native input element"
+    }
+  },
 
   "props": {
     "value": {
@@ -14,9 +20,8 @@
       "desc": "Input type",
       "default": "text",
       "values": [
-        "text", "textarea", "email", "search",
-        "tel", "file", "number",
-        "password", "url", "time", "date"
+        "text", "password", "textarea", "email", "search",
+        "tel", "file", "number", "url", "time", "date"
       ],
       "examples": [ "password" ]
     },
@@ -103,6 +108,10 @@
   "methods": {
     "focus": {
       "desc": "Focus underlying input tag"
+    },
+
+    "blur": {
+      "desc": "Lose focus on underlying input tag"
     }
   }
 }

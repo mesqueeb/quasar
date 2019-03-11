@@ -1,4 +1,8 @@
 {
+  "behavior": {
+    "$listeners": true
+  },
+
   "props": {
     "heading": {
       "type": "Boolean",
@@ -14,10 +18,9 @@
 
     "side": {
       "type": "String",
-      "desc": "Side to place the timeline entry",
+      "desc": "Side to place the timeline entry; Works only if QTimeline layout is loose.",
       "default": "right",
-      "values": [ "left", "right" ],
-      "examples": [ "left" ]
+      "values": [ "left", "right" ]
     },
 
     "icon": {

@@ -4,6 +4,8 @@ import uid from '../../utils/uid.js'
 import QIcon from '../icon/QIcon.js'
 import RippleMixin from '../../mixins/ripple.js'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QTab',
 
@@ -22,12 +24,14 @@ export default Vue.extend({
     icon: String,
     label: [Number, String],
 
-    alert: Boolean,
+    alert: [Boolean, String],
 
     name: {
       type: [Number, String],
       default: () => uid()
     },
+
+    noCaps: Boolean,
 
     tabindex: String,
     disable: Boolean
@@ -44,7 +48,7 @@ export default Vue.extend({
         [`text-${this.tabs.activeColor}`]: this.isActive && this.tabs.activeColor,
         [`bg-${this.tabs.activeBgColor}`]: this.isActive && this.tabs.activeBgColor,
         'q-tab--full': this.icon && this.label && !this.tabs.inlineLabel,
-        'q-tab--no-caps': this.tabs.noCaps,
+        'q-tab--no-caps': this.noCaps === true || this.tabs.noCaps === true,
         'q-focusable q-hoverable cursor-pointer': !this.disable,
         disabled: this.disable
       }
@@ -57,7 +61,7 @@ export default Vue.extend({
 
   methods: {
     activate (e) {
-      this.$emit('click', e)
+      this.$listeners.click !== void 0 && this.$emit('click', e)
       !this.disable && this.__activateTab(this.name)
       this.$el.blur()
     },
@@ -75,17 +79,18 @@ export default Vue.extend({
           class: this.tabs.indicatorClass
         })
 
-      this.icon && content.push(h(QIcon, {
+      this.icon !== void 0 && content.push(h(QIcon, {
         staticClass: 'q-tab__icon',
         props: { name: this.icon }
       }))
 
-      this.label && content.push(h('div', {
+      this.label !== void 0 && content.push(h('div', {
         staticClass: 'q-tab__label'
       }, [ this.label ]))
 
-      this.alert && content.push(h('div', {
-        staticClass: 'q-tab__alert'
+      this.alert !== false && content.push(h('div', {
+        staticClass: 'q-tab__alert',
+        class: this.alert !== true ? `text-${this.alert}` : null
       }))
 
       narrow && content.push(indicator)
@@ -95,8 +100,8 @@ export default Vue.extend({
 
         h('div', {
           staticClass: 'q-tab__content flex-center relative-position no-pointer-events non-selectable',
-          class: this.tabs.inlineLabel ? 'row no-wrap q-tab__content--inline' : 'column'
-        }, content.concat(this.$slots.default))
+          class: this.tabs.inlineLabel === true ? 'row no-wrap q-tab__content--inline' : 'column'
+        }, content.concat(slot(this, 'default')))
       ]
 
       !narrow && node.push(indicator)
@@ -106,20 +111,27 @@ export default Vue.extend({
 
     __render (h, tag, props) {
       const data = {
-        staticClass: 'q-tab relative-position self-stretch flex nowrap justify-center text-center generic-transition',
+        staticClass: 'q-tab relative-position self-stretch flex justify-center text-center',
         class: this.classes,
         attrs: {
           tabindex: this.computedTabIndex,
           role: 'tab',
           'aria-selected': this.isActive
         },
-        directives: this.ripple !== false && this.disable ? null : [
+        directives: this.ripple !== false && this.disable === true ? null : [
           { name: 'ripple', value: this.ripple }
-        ],
-        [tag === 'div' ? 'on' : 'nativeOn']: {
+        ]
+      }
+
+      if (tag === 'div') {
+        data.on = {
+          ...this.$listeners,
           click: this.activate,
           keyup: this.__onKeyup
         }
+      }
+      else {
+        data.nativeOn = this.$listeners
       }
 
       if (props !== void 0) {

@@ -10,6 +10,7 @@ import QSeparator from '../separator/QSeparator.js'
 import { RouterLinkMixin } from '../../mixins/router-link.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
 import { stopAndPrevent } from '../../utils/event.js'
+import slot from '../../utils/slot.js'
 
 const eventName = 'q:expansion-item:close'
 
@@ -20,12 +21,18 @@ export default Vue.extend({
 
   props: {
     icon: String,
+
     label: String,
+    labelLines: [ Number, String ],
+
     caption: String,
+    captionLines: [ Number, String ],
+
     dark: Boolean,
     dense: Boolean,
 
     expandIcon: String,
+    expandIconClass: String,
     duration: Number,
 
     headerInsetLevel: Number,
@@ -68,11 +75,11 @@ export default Vue.extend({
     },
 
     isClickable () {
-      return this.hasRouterLink || !this.expandIconToggle
+      return this.hasRouterLink === true || this.expandIconToggle !== true
     },
 
     expansionIcon () {
-      return this.expandIcon || (this.denseToggle ? this.$q.icon.expansionItem.denseIcon : this.$q.icon.expansionItem.icon)
+      return this.expandIcon || (this.denseToggle ? this.$q.iconSet.expansionItem.denseIcon : this.$q.iconSet.expansionItem.icon)
     }
   },
 
@@ -82,7 +89,7 @@ export default Vue.extend({
     },
 
     __toggleIcon (e) {
-      if (this.hasRouterLink || this.expandIconToggle) {
+      if (this.hasRouterLink === true || this.expandIconToggle === true) {
         stopAndPrevent(e)
         this.$refs.item.$el.blur()
         this.toggle(e)
@@ -98,6 +105,7 @@ export default Vue.extend({
     __getToggleIcon (h) {
       return h(QItemSection, {
         staticClass: `cursor-pointer${this.denseToggle === true && this.switchToggleSide === true ? ' items-end' : ''}`,
+        class: this.expandIconClass,
         props: {
           side: this.switchToggleSide !== true,
           avatar: this.switchToggleSide === true
@@ -107,7 +115,7 @@ export default Vue.extend({
         }
       }, [
         h(QIcon, {
-          staticClass: 'generic-transition',
+          staticClass: 'q-expansion-item__toggle-icon',
           class: {
             'rotate-180': this.showing,
             invisible: this.disable
@@ -122,15 +130,20 @@ export default Vue.extend({
     __getHeader (h) {
       let child
 
-      if (this.$slots.header) {
-        child = [].concat(this.$slots.header)
+      if (this.$scopedSlots.header !== void 0) {
+        child = [].concat(this.$scopedSlots.header())
       }
       else {
         child = [
           h(QItemSection, [
-            h(QItemLabel, [ this.label || '' ]),
+            h(QItemLabel, {
+              props: { lines: this.labelLines }
+            }, [ this.label || '' ]),
+
             this.caption
-              ? h(QItemLabel, { props: { caption: true } }, [ this.caption ])
+              ? h(QItemLabel, {
+                props: { lines: this.captionLines, caption: true }
+              }, [ this.caption ])
               : null
           ])
         ]
@@ -169,7 +182,7 @@ export default Vue.extend({
           click: this.__toggleItem
         }
 
-        this.hasRouterLink && Object.assign(
+        this.hasRouterLink === true && Object.assign(
           data.props,
           this.routerLinkProps
         )
@@ -189,7 +202,7 @@ export default Vue.extend({
             staticClass: 'q-expansion-item__content relative-position',
             style: this.contentStyle,
             directives: [{ name: 'show', value: this.showing }]
-          }, this.$slots.default)
+          }, slot(this, 'default'))
         ])
       ]
 

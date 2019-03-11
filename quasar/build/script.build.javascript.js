@@ -30,6 +30,21 @@ const builds = [
   {
     rollup: {
       input: {
+        input: resolve(`src/index.common.js`)
+      },
+      output: {
+        file: resolve(`dist/quasar.common.js`),
+        format: 'cjs'
+      }
+    },
+    build: {
+      minified: true,
+      minExt: false
+    }
+  },
+  {
+    rollup: {
+      input: {
         input: resolve('src/ie-compat/ie.js')
       },
       output: {
@@ -68,8 +83,8 @@ const builds = [
   }
 ]
 
-addAssets(builds, 'lang')
-addAssets(builds, 'icons')
+addAssets(builds, 'lang', 'lang')
+addAssets(builds, 'icon-set', 'iconSet')
 
 require('./build.transforms').generate()
 require('./build.api').generate()
@@ -87,7 +102,7 @@ function resolve (_path) {
   return path.resolve(__dirname, '..', _path)
 }
 
-function addAssets (builds, type) {
+function addAssets (builds, type, injectName) {
   const
     files = fs.readdirSync(resolve(type)),
     plugins = [ buble(bubleConfig) ]
@@ -105,7 +120,7 @@ function addAssets (builds, type) {
           output: {
             file: addExtension(resolve(`dist/${type}/${file}`), 'umd'),
             format: 'umd',
-            name: `Quasar.${type}.${name}`
+            name: `Quasar.${injectName}.${name}`
           }
         },
         build: {
@@ -153,10 +168,10 @@ function buildEntry (config) {
   return rollup
     .rollup(config.rollup.input)
     .then(bundle => bundle.generate(config.rollup.output))
-    .then(({ code }) => {
+    .then(({ output }) => {
       return config.build.unminified
-        ? buildUtils.writeFile(config.rollup.output.file, code)
-        : code
+        ? buildUtils.writeFile(config.rollup.output.file, output[0].code)
+        : output[0].code
     })
     .then(code => {
       if (!config.build.minified) {

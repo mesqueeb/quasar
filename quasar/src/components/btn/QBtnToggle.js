@@ -44,6 +44,8 @@ export default Vue.extend({
     stack: Boolean,
     stretch: Boolean,
 
+    spread: Boolean,
+
     ripple: {
       type: [Boolean, Object],
       default: true
@@ -58,7 +60,7 @@ export default Vue.extend({
 
   methods: {
     set (value, opt) {
-      if (!this.readonly && value !== this.value) {
+      if (this.readonly === false && value !== this.value) {
         this.$emit('input', value, opt)
       }
     }
@@ -74,8 +76,10 @@ export default Vue.extend({
         push: this.push,
         stretch: this.stretch,
         unelevated: this.unelevated,
-        glossy: this.glossy
-      }
+        glossy: this.glossy,
+        spread: this.spread
+      },
+      on: this.$listeners
     },
     this.options.map(
       (opt, i) => h(QBtn, {
@@ -89,8 +93,8 @@ export default Vue.extend({
           textColor: this.val[i] ? opt.toggleTextColor || this.toggleTextColor : opt.textColor || this.textColor,
           icon: opt.icon,
           iconRight: opt.iconRight,
-          noCaps: this.noCaps || opt.noCaps,
-          noWrap: this.noWrap || opt.noWrap,
+          noCaps: this.noCaps === true || opt.noCaps === true,
+          noWrap: this.noWrap === true || opt.noWrap === true,
           outline: this.outline,
           flat: this.flat,
           rounded: this.rounded,
@@ -99,7 +103,7 @@ export default Vue.extend({
           size: this.size,
           dense: this.dense,
           ripple: this.ripple || opt.ripple,
-          stack: this.stack || opt.stack,
+          stack: this.stack === true || opt.stack === true,
           tabindex: opt.tabindex,
           stretch: this.stretch
         }

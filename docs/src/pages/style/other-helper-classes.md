@@ -15,6 +15,9 @@ The list below is not complete. Also check the other CSS documentation pages lik
 | `no-pointer-events` | DOM element does not become a target of mouse events - clicks, hover and so on |
 | `all-pointer-events` | The opposite of `no-pointer-events` |
 | `cursor-pointer` | Change mouse pointer on DOM element to look as if on a clickable link |
+| `cursor-not-allowed` | Change mouse pointer on DOM element to look as if action will not be carried out |
+| `cursor-inherit` | Change mouse pointer on DOM element to look as the same as parent option |
+| `cursor-none` | No mouse cursor is rendered |
 
 ## Size Related
 | Class Name | Description |
@@ -44,5 +47,5 @@ The list below is not complete. Also check the other CSS documentation pages lik
 | --- | --- |
 | `no-border` | Removes any border |
 | `no-border-radius` | Removes any radius the border might have |
-| `generic-border-radius` | Applies a generic border radius based on theme |
+| `rounded-borders` | Applies a generic border radius |
 

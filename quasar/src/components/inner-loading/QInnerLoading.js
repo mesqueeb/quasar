@@ -21,21 +21,24 @@ export default Vue.extend({
   },
 
   render (h) {
-    const content = this.$slots.default || [
-      h(QSpinner, {
-        props: {
-          size: this.size,
-          color: this.color
-        }
-      })
-    ]
+    const content = this.$scopedSlots.default !== void 0
+      ? this.$scopedSlots.default()
+      : [
+        h(QSpinner, {
+          props: {
+            size: this.size,
+            color: this.color
+          }
+        })
+      ]
 
     return h('transition', {
       props: { name: this.transition }
     }, [
       this.showing === true ? h('div', {
         staticClass: 'q-inner-loading absolute-full column flex-center',
-        class: this.dark ? 'q-inner-loading--dark' : null
+        class: this.dark ? 'q-inner-loading--dark' : null,
+        on: this.$listeners
       }, content) : null
     ])
   }

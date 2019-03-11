@@ -1,5 +1,5 @@
 .q-card
-  box-shadow $card-shadow
+  box-shadow $shadow-2
   border-radius $generic-border-radius
   vertical-align top
   background white
@@ -45,11 +45,19 @@
       padding 0 8px
 
     &--horiz
-      .q-btn-item + .q-btn-item
+      > .q-btn-item + .q-btn-item
+      > .q-btn-group + .q-btn-item
+      > .q-btn-item + .q-btn-group
         margin-left 8px
     &--vert
-      .q-btn-item + .q-btn-item
+      > .q-btn-item + .q-btn-item
+      > .q-btn-group + .q-btn-item
+      > .q-btn-item + .q-btn-group
         margin-top 4px
+
+      > .q-btn-group > .q-btn-item
+        flex-grow 1
+
 
   &__section + &__section
     padding-top 0

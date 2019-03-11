@@ -131,7 +131,7 @@ function remove (key, options, ssr) {
   set(
     key,
     '',
-    Object.assign({}, options, { expires: -1 }),
+    { ...options, expires: -1 },
     ssr
   )
 }
@@ -148,7 +148,7 @@ export function getObject (ctx = {}) {
     set: (key, val, opts) => set(key, val, opts, ssr),
     has: key => has(key, ssr),
     remove: (key, options) => remove(key, options, ssr),
-    all: () => get(null, ssr)
+    getAll: () => get(null, ssr)
   }
 }
 

@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QItemSection',
 
@@ -21,7 +23,7 @@ export default Vue.extend({
         'q-item__section--thumbnail': this.thumbnail,
         'q-item__section--side': side,
         'q-item__section--nowrap': this.noWrap,
-        [`q-item__section--main col`]: !side,
+        'q-item__section--main': !side,
         [`justify-${this.top ? 'start' : 'center'}`]: true
       }
     }
@@ -30,7 +32,8 @@ export default Vue.extend({
   render (h) {
     return h('div', {
       staticClass: 'q-item__section column',
-      class: this.classes
-    }, this.$slots.default)
+      class: this.classes,
+      on: this.$listeners
+    }, slot(this, 'default'))
   }
 })

@@ -7,9 +7,11 @@ import TransitionMixin from '../../mixins/transition.js'
 
 import ClickOutside from './ClickOutside.js'
 import { getScrollTarget } from '../../utils/scroll.js'
-import { position, listenOpts } from '../../utils/event.js'
+import { stop, position, listenOpts } from '../../utils/event.js'
 import EscapeKey from '../../utils/escape-key.js'
 import { MenuTreeMixin, closeRootMenu } from './menu-tree.js'
+
+import slot from '../../utils/slot.js'
 
 import {
   validatePosition, validateOffset, setPosition, parsePosition
@@ -46,8 +48,6 @@ export default Vue.extend({
     persistent: Boolean,
     autoClose: Boolean,
 
-    contentClass: [Array, String, Object],
-    contentStyle: [Array, String, Object],
     maxHeight: {
       type: String,
       default: null
@@ -172,6 +172,13 @@ export default Vue.extend({
     updatePosition () {
       const el = this.__portal.$el
 
+      if (el.nodeType === 8) { // IE replaces the comment with delay
+        setTimeout(() => {
+          this.__portal !== void 0 && this.__portal.showing === true && this.updatePosition()
+        }, 25)
+        return
+      }
+
       el.style.maxHeight = this.maxHeight
       el.style.maxWidth = this.maxWidth
 
@@ -188,6 +195,15 @@ export default Vue.extend({
     },
 
     __render (h) {
+      const on = {
+        ...this.$listeners,
+        input: stop
+      }
+
+      if (this.autoClose === true) {
+        on.click = this.__onAutoClose
+      }
+
       return h('transition', {
         props: { name: this.transition }
       }, [
@@ -196,16 +212,13 @@ export default Vue.extend({
           class: this.contentClass,
           style: this.contentStyle,
           attrs: this.$attrs,
-          on: this.autoClose === true ? {
-            click: this.__onAutoClose,
-            ...this.$listeners
-          } : this.$listeners,
+          on,
           directives: this.persistent !== true ? [{
             name: 'click-outside',
             value: this.hide,
             arg: [ this.anchorEl ]
           }] : null
-        }, this.$slots.default) : null
+        }, slot(this, 'default')) : null
       ])
     }
   }

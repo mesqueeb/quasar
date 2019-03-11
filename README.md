@@ -1,14 +1,18 @@
-![Quasar Framework logo](https://cdn.rawgit.com/quasarframework/quasar-art/863c14bd/dist/svg/quasar-logo-full-inline.svg)
+![Quasar Framework logo](https://cdn.quasar-framework.org/logo/svg/quasar-logo-full-inline.svg)
 
-# Quasar Framework (v1.0 coming soon!)
+# Quasar Framework
 
 > Build responsive Single Page Apps, **SSR Apps**, PWAs, Hybrid Mobile Apps and Electron Apps, all using the same codebase!, powered with Vue.
 
 <a href="https://badge.fury.io/js/quasar-framework" target="_blank"><img src="https://badge.fury.io/js/quasar-framework.svg"></a>
+<a href="https://badge.fury.io/js/quasar" target="_blank"><img src="https://badge.fury.io/js/quasar.svg"></a>
 [![Join the chat at https://discord.gg/5TDhbDg](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/5TDhbDg)
 <a href="http://forum.quasar-framework.org" target="_blank"><img src="https://img.shields.io/badge/community-forum-brightgreen.svg"></a>
 
 Please submit a PR to https://github.com/quasarframework/quasar-awesome with your website/app/Quasar tutorial/video etc. Thank you!
+
+## v1 beta is available!
+https://v1.quasar-framework.org
 
 ## Supporting Quasar
 Quasar Framework is an MIT-licensed open source project. Its ongoing development is made possible thanks to the support by these awesome [backers](https://github.com/rstoenescu/quasar-framework/blob/dev/backers.md). If you'd like to join them, check out [Quasar Framework's Patreon campaign](https://www.patreon.com/quasarframework).
@@ -20,12 +24,12 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a>
-          <img width="300px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/291ffbcac39f6a98dd8bf526c1c58188152a571b/think-health-data.png">
+          <img width="300px" src="https://cdn.quasar-framework.org/sponsors/think-health-data.png">
         </a>
       </td>
       <td align="center" valign="middle">
         <a href="https://truelogic.com" target="_blank">
-          <img width="300px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/truelogic.png">
+          <img width="300px" src="https://cdn.quasar-framework.org/sponsors/truelogic.png">
         </a>
       </td>
     </tr>
@@ -33,12 +37,12 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a href="https://www.tayloredtechnology.net" target="_blank">
-          <img width="300px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/taylored-technology-big.jpeg">
+          <img width="300px" src="https://cdn.quasar-framework.org/sponsors/taylored-technology-big.jpeg">
         </a>
       </td>
       <td align="center" valign="middle">
         <a href="http://campuscloudservices.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/campus-cloud-services.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/campus-cloud-services.png">
         </a>
       </td>
     </tr>
@@ -46,12 +50,12 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a href="https://www.jugglestreet.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/juggle-street.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/juggle-street.png">
         </a>
       </td>
       <td align="center" valign="middle">
         <a href="http://comcomservices.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/com-com-services.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/com-com-services.png">
         </a>
       </td>
     </tr>
@@ -59,12 +63,12 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a href="http://www.kalisio.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/kalisio.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/kalisio.png">
         </a>
       </td>
       <td align="center" valign="middle">
         <a href="http://platformpurple.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/platform-purple.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/platform-purple.png">
         </a>
       </td>
     </tr>
@@ -72,12 +76,20 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a href="http://www.bgasoft.com" target="_blank">
-          <img width="222px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/bgasoft.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/bgasoft.png">
         </a>
       </td>
       <td align="center" valign="middle">
         <a href="https://www.letsbutterfly.com/" target="_blank">
-          <img width="170px" src="https://rawcdn.githack.com/rstoenescu/quasar-backers-logo/feabde879e18a333c6b0f482f1acc8b4b69c14b2/letsbutterfly.png">
+          <img width="170px" src="https://cdn.quasar-framework.org/sponsors/letsbutterfly.png">
+        </a>
+      </td>
+    </tr>
+    <tr></tr>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://www.projectfinance.io/" target="_blank">
+          <img width="222px" height="150px" src="https://cdn.quasar-framework.org/sponsors/project-finance.png">
         </a>
       </td>
     </tr>
@@ -91,7 +103,20 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
     <tr>
       <td align="center" valign="middle">
         <a href="https://utopian.io" target="_blank">
-          <img width="222px" src="https://cdn.rawgit.com/rstoenescu/quasar-backers-logo/41e5204e/utopian.png">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/utopian.png">
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://wallabyjs.com/" target="_blank">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/wallaby.png">
+        </a>
+      </td>
+    </tr>
+    <tr></tr>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://snyk.io/" target="_blank">
+          <img width="222px" src="https://cdn.quasar-framework.org/sponsors/snyk.png">
         </a>
       </td>
     </tr>
@@ -100,7 +125,7 @@ Quasar Framework is an MIT-licensed open source project. Its ongoing development
 
 ## Documentation
 
-Head on to the Quasar Framework official website: [https://quasar-framework.org](https://quasar-framework.org)
+Head on to the Quasar Framework official website: [https://v1.quasar-framework.org](https://v1.quasar-framework.org)
 
 ## Stay in Touch
 
@@ -132,13 +157,11 @@ I'm excited if you want to contribute to Quasar under any form (report bugs, wri
 
 - If your issue is resolved but still open, don’t hesitate to close it. In case you found a solution by yourself, it could be helpful to explain how you fixed it.
 
-Read more [here](https://quasar-framework.org/guide/quasar-contribution-guide.html).
-
 ## Semver
-Until Quasar reaches a 1.0 release (soon), breaking changes will be released with a new minor version. For example 0.8.1, and 0.8.4 will have the same API, but 0.9.0 will have breaking changes.
+Quasar is following [Semantic Versioning 2.0](https://semver.org/).
 
 ## License
 
-Copyright (c) 2016-present Razvan Stoenescu
+Copyright (c) 2015-present Razvan Stoenescu
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)

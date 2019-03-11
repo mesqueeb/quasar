@@ -4,6 +4,7 @@ import QScrollObserver from '../observer/QScrollObserver.js'
 import QResizeObserver from '../observer/QResizeObserver.js'
 import { onSSR } from '../../plugins/Platform.js'
 import { getScrollbarWidth } from '../../utils/scroll.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QLayout',
@@ -26,12 +27,12 @@ export default Vue.extend({
   data () {
     return {
       // page related
-      height: onSSR ? 0 : window.innerHeight,
-      width: onSSR || this.container ? 0 : window.innerWidth,
+      height: onSSR === true ? 0 : window.innerHeight,
+      width: onSSR === true || this.container === true ? 0 : window.innerWidth,
 
       // container only prop
       containerHeight: 0,
-      scrollbarWidth: onSSR ? 0 : getScrollbarWidth(),
+      scrollbarWidth: onSSR === true ? 0 : getScrollbarWidth(),
 
       header: {
         size: 0,
@@ -74,15 +75,15 @@ export default Vue.extend({
     // used by container only
     targetStyle () {
       if (this.scrollbarWidth !== 0) {
-        return { [this.$q.lang.rtl ? 'left' : 'right']: `${this.scrollbarWidth}px` }
+        return { [this.$q.lang.rtl === true ? 'left' : 'right']: `${this.scrollbarWidth}px` }
       }
     },
 
     targetChildStyle () {
       if (this.scrollbarWidth !== 0) {
         return {
-          [this.$q.lang.rtl ? 'right' : 'left']: 0,
-          [this.$q.lang.rtl ? 'left' : 'right']: `-${this.scrollbarWidth}px`,
+          [this.$q.lang.rtl === true ? 'right' : 'left']: 0,
+          [this.$q.lang.rtl === true ? 'left' : 'right']: `-${this.scrollbarWidth}px`,
           width: `calc(100% + ${this.scrollbarWidth}px)`
         }
       }
@@ -90,12 +91,7 @@ export default Vue.extend({
   },
 
   created () {
-    this.instances = {
-      header: null,
-      right: null,
-      footer: null,
-      left: null
-    }
+    this.instances = {}
   },
 
   render (h) {
@@ -106,10 +102,10 @@ export default Vue.extend({
       h(QResizeObserver, {
         on: { resize: this.__onPageResize }
       }),
-      this.$slots.default
+      slot(this, 'default')
     ])
 
-    return this.container
+    return this.container === true
       ? h('div', {
         staticClass: 'q-layout-container relative-position overflow-hidden'
       }, [
@@ -131,7 +127,7 @@ export default Vue.extend({
 
   methods: {
     __animate () {
-      if (this.timer) {
+      if (this.timer !== void 0) {
         clearTimeout(this.timer)
       }
       else {
@@ -139,7 +135,7 @@ export default Vue.extend({
       }
       this.timer = setTimeout(() => {
         document.body.classList.remove('q-body--layout-animate')
-        this.timer = null
+        this.timer = void 0
       }, 150)
     },
 

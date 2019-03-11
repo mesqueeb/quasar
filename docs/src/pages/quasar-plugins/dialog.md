@@ -1,5 +1,8 @@
 ---
 title: Dialog Plugin
+related:
+  - /vue-components/dialog
+  - /quasar-plugins/bottom-sheet
 ---
 
 Quasar Dialogs are a great way to offer the user the ability to choose a specific action or list of actions. They also can provide the user with important information, or require them to make a decision (or multiple decisions).
@@ -10,7 +13,16 @@ From a UI perspective, you can think of Dialogs as a type of floating modal, whi
 Dialogs can also be used as a component in your Vue file templates (for complex use-cases, like specific form components with validation, selectable options, etc.). For this, go to [QDialog](/vue-components/dialog) page.
 :::
 
-The advantage of using Dialogs as Quasar Plugins as opposed to as Components is that the plugin can also be called from outside of Vue space and doesn't requires you to manage their templates. But as a result, their customization cannot be compared to their component counterpart.
+The advantage of using Dialogs as Quasar Plugins as opposed to Components is that the plugin can also be called from outside of Vue space and doesn't requires you to manage their templates. But as a result, their customization cannot be compared to their component counterpart.
+
+With the QDialog plugin, you can programmatically build three types of dialogs with the following form content: 
+ 1. A prompt dialog - asking the user to fill in some sort of data in an input field. 
+ 2. A set of options for the user to select from using either radio buttons or toggles (singular selection only) or check boxes (for multiple selections). 
+ 3. A simple confirmation dialog, where the user can cancel or give her "ok" for a particular action or input.
+ 
+In order to create #1, the prompting input form, you have the `prompt` property within the `opts` object.
+
+In order to create #2, the options selection form, you have the `options` property within the `opts` object. 
 
 ## Installation
 <doc-installation plugins="Dialog" />
@@ -30,5 +42,5 @@ This is not an exhaustive list of what you can do with Dialogs as Quasar Plugins
 
 <doc-example title="Other options" file="Dialog/OtherOptions" />
 
-## API
+## Dialog API
 <doc-api file="Dialog" />

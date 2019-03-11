@@ -8,7 +8,9 @@
         :key="color"
         :class="'bg-' + color"
       >
-        <div class="col">{{ color }}</div>
+        <div class="col">
+          {{ color }}
+        </div>
         <q-btn flat dense round size="0.65rem" icon="colorize" @click="selectColor(color)" v-if="color !== 'black'" />
         <q-btn flat dense round size="0.65rem" icon="undo" @click="undoColor(color)" v-if="color !== 'black' && mainColorValues[color] !== mainColorValuesOrig[color]" />
       </div>
@@ -18,7 +20,9 @@
         :key="color"
         :class="'bg-' + color"
       >
-        <div class="col">{{ color }}</div>
+        <div class="col">
+          {{ color }}
+        </div>
         <q-btn flat dense round size="0.65rem" icon="colorize" @click="selectColor(color)" v-if="color !== 'white'" />
         <q-btn flat dense round size="0.65rem" icon="undo" @click="undoColor(color)" v-if="color !== 'white' && mainColorValues[color] !== mainColorValuesOrig[color]" />
       </div>
@@ -30,8 +34,12 @@
 
       <h5>Full Palette</h5>
       <div class="detail" v-for="color in colors" :key="color">
-        <h5 class="detailed-color shadow-1 column flex-center text-white" :class="'bg-' + color">{{ color }}</h5>
-        <div class="detailed-color column flex-center" v-for="n in 14" :key="n" :class="'bg-' + color + '-' + n">{{ color }}-{{ (n) }}</div>
+        <h5 class="detailed-color shadow-1 column flex-center text-white" :class="'bg-' + color">
+          {{ color }}
+        </h5>
+        <div class="detailed-color column flex-center" v-for="n in 14" :key="n" :class="'bg-' + color + '-' + n">
+          {{ color }}-{{ (n) }}
+        </div>
       </div>
     </div>
   </div>
@@ -40,7 +48,7 @@
 <script>
 import { clone, colors } from 'quasar'
 
-const mainColors = ['primary', 'secondary', 'tertiary', 'positive', 'negative', 'info', 'warning', 'black']
+const mainColors = ['primary', 'secondary', 'accent', 'positive', 'negative', 'info', 'warning', 'black']
 const mainLightColors = ['white']
 let mainColorValuesOrig
 

@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 function width (val) {
   return { transform: `scale3d(${val},1,1)` }
 }
@@ -34,7 +36,7 @@ export default Vue.extend({
       return {
         [`text-${this.color}`]: this.color !== void 0,
         'q-linear-progress--reverse': this.reverse === true || this.query === true,
-        'generic-border-radius': this.rounded === true
+        'rounded-borders': this.rounded === true
       }
     },
 
@@ -63,7 +65,8 @@ export default Vue.extend({
   render (h) {
     return h('div', {
       staticClass: 'q-linear-progress',
-      class: this.classes
+      class: this.classes,
+      on: this.$listeners
     }, [
       h('div', {
         staticClass: 'q-linear-progress__track absolute-full',
@@ -81,6 +84,6 @@ export default Vue.extend({
         staticClass: 'q-linear-progress__stripe absolute-full',
         style: this.stripeStyle
       }) : null
-    ].concat(this.$slots.default))
+    ].concat(slot(this, 'default')))
   }
 })

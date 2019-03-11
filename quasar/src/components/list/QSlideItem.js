@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 import TouchPan from '../../directives/TouchPan.js'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QSlideItem',
 
@@ -28,13 +30,13 @@ export default Vue.extend({
         this.__scale = 0
         node.classList.add('no-transition')
 
-        if (this.$slots.left !== void 0) {
+        if (this.$scopedSlots.left !== void 0) {
           const slot = this.$refs.leftContent
           slot.style.transform = `scale3d(1,1,1)`
           this.__size.left = slot.getBoundingClientRect().width
         }
 
-        if (this.$slots.right !== void 0) {
+        if (this.$scopedSlots.right !== void 0) {
           const slot = this.$refs.rightContent
           slot.style.transform = `scale3d(1,1,1)`
           this.__size.right = slot.getBoundingClientRect().width
@@ -58,8 +60,8 @@ export default Vue.extend({
       }
 
       if (
-        (this.$slots.left === void 0 && evt.direction === 'right') ||
-        (this.$slots.right === void 0 && evt.direction === 'left')
+        (this.$scopedSlots.left === void 0 && evt.direction === 'right') ||
+        (this.$scopedSlots.right === void 0 && evt.direction === 'left')
       ) {
         node.style.transform = `translate3d(0,0,0)`
         return
@@ -67,13 +69,14 @@ export default Vue.extend({
 
       const
         dir = evt.direction === 'left' ? -1 : 1,
-        showing = dir === 1 ? 'left' : 'right',
+        showing = dir * (this.$q.lang.rtl === true ? -1 : 1) === 1 ? 'left' : 'right',
+        otherDir = showing === 'left' ? 'right' : 'left',
         dist = evt.distance.x,
         scale = Math.max(0, Math.min(1, (dist - 40) / this.__size[showing])),
         content = this.$refs[`${showing}Content`]
 
       if (this.__dir !== dir) {
-        this.$refs[evt.direction] !== void 0 && (this.$refs[evt.direction].style.visibility = 'hidden')
+        this.$refs[otherDir] !== void 0 && (this.$refs[otherDir].style.visibility = 'hidden')
         this.$refs[showing] !== void 0 && (this.$refs[showing].style.visibility = 'visible')
         this.__showing = showing
         this.__dir = dir
@@ -94,17 +97,17 @@ export default Vue.extend({
   render (h) {
     let
       content = [],
-      left = this.$slots.left !== void 0,
-      right = this.$slots.right !== void 0
+      left = this.$scopedSlots.left !== void 0,
+      right = this.$scopedSlots.right !== void 0
 
     if (left) {
       content.push(
         h('div', {
           ref: 'left',
           staticClass: 'q-slide-item__left absolute-full row no-wrap items-center justify-start',
-          class: this.leftColor ? `bg-${this.leftColor}` : null
+          class: this.leftColor ? `bg-${this.leftColor}` : ''
         }, [
-          h('div', { ref: 'leftContent' }, this.$slots.left)
+          h('div', { ref: 'leftContent' }, slot(this, 'left'))
         ])
       )
     }
@@ -114,9 +117,9 @@ export default Vue.extend({
         h('div', {
           ref: 'right',
           staticClass: 'q-slide-item__right absolute-full row no-wrap items-center justify-end',
-          class: this.rightColor ? `bg-${this.rightColor}` : null
+          class: this.rightColor ? `bg-${this.rightColor}` : ''
         }, [
-          h('div', { ref: 'rightContent' }, this.$slots.right)
+          h('div', { ref: 'rightContent' }, slot(this, 'right'))
         ])
       )
     }
@@ -129,10 +132,12 @@ export default Vue.extend({
           name: 'touch-pan',
           value: this.__pan,
           modifiers: {
-            horizontal: true
+            horizontal: true,
+            mouse: true,
+            mouseAllDir: true
           }
         }] : null
-      }, this.$slots.default)
+      }, slot(this, 'default'))
     )
 
     return h('div', {

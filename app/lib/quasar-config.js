@@ -359,17 +359,17 @@ class QuasarConfig {
       }
     }, cfg.build || {})
 
-    cfg.build.transpileDependencies.push(/[\\/]node_modules[\\/]quasar[\\/]/)
-
     cfg.__loadingBar = cfg.framework.all || (cfg.framework.plugins && cfg.framework.plugins.includes('LoadingBar'))
     cfg.__meta = cfg.framework.all || (cfg.framework.plugins && cfg.framework.plugins.includes('Meta'))
 
     if (this.ctx.dev || this.ctx.debug) {
       Object.assign(cfg.build, {
         minify: false,
-        extractCSS: false,
         gzip: false
       })
+    }
+    if (this.ctx.dev) {
+      cfg.build.extractCSS = false
     }
     if (this.ctx.debug) {
       cfg.build.sourceMap = true
@@ -464,10 +464,6 @@ class QuasarConfig {
     }
 
     if (this.ctx.dev) {
-      const
-        initialPort = cfg.devServer && cfg.devServer.port,
-        initialHost = cfg.devServer && cfg.devServer.host
-
       cfg.devServer = merge({
         publicPath: cfg.build.publicPath,
         hot: true,
@@ -487,10 +483,11 @@ class QuasarConfig {
         cfg.devServer.contentBase = false
       }
       else if (this.ctx.mode.cordova || this.ctx.mode.electron) {
-        Object.assign(cfg.devServer, {
-          https: false,
-          open: false
-        })
+        cfg.devServer.open = false
+
+        if (this.ctx.mode.electron) {
+          cfg.devServer.https = false
+        }
       }
 
       if (this.ctx.mode.cordova) {
@@ -504,6 +501,11 @@ class QuasarConfig {
         if (isMinimalTerminal) {
           cfg.devServer.open = false
         }
+      }
+
+      if (cfg.devServer.open && cfg.devServer.open !== true) {
+        cfg.__opnOptions = cfg.devServer.open
+        cfg.devServer.open = true
       }
     }
 

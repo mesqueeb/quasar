@@ -1,5 +1,7 @@
 ---
 title: PreFetch Feature
+related:
+  - /quasar-cli/quasar-conf-js
 ---
 The PreFetch is a feature **available when using Quasar CLI** that allows a way for the components picked up by Vue Router (defined in `/src/router/routes.js`) to:
 * pre-fetch data
@@ -19,17 +21,17 @@ return {
 }
 ```
 ::: warning
-  When you use it to pre-fetch data, you are required to use a Vuex Store, so make sure that your project folder has the `/src/store` folder when you create your project, otherwise generate a new project and copy the store folder contents to your current project.
+When you use it to pre-fetch data, you are required to use a Vuex Store, so make sure that your project folder has the `/src/store` folder when you create your project, otherwise generate a new project and copy the store folder contents to your current project.
 :::
 
-## How It Helps SSR Mode
+## How PreFetch Helps SSR Mode
 This feature is especially useful for the SSR mode (but not limited to it only). During SSR, we are essentially rendering a "snapshot" of our app, so if the app relies on some asynchronous data, **these data need to be pre-fetched and resolved before we start the rendering process**.
 
 Another concern is that on the client, the same data needs to be available before we mount the client side app - otherwise the client app would render using different state and the hydration would fail.
 
 To address this, the fetched data needs to live outside the view components, in a dedicated data store, or a "state container". On the server, we can pre-fetch and fill data into the store before rendering. The client-side store will directly pick up the server state before we mount the app.
 
-## When It Gets Activated
+## When PreFetch Gets Activated
 The `preFetch` hook (described in next sections) is determined by the route visited - which also determines what components are rendered. In fact, the data needed for a given route is also the data needed by the components rendered at that route. **So it is natural (and also required) to place the hook logic ONLY inside route components.** This includes `/src/App.vue`, which in this case will run only once at the app bootup.
 
 Let's take an example in order to understand when the hook is being called. Let's say we have these routes and we've written `preFetch` hooks for all these components:

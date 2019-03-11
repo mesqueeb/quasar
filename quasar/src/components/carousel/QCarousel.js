@@ -3,6 +3,7 @@ import Vue from 'vue'
 import QBtn from '../btn/QBtn.js'
 import { PanelParentMixin } from '../../mixins/panel.js'
 import { isNumber } from '../../utils/is.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QCarousel',
@@ -53,8 +54,8 @@ export default Vue.extend({
 
     arrowIcons () {
       const ico = [
-        this.prevIcon || this.$q.icon.carousel.left,
-        this.nextIcon || this.$q.icon.carousel.right
+        this.prevIcon || this.$q.iconSet.carousel.left,
+        this.nextIcon || this.$q.iconSet.carousel.right
       ]
 
       return this.$q.lang.rtl
@@ -63,7 +64,7 @@ export default Vue.extend({
     },
 
     navIcon () {
-      return this.navigationIcon || this.$q.icon.carousel.navigationIcon
+      return this.navigationIcon || this.$q.iconSet.carousel.navigationIcon
     }
   },
 
@@ -107,7 +108,7 @@ export default Vue.extend({
     __getContent (h) {
       const node = []
 
-      if (this.arrows) {
+      if (this.arrows === true) {
         node.push(
           h(QBtn, {
             staticClass: 'q-carousel__control q-carousel__prev-arrow absolute',
@@ -124,7 +125,7 @@ export default Vue.extend({
         )
       }
 
-      if (this.navigation) {
+      if (this.navigation === true) {
         node.push(this.__getNavigationContainer(h, 'buttons', panel => {
           const name = panel.componentOptions.propsData.name
 
@@ -160,23 +161,23 @@ export default Vue.extend({
         }))
       }
 
-      return node.concat(this.$slots.control)
-    }
-  },
+      return node.concat(slot(this, 'control'))
+    },
 
-  render (h) {
-    return h('div', {
-      staticClass: 'q-carousel relative-position overflow-hidden',
-      class: this.classes
-    }, [
-      h('div', {
-        staticClass: 'q-carousel__slides-container',
+    __render (h) {
+      return h('div', {
+        staticClass: 'q-carousel q-panel-parent',
         style: this.style,
-        directives: this.panelDirectives
+        class: this.classes
       }, [
-        this.__getPanelContent(h)
-      ])
-    ].concat(this.__getContent(h)))
+        h('div', {
+          staticClass: 'q-carousel__slides-container',
+          directives: this.panelDirectives
+        }, [
+          this.__getPanelContent(h)
+        ])
+      ].concat(this.__getContent(h)))
+    }
   },
 
   mounted () {

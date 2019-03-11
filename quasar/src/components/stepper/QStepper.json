@@ -1,11 +1,11 @@
 {
   "mixins": [ "mixins/panel-parent" ],
 
-  "props": {
-    "color": {
-      "extends": "color"
-    },
+  "behavior": {
+    "$listeners": true
+  },
 
+  "props": {
     "dark": {
       "extends": "dark"
     },
@@ -33,9 +33,17 @@
       "desc": "Allow navigation through the header"
     },
 
-    "contractable": {
+    "contracted": {
       "type": "Boolean",
       "desc": "Hide header labels on narrow windows"
+    },
+
+    "inactive-icon": {
+      "extends": "icon"
+    },
+
+    "inactive-color": {
+      "extends": "color"
     },
 
     "done-icon": {
@@ -67,7 +75,7 @@
     "default": {
       "desc": "Suggestion: QStep"
     },
-    
+
     "navigation": {
       "desc": "Slot specific for the global navigation; Suggestion: QStepperNavigation"
     }

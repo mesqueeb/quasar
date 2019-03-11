@@ -2,7 +2,7 @@
 title: Date Utils
 ---
 
-Quasar provides a set of useful functions to manipulate JS Date easily in most use cases, without the high additional cost of integrating dedicated libraries like [moment](https://momentjs.com).
+Quasar provides a set of useful functions to manipulate JS Date easily in most use cases, without the high additional cost of integrating dedicated libraries like Momentjs.
 
 Most Quasar date functions take as parameter either a Unix timestamp or a String representing a date which needs to be parsable by the native JS [Date constructor](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date). Some examples: `1497159857411`, `Sun Jun 11 2017 08:44:42 GMT+0300`, `2017-06-16`.
 
@@ -145,7 +145,7 @@ The object literal provided can contain the following keys (all are optional):
 | `seconds` | for the seconds component of the date/time |
 | `minutes` | for the minutes component of the date/time |
 | `hours` | for the hours component of the date/time |
-| `day` | for the day component of the date/time |
+| `date` | for the day component of the date/time |
 | `month` | for the month component of the date/time |
 | `year` | for the year component of the date/time |
 

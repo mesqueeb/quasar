@@ -1,83 +1,55 @@
 ---
-title: Docs
+title: Sponsors and Backers
+components:
+  - sponsors-and-backers/Sponsor
+  - sponsors-and-backers/DonatingButtons
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
+Quasar Framework an MIT-licensed open-source project and is maintained by Razvan Stoenescu and a community of open source contributors. We work on behalf of the community to create new features, fix bugs, and maintain Quasar so you can get on with your own development projects. We’re working to shape the future of the Vue.js ecosystem to **write code once and simultaneously deploy it** as a website (SPA/PWA/SSR), a Mobile App and/or an Electron App.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
+::: tip Founder of Quasar Framework
+*Quasar was born because I felt that a full featured framework to build responsive websites, PWAs (Progressive Web Apps), Mobile Apps (Android, iOS) and Electron apps simultaneously (using same code-base) was missing. So I quit my job to make this idea a reality. **-- Razvan Stoenescu***
+:::
 
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
+Like most open source products, Quasar can't do it alone. We rely on *sponsors, backers and supporters* to keep things going. When Quasar starts to bring you some financial stability, please be considerate of the tens of thousands of hours that went into its creation and send some money back to the team that made it possible. And finally, if your company relies on Quasar, the best way to guarantee that Quasar continues to be there for you is to invest in its maintenance!
 
-```
-const m = 'lala'
-```
+## Donating
+You can help Quasar Development by making a monthly pledge through Patreon or send a one-time donation through Paypal. If you are representing a company who wants to become a **Sponsor** and need an invoice for your donations, please send an email to `razvan.stoenescu [at] gmail [dot] com`.
 
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
+<donating-buttons />
 
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
+All of your donations are used for Quasar Development purposes exclusively.
 
 ::: tip
-Some tip
+For a full list of our wonderful people who make Quasar happen, visit the [Backers](https://github.com/quasarframework/quasar/blob/dev/backers.md) page.
 :::
 
-::: warning
-Some tip
-:::
+## Platinum Sponsors
 
-::: danger
-Some tip
-:::
+<div class="q-gutter-sm row items-start">
+  <sponsor img="think-health-data.png" name="Think Health Data" />
 
-::: warning CUSTOM TITLE
-Some tip
-:::
+  <sponsor img="truelogic.png" name="Truelogic" url="https://truelogic.com/" />
 
-* Something
-  * something
-  * else
-* Back
-  * wee
+  <sponsor img="taylored-technology.jpeg" name="Taylored Technology" url="https://tayloredtechnology.net/" />
+</div>
 
-## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+## Backers
 
-## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
+<div class="q-gutter-sm row">
+  <sponsor img="campus-cloud-services.png" name="Campus Cloud Services" url="http://campuscloudservices.com/" />
 
-## API
-<doc-api file="QTh" />
+  <sponsor img="juggle-street.png" name="Juggle Street" url="https://www.jugglestreet.com.au/" />
+
+  <sponsor img="com-com-services.png" name="Com Com Services" url="http://comcomservices.com/" />
+
+  <sponsor img="kalisio.png" name="Kalisio" url="https://kalisio.com/" />
+
+  <sponsor img="platform-purple.png" name="Platform Purple" url="https://platformpurple.com/" />
+
+  <sponsor img="bgasoft.png" name="BGASoft" url="https://www.bgasoft.com/" />
+
+  <sponsor img="letsbutterfly.png" name="LetsButterfly" url="https://www.letsbutterfly.com/" />
+
+  <sponsor img="project-finance.png" name="Project Finance" url="https://www.projectfinance.io/" />
+</div>

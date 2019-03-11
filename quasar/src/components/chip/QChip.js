@@ -3,6 +3,7 @@ import Vue from 'vue'
 import QIcon from '../icon/QIcon.js'
 import RippleMixin from '../../mixins/ripple.js'
 import { stopAndPrevent } from '../../utils/event.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QChip',
@@ -48,7 +49,7 @@ export default Vue.extend({
         : this.textColor
 
       return {
-        [`bg-${this.color}`]: !this.outline && this.color,
+        [`bg-${this.color}`]: this.outline === false && this.color !== void 0,
         [`text-${text} q-chip--colored`]: text,
         disabled: this.disable,
         'q-chip--dense': this.dense,
@@ -98,12 +99,12 @@ export default Vue.extend({
 
       this.hasLeftIcon && child.push(h(QIcon, {
         staticClass: 'q-chip__icon q-chip__icon--left',
-        props: { name: this.selected === true ? this.$q.icon.chip.selected : this.icon }
+        props: { name: this.selected === true ? this.$q.iconSet.chip.selected : this.icon }
       }))
 
       child.push(h('div', {
         staticClass: 'q-chip__content row no-wrap items-center q-anchor--skip'
-      }, this.label !== void 0 ? [ this.label ] : this.$slots.default))
+      }, this.label !== void 0 ? [ this.label ] : slot(this, 'default')))
 
       this.iconRight && child.push(h(QIcon, {
         staticClass: 'q-chip__icon q-chip__icon--right',
@@ -112,7 +113,7 @@ export default Vue.extend({
 
       this.removable && child.push(h(QIcon, {
         staticClass: 'q-chip__icon q-chip__icon--remove cursor-pointer',
-        props: { name: this.$q.icon.chip.remove },
+        props: { name: this.$q.iconSet.chip.remove },
         attrs: { tabindex: this.computedTabindex },
         nativeOn: {
           click: this.__onRemove,

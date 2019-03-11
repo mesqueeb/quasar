@@ -1,24 +1,26 @@
 <template>
   <div>
-    <div class="q-layout-padding q-gutter-y-md">
+    <div class="q-layout-padding q-gutter-y-md" :class="{ 'bg-grey-8 text-white': dark }">
       <div class="q-gutter-sm">
-        <q-radio v-model="type" val="filled" label="Filled" />
-        <q-radio v-model="type" val="outlined" label="Outlined" />
-        <q-radio v-model="type" val="standout" label="Standout" />
-        <q-radio v-model="type" val="standard" label="Standard" />
-        <q-radio v-model="type" val="borderless" label="Borderless" />
+        <q-radio :dark="dark" v-model="type" val="filled" label="Filled" />
+        <q-radio :dark="dark" v-model="type" val="outlined" label="Outlined" />
+        <q-radio :dark="dark" v-model="type" val="standout" label="Standout" />
+        <q-radio :dark="dark" v-model="type" val="standard" label="Standard" />
+        <q-radio :dark="dark" v-model="type" val="borderless" label="Borderless" />
       </div>
       <div>
-        <q-toggle v-model="readonly" label="Readonly" />
-        <q-toggle v-model="disable" label="Disable" />
-        <q-toggle v-model="dense" label="Dense" />
-        <q-toggle v-model="optionsDense" label="(Options) Dense" />
-        <q-toggle v-model="expandBesides" label="Expand besides" />
-        <q-toggle v-model="dark" label="Dark" />
-        <q-toggle v-model="optionsDark" label="(Options) Dark" />
+        <q-toggle :dark="dark" v-model="readonly" label="Readonly" />
+        <q-toggle :dark="dark" v-model="disable" label="Disable" />
+        <q-toggle :dark="dark" v-model="dense" label="Dense" />
+        <q-toggle :dark="dark" v-model="optionsDense" label="(Options) Dense" />
+        <q-toggle :dark="dark" v-model="expandBesides" label="Expand besides" />
+        <q-toggle :dark="dark" v-model="dark" label="Dark" />
+        <q-toggle :dark="dark" v-model="optionsDark" label="(Options) Dark" />
       </div>
 
-      <div class="text-h6">String options</div>
+      <div class="text-h6">
+        String options
+      </div>
 
       <div>{{ stringSingle }}</div>
       <q-select
@@ -37,7 +39,9 @@
         multiple
       />
 
-      <div class="text-h6">Object options</div>
+      <div class="text-h6">
+        Object options
+      </div>
 
       <div>{{ objectSingle }}</div>
       <q-select
@@ -58,7 +62,7 @@
 
       <div class="text-h6">
         Null model
-        <q-btn outline color="primary" label="Reset" @click="resetNull" />
+        <q-btn outline color="negative" label="Reset" @click="resetNull" />
       </div>
 
       <div>{{ stringNullSingle }}</div>
@@ -96,7 +100,7 @@
 
       <div class="text-h6">
         Model value not in options
-        <q-btn color="primary" outline label="Reset" @click="resetBogus" />
+        <q-btn color="negative" outline label="Reset" @click="resetBogus" />
       </div>
       <div>{{ bogusModel }}</div>
       <q-select
@@ -113,7 +117,9 @@
         options-selected-class="text-orange"
       />
 
-      <div class="text-h6">Emit value</div>
+      <div class="text-h6">
+        Emit value
+      </div>
 
       <div>{{ stringEmitSingle }}</div>
       <q-select
@@ -153,7 +159,9 @@
         multiple
       />
 
-      <div class="text-h6">Scoped Slot: option</div>
+      <div class="text-h6">
+        Scoped Slot: option
+      </div>
       <q-select
         v-bind="props"
         v-model="objectSingle"
@@ -161,20 +169,22 @@
         :options="objectOptions"
         options-selected-class="text-deep-orange"
       >
-        <q-item
-          slot="option"
-          slot-scope="scope"
-          v-bind="scope.itemProps"
-          v-on="scope.itemEvents"
-        >
-          <q-item-section avatar>
-            <q-icon :name="scope.opt.icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="scope.opt.label" />
-            <q-item-label caption>{{ scope.opt.description }}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <template v-slot:option="scope">
+          <q-item
+            v-bind="scope.itemProps"
+            v-on="scope.itemEvents"
+          >
+            <q-item-section avatar>
+              <q-icon :name="scope.opt.icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label v-html="scope.opt.label" />
+              <q-item-label caption>
+                {{ scope.opt.description }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
 
         <q-icon slot="append" name="clear" @click.stop="objectSingle = null" />
       </q-select>
@@ -186,25 +196,29 @@
         :options="objectOptions"
         multiple
       >
-        <q-item
-          slot="option"
-          slot-scope="scope"
-          v-bind="scope.itemProps"
-          v-on="scope.itemEvents"
-        >
-          <q-item-section avatar>
-            <q-icon :name="scope.opt.icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="scope.opt.label" />
-            <q-item-label caption>{{ scope.opt.description }}</q-item-label>
-          </q-item-section>
-        </q-item>
+        <template v-slot:option="scope">
+          <q-item
+            v-bind="scope.itemProps"
+            v-on="scope.itemEvents"
+          >
+            <q-item-section avatar>
+              <q-icon :name="scope.opt.icon" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label v-html="scope.opt.label" />
+              <q-item-label caption>
+                {{ scope.opt.description }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
 
         <q-icon slot="append" name="clear" @click.stop="objectMultiple = null" />
       </q-select>
 
-      <div class="text-h6">Scoped slot: selected</div>
+      <div class="text-h6">
+        Scoped slot: selected
+      </div>
       <q-select
         v-bind="props"
         v-model="objectMultiple"
@@ -212,21 +226,23 @@
         label="Label"
         multiple
       >
-        <q-chip
-          slot="selected"
-          slot-scope="scope"
-          removable
-          @remove="scope.removeAtIndex(scope.index)"
-          :tabindex="scope.tabindex"
-          color="white"
-          text-color="primary"
-        >
-          <q-avatar color="primary" text-color="white" :icon="scope.opt.icon" />
-          <span v-html="scope.opt.label" />
-        </q-chip>
+        <template v-slot:selected-item="scope">
+          <q-chip
+            removable
+            @remove="scope.removeAtIndex(scope.index)"
+            :tabindex="scope.tabindex"
+            color="white"
+            text-color="primary"
+          >
+            <q-avatar color="primary" text-color="white" :icon="scope.opt.icon" />
+            <span v-html="scope.opt.label" />
+          </q-chip>
+        </template>
       </q-select>
 
-      <div class="text-h6">Max values (in this case 2)</div>
+      <div class="text-h6">
+        Max values (in this case 2)
+      </div>
       <q-select
         v-bind="props"
         v-model="objectMultiple"
@@ -237,7 +253,9 @@
         color="teal"
       />
 
-      <div class="text-h6">Heavy test (10k options)</div>
+      <div class="text-h6">
+        Heavy test (10k options)
+      </div>
       <q-select
         v-bind="props"
         v-model="heavyModel"
@@ -254,20 +272,22 @@
         multiple
         color="teal"
       >
-        <q-chip
-          slot="selected"
-          slot-scope="scope"
-          removable
-          @remove="scope.removeAtIndex(scope.index)"
-          :tabindex="scope.tabindex"
-          color="white"
-          text-color="teal"
-        >
-          <span v-html="scope.opt.label" />
-        </q-chip>
+        <template v-slot:selected-item="scope">
+          <q-chip
+            removable
+            @remove="scope.removeAtIndex(scope.index)"
+            :tabindex="scope.tabindex"
+            color="white"
+            text-color="teal"
+          >
+            <span v-html="scope.opt.label" />
+          </q-chip>
+        </template>
       </q-select>
 
-      <div class="text-h6">No options</div>
+      <div class="text-h6">
+        No options
+      </div>
       <q-select
         v-bind="props"
         v-model="stringSingle"
@@ -291,7 +311,9 @@
         multiple
       />
 
-      <div class="text-h6">No options, slot: no-options</div>
+      <div class="text-h6">
+        No options, slot: no-options
+      </div>
       <q-select
         v-bind="props"
         v-model="stringSingle"
@@ -305,6 +327,109 @@
           </q-item-section>
         </q-item>
       </q-select>
+
+      <div class="text-h6">
+        Alignment test: standard, use-input, use-input + hide-selected, normal input
+      </div>
+      <div class="row q-gutter-sm">
+        <q-select
+          class="col-2"
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - standard"
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-select
+          class="col-2"
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - use input"
+          use-input
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-select
+          class="col-2"
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - hide-selected"
+          use-input
+          hide-selected
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-input
+          class="col-2"
+          v-bind="props"
+          v-model="stringSingle"
+          label="Input"
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = ''" />
+          </template>
+        </q-input>
+      </div>
+
+      <div class="row q-gutter-sm">
+        <q-select
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - standard"
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-select
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - use input"
+          use-input
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-select
+          v-bind="props"
+          v-model="stringSingle"
+          :options="stringOptions"
+          label="Single - hide-selected"
+          use-input
+          hide-selected
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = null" />
+          </template>
+        </q-select>
+
+        <q-input
+          v-bind="props"
+          v-model="stringSingle"
+          label="Input"
+        >
+          <template #append>
+            <q-icon v-if="stringSingle !== null" class="cursor-pointer" name="clear" @click.stop="stringSingle = ''" />
+          </template>
+        </q-input>
+      </div>
     </div>
   </div>
 </template>

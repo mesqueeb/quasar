@@ -1,5 +1,8 @@
 ---
 title: Quasar Language Packs
+related:
+  - /options/rtl-support
+  - /options/app-internationalization
 ---
 A Quasar Language Pack refers to the internationalization of Quasar's own components, some of which have labels.
 
@@ -20,44 +23,51 @@ Unless configured otherwise (see below), Quasar uses the `en-us` Language Pack b
 
 ### Hardcoded Default Language Pack
 If the default Quasar Language Pack is not dynamically determined (does not depends on cookies for example), then you can:
-* Quasar CLI: Edit `/quasar.conf.js`:
-  ```js
-  framework: {
-    lang: 'de'
-  }
-  ```
-* Vue CLI: Edit your `main.js`:
-  ```js
-  import langDe from 'quasar/lang/de'
-  // ...
 
-  // when not selecting to import all Quasar components:
-  import { Quasar } from 'quasar'
-  // OTHERWISE:
-  import Quasar from 'quasar'
+#### Quasar CLI
+Edit `/quasar.conf.js`:
+```js
+framework: {
+  lang: 'de'
+}
+```
 
-  // ...
-  Vue.use(Quasar, {
-    // ...,
-    lang: langDe
-  })
-* Quasar UMD: Include the language pack JS tag for your Quasar version and also tell Quasar to use it. Example:
+#### Vue CLI
+Edit your `main.js`:
+```js
+import langDe from 'quasar/lang/de'
+// ...
 
-  ```html
-  <!-- include this after Quasar JS tag -->
-  <script src="https://cdn.jsdelivr.net/npm/quasar@v1.0.0/dist/lang/de.umd.min.js"></script>
-  <script>
-    Quasar.lang.set(Quasar.lang.de)
-  </script>
-  ```
+// when not selecting to import all Quasar components:
+import { Quasar } from 'quasar'
+// OTHERWISE:
+import Quasar from 'quasar'
 
-  Check what tags you need to include in your HTML files by generating a sample with `$ quasar create <folder> --kit umd` and specifying a language code for Quasar Language Pack (other than default "en-us").
+// ...
+Vue.use(Quasar, {
+  // ...,
+  lang: langDe
+})
+```
+
+#### Quasar UMD
+Include the language pack JS tag for your Quasar version and also tell Quasar to use it. Example:
+
+```html
+<!-- include this after Quasar JS tag -->
+<script src="https://cdn.jsdelivr.net/npm/quasar@v1.0.0/dist/lang/de.umd.min.js"></script>
+<script>
+  Quasar.lang.set(Quasar.lang.de)
+</script>
+```
+
+Check what tags you need to include in your HTML files by generating a sample with `$ quasar create <folder> --kit umd` and specifying a language code for Quasar Language Pack (other than the default "en-us").
 
 ### Dynamically Picking Default Language
 Quasar CLI: If your desired Quasar Language Pack must be dynamically selected (example: depends on a cookie), then you need to create a boot file: `$ quasar new boot quasar-lang-pack`. This will create `/src/boot/quasar-lang-pack.js` file. Edit it to:
 
 ```js
-// for when you don't specify quasar.conf > framework: 'all'
+// for when you don't specify quasar.conf.js > framework: 'all'
 import { Quasar } from 'quasar'
 // OTHERWISE:
 import Quasar from 'quasar'
@@ -72,7 +82,7 @@ export default async () => {
       })
   }
   catch (err) {
-    // Requested Quasar Language Pack does not exists,
+    // Requested Quasar Language Pack does not exist,
     // let's not break the app, so catching error
   }
 }
@@ -145,7 +155,7 @@ There's also a method to determine user locale which is supplied by Quasar out o
 ```js
 // outside of a Vue file
 
-// for when you don't specify quasar.conf > framework: 'all'
+// for when you don't specify quasar.conf.js > framework: 'all'
 import { Quasar } from 'quasar'
 // OTHERWISE:
 import Quasar from 'quasar'

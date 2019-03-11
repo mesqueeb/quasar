@@ -4,6 +4,7 @@ import QBtn from '../btn/QBtn.js'
 import QIcon from '../icon/QIcon.js'
 import FabMixin from './fab-mixin.js'
 import ModelToggleMixin from '../../mixins/model-toggle.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QFab',
@@ -25,7 +26,7 @@ export default Vue.extend({
     direction: {
       type: String,
       default: 'right',
-      validator: v => ['top', 'right', 'bottom', 'left'].includes(v)
+      validator: v => ['up', 'right', 'down', 'left'].includes(v)
     },
     persistent: Boolean
   },
@@ -41,9 +42,14 @@ export default Vue.extend({
   },
 
   render (h) {
+    const tooltip = this.$scopedSlots.tooltip !== void 0
+      ? this.$scopedSlots.tooltip()
+      : []
+
     return h('div', {
       staticClass: 'q-fab z-fab row inline justify-center',
-      class: this.showing === true ? 'q-fab--opened' : null
+      class: this.showing === true ? 'q-fab--opened' : null,
+      on: this.$listeners
     }, [
       h(QBtn, {
         ref: 'trigger',
@@ -59,22 +65,21 @@ export default Vue.extend({
         on: {
           click: this.toggle
         }
-      }, [
-        this.$slots.tooltip,
+      }, tooltip.concat([
         h(QIcon, {
           staticClass: 'q-fab__icon absolute-full',
-          props: { name: this.icon || this.$q.icon.fab.icon }
+          props: { name: this.icon || this.$q.iconSet.fab.icon }
         }),
         h(QIcon, {
           staticClass: 'q-fab__active-icon absolute-full',
-          props: { name: this.activeIcon || this.$q.icon.fab.activeIcon }
+          props: { name: this.activeIcon || this.$q.iconSet.fab.activeIcon }
         })
-      ]),
+      ])),
 
       h('div', {
         staticClass: 'q-fab__actions flex no-wrap inline items-center',
         class: `q-fab__actions--${this.direction}`
-      }, this.$slots.default)
+      }, slot(this, 'default'))
     ])
   }
 })

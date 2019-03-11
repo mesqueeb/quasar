@@ -1,8 +1,10 @@
 import Vue from 'vue'
 
 import QIcon from '../icon/QIcon.js'
+import QSpinner from '../spinner/QSpinner.js'
 
 import ValidateMixin from '../../mixins/validate.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QField',
@@ -26,6 +28,10 @@ export default Vue.extend({
     borderless: Boolean,
     standout: Boolean,
 
+    square: Boolean,
+
+    loading: Boolean,
+
     bottomSlots: Boolean,
     rounded: Boolean,
     dense: Boolean,
@@ -37,7 +43,11 @@ export default Vue.extend({
 
   data () {
     return {
-      focused: false
+      focused: false,
+
+      // used internally by validation for QInput
+      // or menu handling for QSelect
+      innerLoading: false
     }
   },
 
@@ -47,7 +57,14 @@ export default Vue.extend({
     },
 
     floatingLabel () {
-      return this.stackLabel || this.focused || (this.innerValue && this.innerValue.length > 0)
+      return this.hasError === true ||
+        this.stackLabel === true ||
+        this.focused === true ||
+        (
+          this.innerValue !== void 0 &&
+          this.innerValue !== null &&
+          ('' + this.innerValue).length > 0
+        )
     },
 
     hasBottom () {
@@ -60,9 +77,10 @@ export default Vue.extend({
 
         [`q-field--${this.styleType}`]: true,
         'q-field--rounded': this.rounded,
+        'q-field--square': this.square,
 
         'q-field--focused': this.focused === true || this.hasError === true,
-        'q-field--float': this.floatingLabel || this.hasError === true,
+        'q-field--float': this.floatingLabel,
         'q-field--labeled': this.label !== void 0,
 
         'q-field--dense': this.dense,
@@ -107,18 +125,14 @@ export default Vue.extend({
     __getContent (h) {
       return [
 
-        this.$slots.prepend !== void 0 ? h('div', {
+        this.$scopedSlots.prepend !== void 0 ? h('div', {
           staticClass: 'q-field__prepend q-field__marginal row no-wrap items-center',
           key: 'prepend'
-        }, this.$slots.prepend) : null,
+        }, this.$scopedSlots.prepend()) : null,
 
         h('div', {
           staticClass: 'q-field__control-container col relative-position row no-wrap q-anchor--skip'
         }, [
-          this.label !== void 0 ? h('div', {
-            staticClass: 'q-field__label no-pointer-events absolute ellipsis'
-          }, [ this.label ]) : null,
-
           this.prefix !== void 0 && this.prefix !== null ? h('div', {
             staticClass: 'q-field__prefix no-pointer-events row items-center'
           }, [ this.prefix ]) : null,
@@ -127,34 +141,49 @@ export default Vue.extend({
             ? this.__getControl(h)
             : null,
 
+          this.label !== void 0 ? h('div', {
+            staticClass: 'q-field__label no-pointer-events absolute ellipsis'
+          }, [ this.label ]) : null,
+
           this.suffix !== void 0 && this.suffix !== null ? h('div', {
             staticClass: 'q-field__suffix no-pointer-events row items-center'
           }, [ this.suffix ]) : null
         ].concat(
           this.__getDefaultSlot !== void 0
             ? this.__getDefaultSlot(h)
-            : this.$slots.default
+            : slot(this, 'default')
         )),
 
         this.hasError === true
           ? h('div', {
             staticClass: 'q-field__append q-field__marginal row no-wrap items-center',
             key: 'error'
-          }, [ h(QIcon, { props: { name: 'error', color: 'negative' } }) ])
+          }, [ h(QIcon, { props: { name: this.$q.iconSet.type.warning, color: 'negative' } }) ])
+          : null,
+
+        this.loading === true || this.innerLoading === true
+          ? h('div', {
+            staticClass: 'q-field__append q-field__marginal row no-wrap items-center q-anchor--skip',
+            key: 'inner-loading-append'
+          }, (
+            this.$scopedSlots.loading !== void 0
+              ? this.$scopedSlots.loading()
+              : [ h(QSpinner, { props: { color: this.color } }) ]
+          ))
           : null,
 
         this.__getInnerAppend !== void 0
           ? h('div', {
-            staticClass: 'q-field__append q-field__marginal row no-wrap items-center q-popup--skip',
+            staticClass: 'q-field__append q-field__marginal row no-wrap items-center q-anchor--skip',
             key: 'inner-append'
           }, this.__getInnerAppend(h))
           : null,
 
-        this.$slots.append !== void 0
+        this.$scopedSlots.append !== void 0
           ? h('div', {
             staticClass: 'q-field__append q-field__marginal row no-wrap items-center',
             key: 'append'
-          }, this.$slots.append)
+          }, this.$scopedSlots.append())
           : null,
 
         this.__getLocalMenu !== void 0
@@ -175,7 +204,7 @@ export default Vue.extend({
           key = this.computedErrorMessage
         }
         else {
-          msg = this.$slots.error
+          msg = slot(this, 'error')
           key = 'q--slot-error'
         }
       }
@@ -185,7 +214,7 @@ export default Vue.extend({
           key = this.hint
         }
         else {
-          msg = this.$slots.hint
+          msg = slot(this, 'hint')
           key = 'q--slot-hint'
         }
       }
@@ -200,9 +229,9 @@ export default Vue.extend({
           }, msg)
         ]),
 
-        this.counter === true || this.$slots.counter !== void 0 ? h('div', {
+        this.counter === true || this.$scopedSlots.counter !== void 0 ? h('div', {
           staticClass: 'q-field__counter'
-        }, this.$slots.counter || [ this.computedCounter ]) : null
+        }, this.$scopedSlots.counter !== void 0 ? this.$scopedSlots.counter() : [ this.computedCounter ]) : null
       ])
     }
   },
@@ -212,9 +241,9 @@ export default Vue.extend({
       staticClass: 'q-field row no-wrap items-start',
       class: this.classes
     }, [
-      this.$slots.before !== void 0 ? h('div', {
+      this.$scopedSlots.before !== void 0 ? h('div', {
         staticClass: 'q-field__before q-field__marginal row no-wrap items-center'
-      }, this.$slots.before) : null,
+      }, this.$scopedSlots.before()) : null,
 
       h('div', {
         staticClass: 'q-field__inner relative-position col self-stretch column justify-center'
@@ -229,9 +258,9 @@ export default Vue.extend({
         this.__getBottom(h)
       ]),
 
-      this.$slots.after !== void 0 ? h('div', {
+      this.$scopedSlots.after !== void 0 ? h('div', {
         staticClass: 'q-field__after q-field__marginal row no-wrap items-center'
-      }, this.$slots.after) : null
+      }, this.$scopedSlots.after()) : null
     ])
   }
 })

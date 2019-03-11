@@ -1,7 +1,9 @@
 <template>
   <div class="q-layout-padding">
-    <span>AAA</span>
-    <q-btn @click="$router.replace('/web-tests/b')">Go to B</q-btn>
+    <div>{{ $q.screen.height }} / {{ $q.screen.width }}</div>
+    <q-btn @click="$router.replace('/web-tests/b')">
+      Go to B
+    </q-btn>
   </div>
 </template>
 

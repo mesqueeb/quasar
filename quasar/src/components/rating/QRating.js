@@ -8,7 +8,10 @@ export default Vue.extend({
   name: 'QRating',
 
   props: {
-    value: Number,
+    value: {
+      type: Number,
+      required: true
+    },
 
     max: {
       type: [String, Number],
@@ -30,43 +33,34 @@ export default Vue.extend({
   },
 
   computed: {
-    model: {
-      get () {
-        return this.value
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
-    },
-
     editable () {
       return !this.readonly && !this.disable
     },
 
     classes () {
-      return `q-rating--${this.editable ? '' : 'non-'}editable` +
-        (this.disable === true ? ' disable' : '') +
+      return `q-rating--${this.editable === true ? '' : 'non-'}editable` +
+        (this.disable === true ? ' disabled' : '') +
         (this.color !== void 0 ? ` text-${this.color}` : '')
     },
 
     style () {
-      if (this.size) {
+      if (this.size !== void 0) {
         return { fontSize: this.size }
       }
     }
   },
 
   methods: {
-    set (value) {
-      if (this.editable) {
+    __set (value) {
+      if (this.editable === true) {
         const model = between(parseInt(value, 10), 1, parseInt(this.max, 10))
-        this.model = this.model === model ? 0 : model
+        this.$emit('input', this.value === model ? 0 : model)
         this.mouseModel = 0
       }
     },
 
     __setHoverValue (value) {
-      if (this.editable) {
+      if (this.editable === true) {
         this.mouseModel = value
       }
     },
@@ -75,7 +69,7 @@ export default Vue.extend({
       switch (e.keyCode) {
         case 13:
         case 32:
-          this.set(i)
+          this.__set(i)
           return stopAndPrevent(e)
         case 37: // LEFT ARROW
         case 40: // DOWN ARROW
@@ -96,7 +90,7 @@ export default Vue.extend({
   render (h) {
     const
       child = [],
-      tabindex = this.editable ? 0 : null
+      tabindex = this.editable === true ? 0 : null
 
     for (let i = 1; i <= this.max; i++) {
       child.push(
@@ -105,14 +99,14 @@ export default Vue.extend({
           ref: `rt${i}`,
           staticClass: 'q-rating__icon',
           class: {
-            'q-rating__icon--active': (!this.mouseModel && this.model >= i) || (this.mouseModel && this.mouseModel >= i),
-            'q-rating__icon--exselected': this.mouseModel && this.model >= i && this.mouseModel < i,
+            'q-rating__icon--active': (!this.mouseModel && this.value >= i) || (this.mouseModel && this.mouseModel >= i),
+            'q-rating__icon--exselected': this.mouseModel && this.value >= i && this.mouseModel < i,
             'q-rating__icon--hovered': this.mouseModel === i
           },
-          props: { name: this.icon || this.$q.icon.rating.icon },
+          props: { name: this.icon || this.$q.iconSet.rating.icon },
           attrs: { tabindex },
           on: {
-            click: () => this.set(i),
+            click: () => this.__set(i),
             mouseover: () => this.__setHoverValue(i),
             mouseout: () => { this.mouseModel = 0 },
             focus: () => this.__setHoverValue(i),
@@ -126,7 +120,8 @@ export default Vue.extend({
     return h('div', {
       staticClass: 'q-rating row inline items-center',
       class: this.classes,
-      style: this.style
+      style: this.style,
+      on: this.$listeners
     }, child)
   }
 })

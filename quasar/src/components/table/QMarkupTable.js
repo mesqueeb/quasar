@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QMarkupTable',
 
@@ -12,7 +14,8 @@ export default Vue.extend({
       type: String,
       default: 'horizontal',
       validator: v => ['horizontal', 'vertical', 'cell', 'none'].includes(v)
-    }
+    },
+    wrapCells: Boolean
   },
 
   computed: {
@@ -22,7 +25,8 @@ export default Vue.extend({
         'q-table--dark': this.dark,
         'q-table--dense': this.dense,
         'q-table--flat': this.flat,
-        'q-table--bordered': this.bordered
+        'q-table--bordered': this.bordered,
+        'q-table--no-wrap': this.wrapCells === false
       }
     }
   },
@@ -30,9 +34,10 @@ export default Vue.extend({
   render (h) {
     return h('div', {
       staticClass: 'q-markup-table q-table__container',
-      class: this.classes
+      class: this.classes,
+      on: this.$listeners
     }, [
-      h('table', { staticClass: 'q-table' }, this.$slots.default)
+      h('table', { staticClass: 'q-table' }, slot(this, 'default'))
     ])
   }
 })

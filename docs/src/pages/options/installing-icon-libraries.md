@@ -1,15 +1,14 @@
 ---
 title: Installing Icon Libraries
+related:
+  - /options/quasar-icon-sets
+  - /vue-components/icon
 ---
 
-You'll most likely want icons in your website/app and Quasar offers an easy way out of the box, for following icon libraries: [Material Icons](https://material.io/icons/) , [Font Awesome](http://fontawesome.io/icons/), [Ionicons](http://ionicons.com/), [MDI](https://materialdesignicons.com/) and [Eva Icons](https://akveo.github.io/eva-icons).
+You'll most likely want icons in your website/app and Quasar offers an easy way out of the box, for following icon libraries: [Material Icons](https://material.io/icons/) , [Font Awesome](http://fontawesome.io/icons/), [Ionicons](http://ionicons.com/), [MDI](https://materialdesignicons.com/), [Eva Icons](https://akveo.github.io/eva-icons) and [Themify Icons](https://themify.me/themify-icons).
 
 ::: tip
-You can either choose to install one of them or multiple.
-:::
-
-::: tip
-Related pages: [Quasar Icon Sets](/options/quasar-icon-sets) and [QIcon component](/vue-components/icon).
+You can choose to install one or more of these icon libraries.
 :::
 
 ## Installing
@@ -32,18 +31,19 @@ extras: [
   'mdi-v3',
   'ionicons-v4',
   'eva-icons',
-  'fontawesome-v5'
+  'fontawesome-v5',
+  'themify'
 ]
 ```
 
-You're now ready to use [QIcon](/vue-components/icon) component.
+You're now ready to use the [QIcon](/vue-components/icon) component.
 
 ## Using CDN as alternative
-If you want to make use of CDNs (Content Delivery Network), all you need is to include style tags in your `index.template.html` which point to the CDN URL.
+If you want to make use of a CDN (Content Delivery Network), all you need to do is to include style tags in your `index.template.html` which point to the CDN URL.
 
 In case you follow this path, do not also add the icon sets that you want in `/quasar.conf.js > extras`. Simply edit `index.template.html` as follows.
 
-The example link tag below would include Font Awesome v4.7.0 icons. Do a Google search for CDNs to make sure you include the latest version. Following are just examples.
+The example link tag below would include Fontawesome v5.6.3 icons. Do a Google search for CDNs to make sure you include the latest version. The following are just examples.
 
 ```html
 <!-- in `/src/index.template.html` -->
@@ -74,38 +74,36 @@ The example link tag below would include Font Awesome v4.7.0 icons. Do a Google 
 ```
 
 ## Using Fontawesome-Pro
-If you have a Fontawesome 5 Pro license and want to use it instead Fontawesome Free version. Following this instructions.
+If you have a Fontawesome 5 Pro license and want to use it instead of the Fontawesome Free version, follow these instructions:
 
-1. Open [Linked Accounts section](https://fontawesome.com/account) in Fontawesome's user account page to grab npm TOKENID (login if necessary).
-2. Create or append TOKENID into file .npmrc (file path same as package.json):
+1. Open the [Linked Accounts section](https://fontawesome.com/account) in Fontawesome's user account page to grab the npm TOKENID (login if necessary).
+2. Create or append TOKENID into the `.npmrc` file  (file path same as package.json):
   ```
   @fortawesome:registry=https://npm.fontawesome.com/TOKENID
   ```
 3. Install Fontawesome webfonts:
   ```bash
   $ yarn add @fortawesome/fontawesome-pro
-  # or:
-  $ npm install @fortawesome/fontawesome-pro
   ```
-4. Create new App plugin:
+4. Create new boot file:
   ```bash
-  $ quasar new plugin fontawesome-pro
+  $ quasar new boot fontawesome-pro
   ```
 5. Edit `/quasar.conf.js`:
   ```js
-  plugins: [
+  boot: [
     ...
-    'fontawesome-pro' // Add app plugin
+    'fontawesome-pro' // Add boot file
   ],
   extras: [
     // 'fontawesome' // Disable free version!
   ],
   framework: {
     // if you want Quasar to use Fontawesome for its icons
-    iconSet: 'fontawesome-pro'
+    iconSet: 'fontawesome-v5-pro'
   }
   ```
-6. Edit `/src/plugins/fontawesome-pro.js`:
+6. Edit `/src/boot/fontawesome-pro.js`:
 ```js
 // required
 import '@fortawesome/fontawesome-pro/css/fontawesome.min.css'
@@ -121,11 +119,11 @@ export default () => {
 ```
 7. (Optional) Override default icons:
 
-Since the default `font-weight` for fontawesome-pro is `light` or `fal`, some icons used by the framework components may not be desirable. The best way to handle this is to override it in the plugin you created.
+Since the default `font-weight` for fontawesome-pro is `light` or `fal`, some icons used by the framework components may not be desirable. The best way to handle this is to override it in the boot file that you created.
 
 For instance, to override the `fal` version of the close icon for chips, do this:
 
-_First_, find the icon used for chip close in Quasar's `quasar/icons/fontawesome-pro.js`
+_First_, find the icon used for chip close in Quasar's `quasar/icons/fontawesome-v5-pro.js`
 
 (Alternatively, you can check inside the render function of the component you are overriding.)
 
@@ -135,13 +133,13 @@ chip: {
 },
 ```
 
-_Then_, override it in your `/src/plugins/fontawesome-pro.js`
+_Then_, override it in your `/src/boot/fontawesome-pro.js`
 ```js
 import '@fortawesome/fontawesome-pro/css/fontawesome.min.css'
 import '@fortawesome/fontawesome-pro/css/solid.min.css'
 import '@fortawesome/fontawesome-pro/css/light.min.css'
 
 export default ({ Vue }) => {
-  Vue.prototype.$q.icon.chip.close = 'fas fa-times-circle'
+  Vue.prototype.$q.iconSet.chip.close = 'fas fa-times-circle'
 }
 ```

@@ -7,6 +7,11 @@ module.exports = function (md) {
     const token = tokens[idx]
 
     token.tag = 'q-markup-table'
+    token.attrSet(':wrap-cells', 'true')
+    token.attrSet(':flat', 'true')
+    token.attrSet(':bordered', 'true')
+    token.attrSet('style', 'width: fit-content; max-width: 100%;')
+
     return self.renderToken(tokens, idx, options)
   }
 
@@ -14,6 +19,7 @@ module.exports = function (md) {
     const token = tokens[idx]
 
     token.tag = 'q-markup-table'
+
     return self.renderToken(tokens, idx, options)
   }
 

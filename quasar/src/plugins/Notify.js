@@ -63,6 +63,14 @@ const Notifications = {
       if (notif.timeout === void 0) {
         notif.timeout = 5000
       }
+      else {
+        const t = parseInt(notif.timeout, 10)
+        if (isNaN(t) || t < 0) {
+          console.error(`Notify: wrong timeout: ${notif.timeout}`)
+          return false
+        }
+        notif.timeout = t
+      }
 
       const close = () => {
         this.remove(notif)
@@ -100,7 +108,7 @@ const Notifications = {
           : btn
       }
 
-      if (notif.timeout) {
+      if (notif.timeout > 0) {
         notif.__timeout = setTimeout(() => {
           close()
         }, notif.timeout + /* show duration */ 1000)
@@ -111,7 +119,7 @@ const Notifications = {
       }
 
       notif.staticClass = [
-        `q-notification generic-border-radius row items-center`,
+        `q-notification row items-center`,
         notif.color && `bg-${notif.color}`,
         notif.textColor && `text-${notif.textColor}`,
         `q-notification--${notif.multiLine ? 'multi-line' : 'standard'}`,

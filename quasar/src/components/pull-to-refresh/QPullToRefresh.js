@@ -6,6 +6,7 @@ import TouchPan from '../../directives/TouchPan.js'
 
 import { getScrollTarget, getScrollPosition } from '../../utils/scroll.js'
 import { between } from '../../utils/format.js'
+import slot from '../../utils/slot.js'
 
 const
   PULLER_HEIGHT = 40,
@@ -98,11 +99,6 @@ export default Vue.extend({
       if (event.isFirst) {
         this.pulling = true
 
-        if (window.getSelection) {
-          const sel = window.getSelection()
-          sel.empty && sel.empty()
-        }
-
         const { top, left } = this.$el.getBoundingClientRect()
         this.positionCSS = {
           top: top + 'px',
@@ -157,7 +153,8 @@ export default Vue.extend({
           modifiers: {
             vertical: true,
             mightPrevent: true,
-            noMouse: this.noMouse
+            mouseMightPrevent: true,
+            mouse: !this.noMouse
           },
           value: this.__pull
         }]
@@ -165,7 +162,7 @@ export default Vue.extend({
       h('div', {
         staticClass: 'q-pull-to-refresh__content',
         class: this.pulling ? 'no-pointer-events' : null
-      }, this.$slots.default),
+      }, slot(this, 'default')),
 
       h('div', {
         staticClass: 'q-pull-to-refresh__puller-container fixed row flex-center no-pointer-events z-top',
@@ -179,7 +176,7 @@ export default Vue.extend({
           this.state !== 'refreshing'
             ? h(QIcon, {
               props: {
-                name: this.icon || this.$q.icon.pullToRefresh.icon,
+                name: this.icon || this.$q.iconSet.pullToRefresh.icon,
                 color: this.color,
                 size: '32px'
               }

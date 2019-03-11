@@ -24,9 +24,9 @@ First of all, let's define what the breakpoints are:
 | --- | --- | --- |
 | Extra Small | xs | Up to 599px |
 | Small | sm | Up to 1023px |
-| Medium | md | Up to 992px |
-| Large | lg | Up to 1439px |
-| Extra Large | xl | Bigger than 1440px |
+| Medium | md | Up to 1439px |
+| Large | lg | Up to 1919px |
+| Extra Large | xl | Bigger than 1920px |
 
 Now on to the window width related CSS classes.
 
@@ -56,8 +56,6 @@ Visible only on:
 | `cordova-only` | Visible only on Cordova wrapped Apps |
 | `electron-only` | Visible only on Electron wrapped Apps |
 | `touch-only` | Visible only on touch capable platforms |
-| `mat-only` | Visible only for Material Quasar Theme |
-| `ios-only` | Visible only for iOS Quasar Theme |
 | `platform-ios-only` | Visible only on an iOS platform |
 | `platform-android-only` | Visible only on an Android platform |
 | `within-iframe-only` | Visible only when entire website is under an IFRAME tag |
@@ -71,13 +69,9 @@ Hide on:
 | `cordova-hide` | Hide on Cordova wrapped Apps |
 | `electron-hide` | Hide on Electron wrapped Apps |
 | `touch-hide` | Hide on touch capable platforms |
-| `mat-hide` | Hide for Material Quasar Theme |
-| `ios-hide` | Hide for iOS Quasar Theme |
 | `platform-ios-hide` | Hide on iOS platform |
 | `platform-android-hide` | Hide on Android platform |
 | `within-iframe-hide` | Hide only when entire website is under an IFRAME tag |
-
-Also check [Theming](/style/theming) for Platform Specific Styles.
 
 ::: tip
 Based on your needs, you might want to also check [Platform Detection](/options/platform-detection) page to see how you can achieve the same effect using Javascript. This latter method allows you to not even render a DOM element or component. It is useful when the rendering process is expensive.

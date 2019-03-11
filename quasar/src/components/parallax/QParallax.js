@@ -1,10 +1,10 @@
 import Vue from 'vue'
 
 import { height, offset } from '../../utils/dom.js'
-import debounce from '../../utils/debounce.js'
 import frameDebounce from '../../utils/frame-debounce.js'
 import { getScrollTarget } from '../../utils/scroll.js'
 import { listenOpts } from '../../utils/event.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QParallax',
@@ -38,16 +38,14 @@ export default Vue.extend({
   methods: {
     __update (percentage) {
       this.percentScrolled = percentage
-      this.$emit('scroll', percentage)
+      this.$listeners.scroll !== void 0 && this.$emit('scroll', percentage)
     },
 
     __onResize () {
-      if (!this.scrollTarget) {
-        return
+      if (this.scrollTarget) {
+        this.mediaHeight = this.media.naturalHeight || this.media.videoHeight || height(this.media)
+        this.__updatePos()
       }
-
-      this.mediaHeight = this.media.naturalHeight || height(this.media)
-      this.__updatePos()
     },
 
     __updatePos () {
@@ -75,19 +73,22 @@ export default Vue.extend({
     },
 
     __setPos (offset) {
-      this.media.style.transform = `translate3D(-50%,${offset}px, 0)`
+      // apply it immediately without any delay
+      this.media.style.transform = `translate3D(-50%,${Math.round(offset)}px, 0)`
     }
   },
 
   render (h) {
     return h('div', {
       staticClass: 'q-parallax',
-      style: { height: `${this.height}px` }
+      style: { height: `${this.height}px` },
+      on: this.$listeners
     }, [
       h('div', {
+        ref: 'mediaParent',
         staticClass: 'q-parallax__media absolute-full'
-      }, [
-        this.$slots.media || h('img', {
+      }, this.$scopedSlots.media !== void 0 ? this.$scopedSlots.media() : [
+        h('img', {
           ref: 'media',
           attrs: {
             src: this.src
@@ -98,9 +99,9 @@ export default Vue.extend({
       h(
         'div',
         { staticClass: 'q-parallax__content absolute-full column flex-center' },
-        this.$scopedSlots.content
-          ? [ this.$scopedSlots.content({ percentScrolled: this.percentScrolled }) ]
-          : this.$slots.default
+        this.$scopedSlots.content !== void 0
+          ? this.$scopedSlots.content({ percentScrolled: this.percentScrolled })
+          : slot(this, 'default')
       )
     ])
   },
@@ -111,13 +112,13 @@ export default Vue.extend({
 
   mounted () {
     this.__update = frameDebounce(this.__update)
-    this.resizeHandler = debounce(this.__onResize, 50)
+    this.resizeHandler = frameDebounce(this.__onResize)
 
-    this.media = this.$slots.media
-      ? this.$slots.media[0].elm
+    this.media = this.$scopedSlots.media !== void 0
+      ? this.$refs.mediaParent.children[0]
       : this.$refs.media
 
-    this.media.onload = this.media.onloadstart = this.__onResize
+    this.media.onload = this.media.onloadstart = this.media.loadedmetadata = this.__onResize
 
     this.scrollTarget = getScrollTarget(this.$el)
 
@@ -130,6 +131,6 @@ export default Vue.extend({
   beforeDestroy () {
     window.removeEventListener('resize', this.resizeHandler, listenOpts.passive)
     this.scrollTarget.removeEventListener('scroll', this.__updatePos, listenOpts.passive)
-    this.media.onload = this.media.onloadstart = null
+    this.media.onload = this.media.onloadstart = this.media.loadedmetadata = null
   }
 })

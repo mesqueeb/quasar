@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 import QIcon from '../icon/QIcon.js'
 import { RouterLinkMixin } from '../../mixins/router-link.js'
 
@@ -14,18 +16,22 @@ export default Vue.extend({
   },
 
   render (h) {
-    return h(this.hasRouterLink ? 'router-link' : 'span', {
+    return h(this.hasRouterLink === true ? 'router-link' : 'span', {
       staticClass: 'q-breadcrumbs__el q-link flex inline items-center relative-position',
-      props: this.hasRouterLink ? this.routerLinkProps : null
+      props: this.hasRouterLink === true ? this.routerLinkProps : null,
+      [this.hasRouterLink === true ? 'nativeOn' : 'on']: this.$listeners
     }, [
 
-      (this.icon && h(QIcon, {
-        staticClass: 'q-mr-sm',
-        props: { name: this.icon }
-      })) || void 0,
+      this.icon !== void 0
+        ? h(QIcon, {
+          staticClass: 'q-breadcrumbs__el-icon',
+          class: this.label !== void 0 ? 'q-breadcrumbs__el-icon--with-label' : null,
+          props: { name: this.icon }
+        })
+        : null,
 
       this.label
 
-    ].concat(this.$slots.default))
+    ].concat(slot(this, 'default')))
   }
 })

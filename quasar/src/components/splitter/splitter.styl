@@ -1,14 +1,21 @@
 .q-splitter
 
-  &__panel > .q-splitter
-    width 100%
-    height 100%
+  &__panel
+    position relative
+
+    > .q-splitter
+      width 100%
+      height 100%
 
   &__separator
-    background currentColor
+    background-color $separator-color
     user-select none
     position relative
     z-index 1
+
+  &--dark
+    .q-splitter__separator
+      background-color $separator-dark-color
 
   &--vertical
     > .q-splitter__panel

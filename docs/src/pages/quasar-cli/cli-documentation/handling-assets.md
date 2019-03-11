@@ -3,7 +3,7 @@ title: App Handling Assets
 ---
 You will notice in the project structure we have two directories for assets: `/src/statics/` and `/src/assets/`. What is the difference between them? Some are static assets while the others are processed and embedded by the build system.
 
-So let's try to answer the question above. We'll first talk about using regular assets then we'll see what static assets are.
+So let's try to answer the question above. We'll first talk about using regular assets then we'll see what the difference is for static assets.
 
 ## Regular assets - /src/assets
 In `*.vue` components, all your templates and CSS are parsed by `vue-html-loader` and `css-loader` to look for asset URLs. For example, in `<img src="./logo.png">` and `background: url(./logo.png)`, `"./logo.png"` is a relative asset path and will be resolved by Webpack as a module dependency.
@@ -55,9 +55,7 @@ export default {
 </script>
 ```
 
-::: danger Important
-You can force serving static assets by using `src` as a Vue property. Instead of `src="statics/path/to/image"` use `:src="'statics/path/to/image'"`. Please note the usage of single and double quotes.
-:::
+You can force serving static assets by binding `src` to a value with Vue. Instead of `src="statics/path/to/image"` use `:src="'statics/path/to/image'"`. Please note the usage of single and double quotes.
 
 ## Getting Asset Paths in JavaScript
 

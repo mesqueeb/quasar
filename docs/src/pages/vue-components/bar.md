@@ -1,83 +1,44 @@
 ---
-title: Docs
+title: Bar
+related:
+  - /quasar-cli/developing-electron-apps/frameless-electron-window
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
+The QBar is a small component for creating the top bar on different types of mobile or desktop websites/apps. For instance, in desktop apps QBar will have things like the close, minimize or maximize buttons and other menu controls for your application.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
-
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
-
-::: tip
-Some tip
-:::
-
-::: warning
-Some tip
-:::
-
-::: danger
-Some tip
-:::
-
-::: warning CUSTOM TITLE
-Some tip
-:::
-
-* Something
-  * something
-  * else
-* Back
-  * wee
+QBar is especially useful for frame-less Electron apps where you integrate it in the QHeader.
 
 ## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+<doc-installation components="QBar" />
 
 ## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
 
-## API
-<doc-api file="QTh" />
+::: tip
+For responsiveness, use [Visibility](/style/visibility#Window-Width-Related) Quasar CSS Classes. For finer tuning you can go write your own CSS media breakpoints or even go with [QResizeObserver](/vue-components/resize-observer).
+:::
+
+### Styling
+
+<doc-example title="MacOS style" file="QBar/MacOS" />
+
+<doc-example title="Windows style" file="QBar/Windows" />
+
+<doc-example title="iOS style" file="QBar/iOS" />
+
+<doc-example title="Android style" file="QBar/Android" />
+
+### With other components
+
+<doc-example title="QMenu" file="QBar/Menu" />
+
+<doc-example title="QDialog" file="QBar/Dialog" />
+
+<doc-example title="QHeader with QToolbar" file="QBar/Header" />
+
+### Frameless Electron Window
+QBar component can come in really handy when developing Electron apps, especially if you choose to use a frameless window.
+
+Read more on [Frameless Electron Window](/quasar-cli/developing-electron-apps/frameless-electron-window) page.
+
+## QBar API
+<doc-api file="QBar" />

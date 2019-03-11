@@ -68,7 +68,7 @@ export default {
 
       if (propName !== void 0) {
         child.push(
-          this.getDiv(h, 4, 'Name', propName)
+          this.getDiv(h, 4, 'Name', h('q-badge', [ propName ]))
         )
 
         if (type !== void 0) {
@@ -220,8 +220,7 @@ export default {
         : child
     },
 
-    props (h) {
-      const props = this.api.props
+    props (h, props) {
       const child = []
 
       for (let propName in props) {
@@ -233,14 +232,13 @@ export default {
       return child
     },
 
-    slots (h) {
-      const slots = this.api.slots
+    slots (h, slots) {
       const child = []
 
       for (let slot in slots) {
         child.push(
           h('div', { staticClass: 'api-row row' }, [
-            this.getDiv(h, 12, 'Name', slot),
+            this.getDiv(h, 12, 'Name', h('q-badge', [ slot ])),
             this.getDiv(h, 12, 'Description', slots[slot].desc)
           ])
         )
@@ -249,8 +247,7 @@ export default {
       return child
     },
 
-    scopedSlots (h) {
-      const scopedSlots = this.api.scopedSlots
+    scopedSlots (h, scopedSlots) {
       const child = []
 
       for (let slot in scopedSlots) {
@@ -262,9 +259,20 @@ export default {
       return child
     },
 
-    events (h) {
-      const events = this.api.events
+    events (h, { $listeners, ...events }) {
       const child = []
+
+      if ($listeners !== void 0) {
+        child.push(
+          h('div', { staticClass: 'api-row api-row__value api-row--big-padding' }, [
+            $listeners.desc
+          ])
+        )
+      }
+
+      if (events === void 0) {
+        return child
+      }
 
       for (let eventName in events) {
         const event = events[eventName]
@@ -285,7 +293,9 @@ export default {
 
         child.push(
           h('div', { staticClass: 'api-row row' }, [
-            this.getDiv(h, 12, 'Name', `@${eventName}${getEventParams(event)}`),
+            this.getDiv(h, 12, 'Name', h('q-badge', [
+              `@${eventName}${getEventParams(event)}`
+            ])),
             this.getDiv(h, 12, 'Description', event.desc),
             this.getDiv(h, 12,
               'Parameters',
@@ -303,15 +313,16 @@ export default {
       return child
     },
 
-    methods (h) {
-      const methods = this.api.methods
+    methods (h, methods) {
       const child = []
 
       for (let methodName in methods) {
         const method = methods[methodName]
 
         const nodes = [
-          this.getDiv(h, 12, 'Name', `@${methodName}${getMethodParams(method)}${getMethodReturnValue(method)}`),
+          this.getDiv(h, 12, 'Name', h('q-badge', [
+            `${methodName}${getMethodParams(method)}${getMethodReturnValue(method)}`
+          ])),
           this.getDiv(h, 12, 'Description', method.desc)
         ]
 
@@ -356,24 +367,23 @@ export default {
       return child
     },
 
-    value (h) {
+    value (h, value) {
       return [
         h('div', { staticClass: 'api-row row' }, [
-          this.getDiv(h, 12, 'Type', getStringType(this.api.value.type))
-        ].concat(this.getProp(h, this.api.value, void 0, true)))
+          this.getDiv(h, 12, 'Type', getStringType(value.type))
+        ].concat(this.getProp(h, value, void 0, true)))
       ]
     },
 
-    arg (h) {
+    arg (h, arg) {
       return [
         h('div', { staticClass: 'api-row row' }, [
-          this.getDiv(h, 12, 'Type', getStringType(this.api.arg.type))
-        ].concat(this.getProp(h, this.api.arg, void 0, true)))
+          this.getDiv(h, 12, 'Type', getStringType(arg.type))
+        ].concat(this.getProp(h, arg, void 0, true)))
       ]
     },
 
-    modifiers (h) {
-      const modifiers = this.api.modifiers
+    modifiers (h, modifiers) {
       const child = []
 
       for (let modifierName in modifiers) {
@@ -384,7 +394,7 @@ export default {
             'div',
             { staticClass: 'api-row row' },
             [
-              this.getDiv(h, 12, 'Name', modifierName)
+              this.getDiv(h, 12, 'Name', h('q-badge', [ modifierName ]))
             ].concat(this.getProp(h, modifier, void 0, true))
           )
         )
@@ -393,16 +403,15 @@ export default {
       return child
     },
 
-    injection (h) {
+    injection (h, injection) {
       return [
         h('div', { staticClass: 'api-row row' }, [
-          this.getDiv(h, 12, 'Name', this.api.injection)
+          this.getDiv(h, 12, 'Name', injection)
         ])
       ]
     },
 
-    quasarConfOptions (h) {
-      const conf = this.api.quasarConfOptions
+    quasarConfOptions (h, conf) {
       const child = []
 
       for (let def in conf.definition) {
@@ -429,6 +438,16 @@ export default {
   },
 
   render (h) {
-    return h('div', { staticClass: 'api-rows' }, this[this.which](h))
+    const api = this.api[this.which]
+
+    const content = Object.keys(api).length !== 0
+      ? this[this.which](h, api)
+      : [
+        h('div', { staticClass: 'q-pa-md text-grey-7' }, [
+          'No matching entries found. Please refine the filter.'
+        ])
+      ]
+
+    return h('div', { staticClass: 'api-rows' }, content)
   }
 }

@@ -8,6 +8,8 @@ import QList from '../list/QList.js'
 import QItem from '../list/QItem.js'
 import QItemSection from '../list/QItemSection.js'
 
+import slot from '../../utils/slot.js'
+
 function run (e, btn, vm) {
   if (btn.handler) {
     btn.handler(e, vm, vm.caret)
@@ -34,20 +36,22 @@ function getBtn (h, vm, btn, clickHandler, active = false) {
     const Key = btn.key
       ? h('div', [h('small', `(CTRL + ${String.fromCharCode(btn.key)})`)])
       : null
-    child.push(h(QTooltip, { props: {delay: 1000} }, [
+    child.push(h(QTooltip, { props: { delay: 1000 } }, [
       h('div', { domProps: { innerHTML: btn.tip } }),
       Key
     ]))
   }
 
   return h(QBtn, {
-    props: Object.assign({}, vm.buttonProps, {
+    props: {
+      ...vm.buttonProps,
       icon: btn.icon,
       color: toggled ? btn.toggleColor || vm.toolbarToggleColor : btn.color || vm.toolbarColor,
       textColor: toggled && (vm.toolbarFlat || vm.toolbarOutline) ? null : btn.textColor || vm.toolbarTextColor,
       label: btn.label,
-      disable: btn.disable ? (typeof btn.disable === 'function' ? btn.disable(vm) : true) : false
-    }),
+      disable: btn.disable ? (typeof btn.disable === 'function' ? btn.disable(vm) : true) : false,
+      size: 'sm'
+    },
     on: events
   }, child)
 }
@@ -83,7 +87,9 @@ function getDropdown (h, vm, btn) {
         {
           props: vm.buttonProps,
           staticClass: 'relative-position q-editor-toolbar-padding',
-          style: { borderRadius: '0' }
+          style: { borderRadius: '0' },
+          size: 'sm',
+          dense: true
         },
         Items
       )
@@ -113,7 +119,7 @@ function getDropdown (h, vm, btn) {
       return h(
         QItem,
         {
-          props: { active, activeClass, clickable: true, disable: disable },
+          props: { active, activeClass, clickable: true, disable: disable, dense: true },
           on: {
             click (e) {
               closeDropdown()
@@ -153,7 +159,8 @@ function getDropdown (h, vm, btn) {
   const Dropdown = h(
     QBtnDropdown,
     {
-      props: Object.assign({}, vm.buttonProps, {
+      props: {
+        ...vm.buttonProps,
         noCaps: true,
         noWrap: true,
         color: highlight ? vm.toolbarToggleColor : vm.toolbarColor,
@@ -161,7 +168,7 @@ function getDropdown (h, vm, btn) {
         label: btn.fixedLabel ? btn.label : label,
         icon: btn.fixedIcon ? btn.icon : icon,
         contentClass
-      })
+      }
     },
     Items
   )
@@ -175,7 +182,7 @@ export function getToolbar (h, vm) {
       { props: vm.buttonProps, staticClass: 'items-center relative-position' },
       group.map(btn => {
         if (btn.type === 'slot') {
-          return vm.$slots[btn.slot]
+          return slot(vm, btn.slot)
         }
 
         if (btn.type === 'dropdown') {
@@ -266,10 +273,11 @@ export function getLinkEditor (h, vm) {
           attrs: {
             tabindex: -1
           },
-          props: Object.assign({}, vm.buttonProps, {
+          props: {
+            ...vm.buttonProps,
             label: vm.$q.lang.label.remove,
             noCaps: true
-          }),
+          },
           on: {
             click: () => {
               vm.caret.restore()
@@ -280,10 +288,11 @@ export function getLinkEditor (h, vm) {
         }),
         h(QBtn, {
           key: 'qedt_btm_upd',
-          props: Object.assign({}, vm.buttonProps, {
+          props: {
+            ...vm.buttonProps,
             label: vm.$q.lang.label.update,
             noCaps: true
-          }),
+          },
           on: {
             click: updateLink
           }

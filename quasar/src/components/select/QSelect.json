@@ -1,5 +1,5 @@
 {
-  "mixins": [ "components/field/QField" ],
+  "mixins": [ "components/field/__QField" ],
 
   "props": {
     "value": {
@@ -18,10 +18,6 @@
       "type": [ "Number", "String" ],
       "desc": "Override default selection string, if not using 'selected' slot/scoped slot and if not using 'use-chips' prop",
       "examples": [ "Options: x, y, z"]
-    },
-
-    "dropdown-icon": {
-      "extends": "icon"
     },
 
     "options": {
@@ -69,6 +65,15 @@
       "desc": "Hides selection; Use the underlying input tag to hold the label (instead of showing it to the right of the input) of the selected option; Only works for non 'multiple' Selects"
     },
 
+    "hide-dropdown-icon": {
+      "type": "Boolean",
+      "desc": "Hides dropdown icon"
+    },
+
+    "dropdown-icon": {
+      "extends": "icon"
+    },
+
     "counter": {
       "type": "Boolean",
       "desc": "Show a counter of selected options on bottom right side"
@@ -80,7 +85,7 @@
       "examples": [ "5" ]
     },
 
-    "option-dense": {
+    "options-dense": {
       "extends": "dense",
       "desc": "Dense mode for options list; occupies less space"
     },
@@ -96,6 +101,11 @@
       "examples": [ "text-orange" ]
     },
 
+    "options-cover": {
+      "type": "Boolean",
+      "desc": "Expanded menu will cover the component"
+    },
+
     "use-input": {
       "type": "Boolean",
       "desc": "Use an input tag where users can type"
@@ -104,6 +114,12 @@
     "use-chips": {
       "type": "Boolean",
       "desc": "Use QChip to show what is currently selected"
+    },
+
+    "new-value-mode": {
+      "type": "String",
+      "desc": "Enables creation of new values and defines behavior when a new value is added: 'add' means it adds the value (even if possible duplicate), 'add-unique' adds only unique values, and 'toggle' adds or removes the value (based on if it exists or not already); When using this prop then listening for @new-value becomes optional (only to override the behavior defined by 'new-value-mode')",
+      "values": [ "add", "add-unique", "toggle" ]
     },
 
     "map-options": {
@@ -123,11 +139,6 @@
       "examples": [ 650 ]
     },
 
-    "expand-besides": {
-      "type": "Boolean",
-      "desc": "Expand the menu on top or bottom of the component, so it won't cover it"
-    },
-
     "autofocus": {
       "type": "Boolean",
       "desc": "Focus component on initial render"
@@ -135,13 +146,13 @@
 
     "transition-show": {
       "extends": "transition",
-      "desc": "Transition when showing the menu; One of Quasar's embedded transitions",
+      "desc": "Transition when showing the menu; One of Quasar's embedded transitions; Works only if \"cover-options\" is not used",
       "default": "fade"
     },
 
     "transition-hide": {
       "extends": "transition",
-      "desc": "Transition when hiding the menu; One of Quasar's embedded transitions",
+      "desc": "Transition when hiding the menu; One of Quasar's embedded transitions; Works only if \"cover-options\" is not used",
       "default": "fade"
     }
   },
@@ -156,12 +167,12 @@
     },
 
     "loading": {
-      "desc": "Override default spinner when QSelect is in loading mode; Suggestion: spinners"
+      "desc": "Override default spinner when component is in loading mode; Suggestion: spinners"
     }
   },
 
   "scopedSlots": {
-    "selected": {
+    "selected-item": {
       "desc": "Override default selection slot; Suggestion: QChip",
       "scope": {
         "index": {
@@ -319,14 +330,14 @@
     },
 
     "new-value": {
-      "desc": "Emitted when a new value has been created",
+      "desc": "Enables creation of new values; Emitted when a new value has been created; You can override 'new-value-mode' property with it",
       "params": {
         "inputValue": {
           "type": "String",
           "desc": "What the user typed",
           "examples": [ "phone" ]
         },
-        "itemToAddToModel": {
+        "doneFn": {
           "type": "Function",
           "desc": "Adds (optional) value to the model; Do not forget to call it after you validate the newly created value; Call it with no parameters if nothing should be added",
           "params": {
@@ -334,6 +345,12 @@
               "type": "Any",
               "desc": "Item to add",
               "__exemption": [ "examples" ]
+            },
+            "mode": {
+              "type": "String",
+              "desc": "Override 'new-value-mode' (prop) behavior should you wish to",
+              "values": [ "add", "add-unique", "toggle" ],
+              "default": "add"
             }
           },
           "returns": null

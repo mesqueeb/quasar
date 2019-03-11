@@ -1,83 +1,67 @@
 ---
-title: Docs
+title: Build Commands
 ---
-
-[Internal Link](/docs), [External Link](https://vuejs.org)
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
-
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
+We will be covering Development and Production build commands.
 
 ::: tip
-Some tip
+Full list of Quasar CLI commands: [Commands List](/quasar-cli/cli-documentation/commands-list).
 :::
 
-::: warning
-Some tip
-:::
+### Development
+> Starts a Node.js local development server.
 
-::: danger
-Some tip
-:::
+``` bash
+# run development server (with default theme)
+$ quasar dev
 
-::: warning CUSTOM TITLE
-Some tip
-:::
+# on specific port
+$ quasar dev -p 9090
 
-* Something
-  * something
-  * else
-* Back
-  * wee
+# SSR
+$ quasar dev -m ssr
 
-## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+# PWA
+$ quasar dev -m pwa
 
-## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
+# Mobile App
+$ quasar dev -m cordova -T [android|ios]
 
-## API
-<doc-api file="QTh" />
+# Electron App
+$ quasar dev -m electron
+```
+
+While developing with the Dev Server you will have:
+* Babel, so you can write ES6 code
+* Webpack + vue-loader for Vue SFC (single file components)
+* State preserving hot-reload
+* State preserving compilation error overlay
+* Lint-on-save with ESLint
+* Source maps
+* Develop right on a device emulator (or a real phone connected to your machine) if you target a Mobile App
+* Develop right on an Electron window with Developer Tools included if you target an Electron App
+
+### Production
+> Build assets for production.
+
+``` bash
+# build for production
+$ quasar build
+
+# SSR
+$ quasar build -m ssr
+
+# PWA
+$ quasar build -m pwa
+
+# Mobile App
+$ quasar build -m cordova -T [android|ios]
+
+# Electron App
+$ quasar build -m electron
+```
+
+In addition to what you get while developing your website/app, for production builds you also take advantage of:
+* Javascript minified with [UglifyJS](https://github.com/mishoo/UglifyJS2)
+* HTML minified with [html-minifier](https://github.com/kangax/html-minifier)
+* CSS across all components extracted (and auto-prefixed) into a single file and minified with [cssnano](https://github.com/ben-eb/cssnano)
+* All static assets are compiled with version hashes for efficient long-term caching, and a production index.html is auto-generated with proper URLs to these generated assets.

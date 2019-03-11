@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 import QBtn from '../btn/QBtn.js'
 import FabMixin from './fab-mixin.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QFabAction',
@@ -43,8 +44,9 @@ export default Vue.extend({
         icon: this.icon
       },
       on: {
+        ...this.$listeners,
         click: this.click
       }
-    }, this.$slots.default)
+    }, slot(this, 'default'))
   }
 })

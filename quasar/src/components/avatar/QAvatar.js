@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 import QIcon from '../icon/QIcon.js'
 
 export default Vue.extend({
@@ -23,7 +25,7 @@ export default Vue.extend({
         [`bg-${this.color}`]: this.color,
         [`text-${this.textColor} q-chip--colored`]: this.textColor,
         'q-avatar__content--square': this.square,
-        'generic-border-radius': this.rounded
+        'rounded-borders': this.rounded
       }
     },
 
@@ -42,16 +44,17 @@ export default Vue.extend({
 
   methods: {
     __getContent (h) {
-      return this.icon
-        ? [ h(QIcon, { props: { name: this.icon } }) ].concat(this.$slots.default)
-        : this.$slots.default
+      return this.icon !== void 0
+        ? [ h(QIcon, { props: { name: this.icon } }) ].concat(slot(this, 'default'))
+        : slot(this, 'default')
     }
   },
 
   render (h) {
     return h('div', {
       staticClass: 'q-avatar relative-position',
-      style: this.style
+      style: this.style,
+      on: this.$listeners
     }, [
       h('div', {
         staticClass: 'q-avatar__content row flex-center overflow-hidden',

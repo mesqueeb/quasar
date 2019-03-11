@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 import CheckboxMixin from '../../mixins/checkbox.js'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QCheckbox',
 
@@ -55,11 +57,13 @@ export default Vue.extend({
         staticClass: 'q-checkbox__inner relative-position',
         class: this.innerClass
       }, [
-        this.disable ? null : h('input', {
-          staticClass: 'q-checkbox__native q-ma-none q-pa-none invisible',
-          attrs: { type: 'checkbox' },
-          on: { change: this.toggle }
-        }),
+        this.disable !== true
+          ? h('input', {
+            staticClass: 'q-checkbox__native q-ma-none q-pa-none invisible',
+            attrs: { type: 'checkbox' },
+            on: { change: this.toggle }
+          })
+          : null,
 
         h('div', {
           staticClass: 'q-checkbox__bg absolute'
@@ -80,9 +84,11 @@ export default Vue.extend({
         ])
       ]),
 
-      (this.label !== void 0 || this.$slots.default !== void 0) && h('div', {
-        staticClass: 'q-checkbox__label q-anchor--skip'
-      }, (this.label !== void 0 ? [ this.label ] : []).concat(this.$slots.default))
+      this.label !== void 0 || this.$scopedSlots.default !== void 0
+        ? h('div', {
+          staticClass: 'q-checkbox__label q-anchor--skip'
+        }, (this.label !== void 0 ? [ this.label ] : []).concat(slot(this, 'default')))
+        : null
     ])
   }
 })

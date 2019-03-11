@@ -3,6 +3,8 @@ import Vue from 'vue'
 import QIcon from '../icon/QIcon.js'
 import QResizeObserver from '../observer/QResizeObserver.js'
 
+import slot from '../../utils/slot.js'
+
 function getIndicatorClass (color, top) {
   return `absolute-${top ? 'top' : 'bottom'}${color ? ` text-${color}` : ''}`
 }
@@ -30,6 +32,8 @@ export default Vue.extend({
       type: [String, Number],
       default: 600
     },
+
+    shrink: Boolean,
 
     activeColor: String,
     activeBgColor: String,
@@ -59,10 +63,7 @@ export default Vue.extend({
       scrollable: false,
       leftArrow: true,
       rightArrow: false,
-      justify: false,
-
-      // 2 * mobile .q-tabs__offset min-width
-      extraOffset: this.$q.platform.is.mobile ? 104 : 0
+      justify: false
     }
   },
 
@@ -102,15 +103,17 @@ export default Vue.extend({
 
   computed: {
     alignClass () {
-      const align = this.scrollable
+      const align = this.scrollable === true
         ? 'left'
-        : (this.justify ? 'justify' : this.align)
+        : (this.justify === true ? 'justify' : this.align)
 
       return `q-tabs__content--align-${align}`
     },
 
     classes () {
-      return `q-tabs--${this.scrollable ? '' : 'not-'}scrollable${this.dense ? ' q-tabs--dense' : ''}`
+      return `q-tabs--${this.scrollable === true ? '' : 'not-'}scrollable` +
+        (this.dense === true ? ' q-tabs--dense' : '') +
+        (this.shrink === true ? ' col-shrink' : '')
     }
   },
 
@@ -155,12 +158,12 @@ export default Vue.extend({
     },
 
     __updateContainer ({ width }) {
-      const scroll = this.$refs.content.scrollWidth - (this.scrollable ? this.extraOffset : 0) > width
+      const scroll = this.$refs.content.scrollWidth > width
       if (this.scrollable !== scroll) {
         this.scrollable = scroll
       }
 
-      scroll && this.$nextTick(() => this.__updateArrows())
+      scroll === true && this.$nextTick(() => this.__updateArrows())
 
       const justify = width < parseInt(this.breakpoint, 10)
       if (this.justify !== justify) {
@@ -296,6 +299,7 @@ export default Vue.extend({
     return h('div', {
       staticClass: 'q-tabs row no-wrap items-center',
       class: this.classes,
+      on: this.$listeners,
       attrs: { role: 'tablist' }
     }, [
       h(QResizeObserver, {
@@ -304,8 +308,8 @@ export default Vue.extend({
 
       h(QIcon, {
         staticClass: 'q-tabs__arrow q-tabs__arrow--left q-tab__icon',
-        class: this.leftArrow ? '' : 'invisible',
-        props: { name: this.leftIcon || this.$q.icon.tabs.left },
+        class: this.leftArrow ? '' : 'q-tabs__arrow--faded',
+        props: { name: this.leftIcon || this.$q.iconSet.tabs.left },
         nativeOn: {
           mousedown: this.__scrollToStart,
           touchstart: this.__scrollToStart,
@@ -319,16 +323,12 @@ export default Vue.extend({
         ref: 'content',
         staticClass: 'q-tabs__content row no-wrap items-center',
         class: this.alignClass
-      }, [
-        h('div', { staticClass: 'q-tabs__offset invisible' }, ['-'])
-      ].concat(this.$slots.default).concat([
-        h('div', { staticClass: 'q-tabs__offset invisible' }, ['-'])
-      ])),
+      }, slot(this, 'default')),
 
       h(QIcon, {
         staticClass: 'q-tabs__arrow q-tabs__arrow--right q-tab__icon',
-        class: this.rightArrow ? '' : 'invisible',
-        props: { name: this.rightIcon || this.$q.icon.tabs.right },
+        class: this.rightArrow ? '' : 'q-tabs__arrow--faded',
+        props: { name: this.rightIcon || this.$q.iconSet.tabs.right },
         nativeOn: {
           mousedown: this.__scrollToEnd,
           touchstart: this.__scrollToEnd,

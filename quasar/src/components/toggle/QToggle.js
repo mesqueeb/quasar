@@ -1,17 +1,13 @@
 import Vue from 'vue'
 
 import CheckboxMixin from '../../mixins/checkbox.js'
-import TouchSwipe from '../../directives/TouchSwipe.js'
 import QIcon from '../icon/QIcon.js'
+import slot from '../../utils/slot.js'
 
 export default Vue.extend({
   name: 'QToggle',
 
   mixins: [ CheckboxMixin ],
-
-  directives: {
-    TouchSwipe
-  },
 
   props: {
     icon: String,
@@ -45,17 +41,6 @@ export default Vue.extend({
     }
   },
 
-  methods: {
-    __swipe (evt) {
-      if (evt.direction === 'left') {
-        this.isTrue && this.toggle()
-      }
-      else if (evt.direction === 'right') {
-        this.isFalse && this.toggle()
-      }
-    }
-  },
-
   render (h) {
     return h('div', {
       staticClass: 'q-toggle cursor-pointer no-outline row inline no-wrap items-center',
@@ -70,11 +55,13 @@ export default Vue.extend({
         staticClass: 'q-toggle__inner relative-position',
         class: this.innerClass
       }, [
-        this.disable ? null : h('input', {
-          staticClass: 'q-toggle__native absolute q-ma-none q-pa-none invisible',
-          attrs: { type: 'toggle' },
-          on: { change: this.toggle }
-        }),
+        this.disable !== true
+          ? h('input', {
+            staticClass: 'q-toggle__native absolute q-ma-none q-pa-none invisible',
+            attrs: { type: 'toggle' },
+            on: { change: this.toggle }
+          })
+          : null,
 
         h('div', { staticClass: 'q-toggle__track' }),
         h('div', { staticClass: 'q-toggle__thumb-container absolute' }, [
@@ -89,7 +76,7 @@ export default Vue.extend({
 
       h('div', {
         staticClass: 'q-toggle__label q-anchor--skip'
-      }, (this.label !== void 0 ? [ this.label ] : []).concat(this.$slots.default))
+      }, (this.label !== void 0 ? [ this.label ] : []).concat(slot(this, 'default')))
     ])
   }
 })

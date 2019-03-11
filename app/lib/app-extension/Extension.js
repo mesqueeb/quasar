@@ -41,21 +41,40 @@ module.exports = class Extension {
   }
 
   async install (skipPkgInstall) {
-    log(`Installing "${this.extId}" Quasar App Extension`)
-    log()
-   
-    // verify if already installed
-    if (skipPkgInstall !== true && this.isInstalled()) {
-      const inquirer = require('inquirer')
-      const answer = await inquirer.prompt([{
-        name: 'reinstall',
-        type: 'confirm',
-        message: `Already installed. Reinstall "${this.name}"?`,
-        default: false
-      }])
+    if (/quasar-app-extension-/.test(this.extId)) {
+      this.extId = this.extId.replace('quasar-app-extension-', '')
+      log(
+        `When using an extension, "quasar-app-extension-" is added automatically. Just run "quasar ext --add ${
+          this.extId
+        }"`
+      )
+    }
 
-      if (!answer.reinstall) {
-        return
+    log(`${skipPkgInstall ? 'Invoking' : 'Installing'} "${this.extId}" Quasar App Extension`)
+    log()
+
+    const isInstalled = this.isInstalled()
+
+    // verify if already installed
+    if (skipPkgInstall === true) {
+      if (!isInstalled) {
+        warn(`⚠️  Tried to invoke App Extension "${this.extId}" but it's npm package is not installed`)
+        process.exit(1)
+      }
+    }
+    else {
+      if (isInstalled) {
+        const inquirer = require('inquirer')
+        const answer = await inquirer.prompt([{
+          name: 'reinstall',
+          type: 'confirm',
+          message: `Already installed. Reinstall?`,
+          default: false
+        }])
+
+        if (!answer.reinstall) {
+          return
+        }
       }
     }
 
@@ -82,13 +101,23 @@ module.exports = class Extension {
   }
 
   async uninstall (skipPkgUninstall) {
-    log(`Uninstalling "${this.extId}" App Extension`)
+    log(`${skipPkgUninstall ? 'Uninvoking' : 'Uninstalling'} "${this.extId}" Quasar App Extension`)
     log()
 
-    // verify if installed
-    if (skipPkgUninstall !== true && !this.isInstalled()) {
-      warn(`⚠️  Quasar App Extension "${this.packageName}" is not installed...`)
-      return
+    const isInstalled = this.isInstalled()
+
+    // verify if already installed
+    if (skipPkgUninstall === true) {
+      if (!isInstalled) {
+        warn(`⚠️  Tried to uninvoke App Extension "${this.extId}" but there's no npm package installed for it.`)
+        process.exit(1)
+      }
+    }
+    else {
+      if (!isInstalled) {
+        warn(`⚠️  Quasar App Extension "${this.packageName}" is not installed...`)
+        return
+      }
     }
 
     const extensionJson = require('./extension-json')
@@ -194,7 +223,7 @@ module.exports = class Extension {
     let script
 
     try {
-      script = require.resolve(this.packageName + '/' + scriptName, {
+      script = require.resolve(this.packageName + '/src/' + scriptName, {
         paths: [ appPaths.appDir ]
       })
     }

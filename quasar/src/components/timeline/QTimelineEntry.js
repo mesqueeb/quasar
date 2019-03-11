@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 import QIcon from '../icon/QIcon.js'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QTimelineEntry',
 
@@ -37,29 +39,35 @@ export default Vue.extend({
 
     classes () {
       return [
-        `q-timeline__entry--${this.side === 'left' ? 'left' : 'right'}`,
+        `q-timeline__entry--${this.side}`,
         this.icon ? 'q-timeline__entry--icon' : ''
       ]
+    },
+
+    reverse () {
+      return this.__timeline.layout === 'comfortable' && this.__timeline.side === 'left'
     }
   },
 
   render (h) {
     if (this.heading) {
-      return h('div', { staticClass: 'q-timeline__heading' }, [
+      const content = [
         h('div'),
         h('div'),
         h(
           this.tag,
           { staticClass: 'q-timeline__heading-title' },
-          this.$slots.default
+          slot(this, 'default')
         )
-      ])
+      ]
+
+      return h('div', {
+        staticClass: 'q-timeline__heading',
+        on: this.$listeners
+      }, this.reverse === true ? content.reverse() : content)
     }
 
-    return h('li', {
-      staticClass: `q-timeline__entry`,
-      class: this.classes
-    }, [
+    const content = [
       h('div', { staticClass: 'q-timeline__subtitle' }, [
         h('span', this.subtitle)
       ]),
@@ -76,7 +84,13 @@ export default Vue.extend({
 
       h('div', { staticClass: 'q-timeline__content' }, [
         h('h6', { staticClass: 'q-timeline__title' }, [ this.title ])
-      ].concat(this.$slots.default))
-    ])
+      ].concat(slot(this, 'default')))
+    ]
+
+    return h('li', {
+      staticClass: 'q-timeline__entry',
+      class: this.classes,
+      on: this.$listeners
+    }, this.reverse === true ? content.reverse() : content)
   }
 })

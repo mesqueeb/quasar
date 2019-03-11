@@ -3,7 +3,7 @@ title: Electron Security Concerns
 ---
 If you are not vigilant when building Electron apps, you will probably be placing the users of your app in tangible digital danger. Things like XSS (Cross Site Scripting) and remote code execution can literally enable attackers to get deep access to the data in your app - and potentially even the underlying operating system.
 
-Especially when working "in the open", i.e. as an open-source project, you will definitely want to consider hardening your application with code-signing and integrity checking. (See [the tips](/quasar-cli/developing-electron-apps/electron-security-concerns#Tips-and-Tricks) below.)
+Especially when working "in the open", i.e. as an open-source project, you will definitely want to consider hardening your application with code-signing and integrity checking. (See "Tips" section)
 
 ::: danger
 Under no circumstances should you load and execute remote code with Node.js integration enabled. Instead, use only local files (packaged together with your application) to execute Node.js code. To display remote content, use the `<webview>` tag and make sure to disable the nodeIntegration.
@@ -40,10 +40,10 @@ Having read & write permissions to the filesystem is the holy grail for penetrat
 #### Encryption
 If the user of your application has secrets like wallet addresses, personal information or some other kind of trade secrets, keep that information encrypted when at rest, un-encrypt it in-memory only when it is needed and make sure to overwrite / destroy the object in memory when you are done with it. But no matter how you approach this, follow these four rules:
 
-0. use strong crypto (i.e. collision resistant and not md5)
-1. do not invent a novel type of encryption
-2. follow the implementation instructions explicitly
-3. think about the user-experience
+1. use strong crypto (i.e. collision resistant and not md5)
+2. do not invent a novel type of encryption
+3. follow the implementation instructions explicitly
+4. think about the user-experience
 
 #### Disable developer tools in production
 You probably don't want rogue hoody-wearing menaces to be executing something like this in the console of your app:

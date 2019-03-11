@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QPageSticky',
 
@@ -65,19 +67,19 @@ export default Vue.extend({
 
       const
         attach = this.attach,
-        dir = this.$q.lang.rtl ? -1 : 1
+        dir = this.$q.lang.rtl === true ? -1 : 1
 
-      if (attach.top && this.top) {
+      if (attach.top === true && this.top !== 0) {
         posY = `${this.top}px`
       }
-      else if (attach.bottom && this.bottom) {
+      else if (attach.bottom === true && this.bottom !== 0) {
         posY = `${-this.bottom}px`
       }
 
-      if (attach.left && this.left) {
+      if (attach.left === true && this.left !== 0) {
         posX = `${dir * this.left}px`
       }
-      else if (attach.right && this.right) {
+      else if (attach.right === true && this.right !== 0) {
         posX = `${-dir * this.right}px`
       }
 
@@ -87,19 +89,19 @@ export default Vue.extend({
         css.margin = `${this.offset[1]}px ${this.offset[0]}px`
       }
 
-      if (attach.vertical) {
-        if (this.left) {
-          css[this.$q.lang.rtl ? 'right' : 'left'] = `${this.left}px`
+      if (attach.vertical === true) {
+        if (this.left !== 0) {
+          css[this.$q.lang.rtl === true ? 'right' : 'left'] = `${this.left}px`
         }
-        if (this.right) {
-          css[this.$q.lang.rtl ? 'left' : 'right'] = `${this.right}px`
+        if (this.right !== 0) {
+          css[this.$q.lang.rtl === true ? 'left' : 'right'] = `${this.right}px`
         }
       }
-      else if (attach.horizontal) {
-        if (this.top) {
+      else if (attach.horizontal === true) {
+        if (this.top !== 0) {
           css.top = `${this.top}px`
         }
-        if (this.bottom) {
+        if (this.bottom !== 0) {
           css.bottom = `${this.bottom}px`
         }
       }
@@ -108,19 +110,21 @@ export default Vue.extend({
     },
 
     classes () {
-      return `fixed-${this.position} q-page-sticky--${this.expand ? 'expand' : 'shrink'}`
+      return `fixed-${this.position} q-page-sticky--${this.expand === true ? 'expand' : 'shrink'}`
     }
   },
 
   render (h) {
+    const content = slot(this, 'default')
+
     return h('div', {
       staticClass: 'q-page-sticky q-layout__section--animate row flex-center',
       class: this.classes,
       style: this.style
     },
-    this.expand
-      ? this.$slots.default
-      : [ h('div', this.$slots.default) ]
+    this.expand === true
+      ? content
+      : [ h('div', content) ]
     )
   }
 })

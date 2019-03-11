@@ -14,16 +14,34 @@
       "extends": "icon"
     },
 
+    "expand-icon-class": {
+      "type": [ "Array", "String", "Object" ],
+      "desc": "Apply custom class(es) to the expand icon item section",
+      "examples": [ "text-purple" ]
+    },
+
     "label": {
       "type": "String",
       "desc": "Header label (unless using 'header' slot)",
       "examples": [ "My expansion item" ]
     },
 
+    "label-lines": {
+      "type": [ "Number", "String" ],
+      "desc": "Apply ellipsis when there's not enough space to render on the specified number of lines; If more than one line specified, then it will only work on webkit browsers because it uses the '-webkit-line-clamp' CSS property!",
+      "examples": [ "1", "3", ":label-lines=\"2\"" ]
+    },
+
     "caption": {
       "type": "String",
       "desc": "Header sub-label (unless using 'header' slot)",
       "examples": [ "Unread message: 5" ]
+    },
+
+    "caption-lines": {
+      "type": [ "Number", "String" ],
+      "desc": "Apply ellipsis when there's not enough space to render on the specified number of lines; If more than one line specified, then it will only work on webkit browsers because it uses the '-webkit-line-clamp' CSS property!",
+      "examples": [ "1", "3", ":caption-lines=\"2\"" ]
     },
 
     "dark": {
@@ -60,7 +78,7 @@
 
     "default-opened": {
       "type": "Boolean",
-      "desc": "Puts expansion item into open state on initial render"
+      "desc": "Puts expansion item into open state on initial render; Overriden by v-model if used"
     },
 
     "expand-icon-toggle": {

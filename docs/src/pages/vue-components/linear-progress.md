@@ -1,5 +1,11 @@
 ---
 title: Linear Progress
+related:
+  - /vue-components/circular-progress
+  - /vue-components/inner-loading
+  - /vue-components/spinners
+  - /quasar-plugins/loading
+  - /quasar-plugins/loading-bar
 ---
 
 The QLinearProgress component displays a colored loading bar. The bar can either have a determinate progress, or an indeterminate animation. It should be used to inform the user that an action is occurring in the background.
@@ -27,7 +33,7 @@ For indeterminate state (above) or query state (below) you don't need to specify
 
 <doc-example title="Buffer" file="QLinearProgress/Buffering" />
 
-<doc-example title="On Dark Background" file="QLinearProgress/OnDarkBackground" dark />
+<doc-example title="On a dark background" file="QLinearProgress/OnDarkBackground" dark />
 
-## API
+## QLinearProgress API
 <doc-api file="QLinearProgress" />

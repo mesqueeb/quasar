@@ -57,7 +57,9 @@ export default Vue.extend({
     },
 
     thumbStyle () {
-      return { left: (100 * this.ratio) + '%' }
+      return {
+        [this.horizProp]: (100 * this.ratio) + '%'
+      }
     },
 
     thumbClass () {
@@ -65,12 +67,12 @@ export default Vue.extend({
     },
 
     pinClass () {
-      return this.labelColor ? `text-${this.labelColor}` : null
+      return this.labelColor !== void 0 ? `text-${this.labelColor}` : null
     },
 
     events () {
-      if (this.editable) {
-        return this.$q.platform.is.mobile
+      if (this.editable === true) {
+        return this.$q.platform.is.mobile === true
           ? { click: this.__mobileClick }
           : {
             mousedown: this.__activate,
@@ -153,7 +155,10 @@ export default Vue.extend({
         modifiers: {
           horizontal: true,
           prevent: true,
-          stop: true
+          stop: true,
+          mouse: true,
+          mouseAllDir: true,
+          mouseStop: true
         }
       }] : null
     }, [

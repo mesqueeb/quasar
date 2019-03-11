@@ -1,6 +1,10 @@
 {
   "mixins": [ "mixins/model-toggle" ],
 
+  "behavior": {
+    "$listeners": true
+  },
+
   "props": {
     "value": {
       "desc": "Controls state of fab actions (showing/hidden); Works best with v-model directive, otherwise use along listening to 'input' event"
@@ -18,7 +22,7 @@
       "type": "String",
       "desc": "Direction to expand Fab Actions to",
       "default": "right",
-      "values": [ "top", "right", "bottom", "left" ],
+      "values": [ "up", "right", "down", "left" ],
       "examples": [ "bottom" ]
     },
 

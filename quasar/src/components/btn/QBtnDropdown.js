@@ -7,6 +7,8 @@ import QBtn from './QBtn.js'
 import QBtnGroup from './QBtnGroup.js'
 import QMenu from '../menu/QMenu.js'
 
+import slot from '../../utils/slot.js'
+
 export default Vue.extend({
   name: 'QBtnDropdown',
 
@@ -48,7 +50,7 @@ export default Vue.extend({
     const Arrow = [
       h(QIcon, {
         props: {
-          name: 'arrow_drop_down' // this.$q.icon.input.dropdown
+          name: this.$q.iconSet.arrow.dropdown
         },
         staticClass: 'q-btn-dropdown__arrow',
         class: {
@@ -88,15 +90,16 @@ export default Vue.extend({
             this.$emit('input', false)
           }
         }
-      }, this.$slots.default)
+      }, slot(this, 'default'))
     ]
 
     const Btn = h(QBtn, {
       class: `q-btn-dropdown${this.split === true ? '--current' : ' q-btn-dropdown--simple'}`,
-      props: Object.assign({}, this.$props, {
+      props: {
+        ...this.$props,
         noWrap: true,
         iconRight: this.split === true ? this.iconRight : null
-      }),
+      },
       on: {
         click: e => {
           this.split && this.hide()

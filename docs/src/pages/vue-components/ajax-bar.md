@@ -1,83 +1,35 @@
 ---
-title: Docs
+title: Ajax Bar
+related:
+  - /quasar-plugins/loading
+  - /quasar-plugins/loading-bar
+  - /quasar-cli/ajax-requests
 ---
 
-[Internal Link](/docs), [External Link](https://vuejs.org)
+In most mobile apps and even some desktop apps, you will most likely have some API communication to a server via an [Ajax call](https://en.wikipedia.org/wiki/Ajax_(programming)). Since these calls can take more than a second or two, it is good UX to offer the user feedback, when such an API call is being made. Which is where QAjaxBar comes into helping you out.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non laoreet eros. `token` Morbi non ipsum ac purus dignissim rutrum. Nulla nec ante congue, rutrum tortor facilisis, aliquet ligula. Fusce vitae odio elit. `/quasar.conf.js`
-
-## Heading 2
-### Heading 3
-#### Heading 4
-##### Heading 5
-###### Heading 6
-
-```
-const m = 'lala'
-```
-
-```html
-<div>
-  <q-btn @click="doSomething">Do something</q-btn>
-  <q-icon name="alarm" />
-</div>
-```
-
-```vue
-<template>
-  <!-- you define your Vue template here -->
-</template>
-
-<script>
-// This is where your Javascript goes
-// to define your Vue component, which
-// can be a Layout, a Page or your own
-// component used throughout the app.
-
-export default {
-  //
-}
-</script>
-
-<style>
-/* This is where your CSS goes */
-</style>
-```
-
-| Table Example | Type | Description |
-| --- | --- | --- |
-| infinite | Boolean | Infinite slides scrolling |
-| size | String | Thickness of loading bar. |
-
-> Something...
+QAjaxBar is a component which displays a loading bar (like Youtube) whenever an Ajax call (regardless of Ajax library used) is in progress. It can be manually triggered as well.
 
 ::: tip
-Some tip
+If you'd like **a simpler and more convenient way** to offer an Ajax Bar to your users, have a look at the [Loading Bar Plugin](/quasar-plugins/loading-bar), which is actually **the recommended way**.
 :::
-
-::: warning
-Some tip
-:::
-
-::: danger
-Some tip
-:::
-
-::: warning CUSTOM TITLE
-Some tip
-:::
-
-* Something
-  * something
-  * else
-* Back
-  * wee
 
 ## Installation
-<doc-installation components="QBtn" :plugins="['Meta', 'Cookies']" directives="Ripple" :config="{ notify: 'Notify' }" />
+<doc-installation components="QAjaxBar" />
 
 ## Usage
-<doc-example title="Standard" file="QBtn/Standard" />
+The QAjaxBar component captures Ajax calls automatically (unless told not to).
 
-## API
-<doc-api file="QTh" />
+The example below triggers events manually for demonstrating purposes only. This one is set to appear at bottom (multiple positions available!) of the page, with a 10px size (default is different) and uses a custom color.
+
+<doc-example title="Basic" file="QAjaxBar/Basic" />
+
+Please check out the API section for all properties that you can use.
+
+## Tips
+* If multiple events are captured by Ajax Bar simultaneously, `@start` and `@stop` will still be triggered only once: when bar starts showing up and when it becomes hidden.
+
+* Each Ajax call makes a `start()` call when it is triggered. When it ends, it calls `stop()`. So yes, if you also manually trigger QAjaxBar you must call `start()` each time a new event is starting and `stop()` each time an event finished. QAjaxBar knows to handle multiple events simultaneously.
+
+## QAjaxBar API
+<doc-api file="QAjaxBar" />

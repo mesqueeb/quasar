@@ -24,9 +24,14 @@ console.log(`
   Commands
     create        Create a project folder
     info          Display info about your machine
-                  (and your App if in a project folder)
+                    (and your App if in a project folder)
+    upgrade       Check (and optionally) upgrade Quasar packages
+                    from a Quasar project folder
     serve         Create an ad-hoc server on App's distributables
     help          Displays this message
 
-  ${chalk.italic('Trigger this inside of a Quasar project for more commands.')}
+  --------------
+  => IMPORTANT !
+  => ${chalk.italic('Trigger this inside of a Quasar project for more commands.')}
+  --------------
 `)

@@ -20,6 +20,11 @@
       "examples": [ "Options: x, y, z"]
     },
 
+    "display-value-sanitize": {
+      "extends": "sanitize",
+      "desc": "Force use of textContent instead of innerHTML to render selected option(s); Use it when the selected option(s) might be unsafe (from user input); Does NOT apply when using 'selected' or 'selected-item' slots!"
+    },
+
     "options": {
       "type": "Array",
       "desc": "Available options that the user can select from",
@@ -74,11 +79,6 @@
       "extends": "icon"
     },
 
-    "counter": {
-      "type": "Boolean",
-      "desc": "Show a counter of selected options on bottom right side"
-    },
-
     "max-values": {
       "type": [ "Number", "String" ],
       "desc": "Allow a maximum number of selections that the user can do",
@@ -104,6 +104,11 @@
     "options-cover": {
       "type": "Boolean",
       "desc": "Expanded menu will cover the component"
+    },
+
+    "options-sanitize": {
+      "extends": "sanitize",
+      "desc": "Force use of textContent instead of innerHTML to render options; Use it when the options might be unsafe (from user input); Does NOT applies when using 'option' slot!"
     },
 
     "use-input": {

@@ -1,6 +1,6 @@
 import Platform from '../plugins/Platform.js'
 import { setObserver, removeObserver } from '../utils/touch-observer.js'
-import { position, leftClick, stopAndPrevent } from '../utils/event.js'
+import { position, leftClick, stopAndPrevent, listenOpts } from '../utils/event.js'
 import { clearSelection } from '../utils/selection.js'
 
 function getDirection (mod) {
@@ -92,7 +92,7 @@ export default {
       },
 
       move (evt) {
-        if (ctx.event.abort === true) {
+        if (ctx.event === void 0 || ctx.event.abort === true) {
           return
         }
 
@@ -207,12 +207,18 @@ export default {
       },
 
       end (evt) {
+        if (ctx.event === void 0) {
+          return
+        }
+
         removeObserver(ctx)
 
         if (ctx.event.abort === false && ctx.event.dir !== false) {
           document.body.classList.remove('no-pointer-events')
           stopAndPrevent(evt)
         }
+
+        ctx.event = void 0
       }
     }
 
@@ -226,8 +232,8 @@ export default {
       el.addEventListener('mousedown', ctx.mouseStart)
     }
 
-    el.addEventListener('touchstart', ctx.start)
-    el.addEventListener('touchmove', ctx.move)
+    el.addEventListener('touchstart', ctx.start, listenOpts.notPassive)
+    el.addEventListener('touchmove', ctx.move, listenOpts.notPassive)
     el.addEventListener('touchcancel', ctx.end)
     el.addEventListener('touchend', ctx.end)
   },
@@ -249,8 +255,8 @@ export default {
         document.removeEventListener('mousemove', ctx.move, true)
         document.removeEventListener('mouseup', ctx.mouseEnd, true)
       }
-      el.removeEventListener('touchstart', ctx.start)
-      el.removeEventListener('touchmove', ctx.move)
+      el.removeEventListener('touchstart', ctx.start, listenOpts.notPassive)
+      el.removeEventListener('touchmove', ctx.move, listenOpts.notPassive)
       el.removeEventListener('touchcancel', ctx.end)
       el.removeEventListener('touchend', ctx.end)
 

@@ -47,9 +47,7 @@ export default Vue.extend({
     popup: Boolean,
 
     headerStyle: [Array, String, Object],
-    headerClass: [Array, String, Object],
-
-    disable: Boolean
+    headerClass: [Array, String, Object]
   },
 
   watch: {
@@ -80,20 +78,36 @@ export default Vue.extend({
 
     expansionIcon () {
       return this.expandIcon || (this.denseToggle ? this.$q.iconSet.expansionItem.denseIcon : this.$q.iconSet.expansionItem.icon)
+    },
+
+    activeToggleIcon () {
+      return this.disable !== true && (this.hasRouterLink === true || this.expandIconToggle === true)
     }
   },
 
   methods: {
-    __toggleItem (e) {
-      !this.hasRouterLink && this.toggle(e)
+    __onHeaderKeyup (e) {
+      if (e.keyCode === 13) {
+        this.__onHeaderClick(e)
+      }
+      else {
+        this.$listeners.keyup !== void 0 && this.$emit('keyup', e)
+      }
     },
 
-    __toggleIcon (e) {
-      if (this.hasRouterLink === true || this.expandIconToggle === true) {
-        stopAndPrevent(e)
-        this.$refs.item.$el.blur()
-        this.toggle(e)
-      }
+    __onHeaderClick (e) {
+      this.hasRouterLink !== true && this.toggle(e)
+      this.$listeners.click !== void 0 && this.$emit('click', e)
+    },
+
+    __toggleIconKeyboard (e) {
+      e.keyCode === 13 && this.__toggleIcon(e, true)
+    },
+
+    __toggleIcon (e, keyboard) {
+      keyboard !== true && this.$refs.blurTarget !== void 0 && this.$refs.blurTarget.focus()
+      this.toggle(e)
+      stopAndPrevent(e)
     },
 
     __eventHandler (comp) {
@@ -108,22 +122,32 @@ export default Vue.extend({
         class: this.expandIconClass,
         props: {
           side: this.switchToggleSide !== true,
-          avatar: this.switchToggleSide === true
+          avatar: this.switchToggleSide
         },
-        nativeOn: {
-          click: this.__toggleIcon
-        }
+        on: this.activeToggleIcon === true ? {
+          click: this.__toggleIcon,
+          keyup: this.__toggleIconKeyboard
+        } : void 0
       }, [
         h(QIcon, {
-          staticClass: 'q-expansion-item__toggle-icon',
+          staticClass: 'q-expansion-item__toggle-icon q-focusable',
           class: {
             'rotate-180': this.showing,
             invisible: this.disable
           },
           props: {
             name: this.expansionIcon
-          }
-        })
+          },
+          attrs: this.activeToggleIcon === true
+            ? { tabindex: 0 }
+            : void 0
+        }, [
+          h('div', {
+            staticClass: 'q-focus-helper q-focus-helper--round',
+            attrs: { tabindex: -1 },
+            ref: 'blurTarget'
+          })
+        ])
       ])
     },
 
@@ -176,10 +200,14 @@ export default Vue.extend({
         }
       }
 
-      if (this.isClickable) {
+      if (this.isClickable === true) {
+        const evtProp = this.hasRouterLink === true ? 'nativeOn' : 'on'
+
         data.props.clickable = true
-        data.on = {
-          click: this.__toggleItem
+        data[evtProp] = {
+          ...this.$listeners,
+          click: this.__onHeaderClick,
+          keyup: this.__onHeaderKeyup
         }
 
         this.hasRouterLink === true && Object.assign(
@@ -238,8 +266,13 @@ export default Vue.extend({
 
   created () {
     this.$root.$on(eventName, this.__eventHandler)
-    if (this.defaultOpened || this.value) {
-      this.show()
+
+    if (this.value === true) {
+      this.showing = true
+    }
+    else if (this.defaultOpened === true) {
+      this.$emit('input', true)
+      this.showing = true
     }
   },
 

@@ -1,4 +1,4 @@
-import { position, leftClick, stopAndPrevent } from '../utils/event.js'
+import { position, leftClick, stopAndPrevent, listenOpts } from '../utils/event.js'
 import { setObserver, removeObserver } from '../utils/touch-observer.js'
 import { clearSelection } from '../utils/selection.js'
 import Platform from '../plugins/Platform.js'
@@ -85,8 +85,8 @@ export default {
     if (mouse === true) {
       el.addEventListener('mousedown', ctx.mouseStart)
     }
-    el.addEventListener('touchstart', ctx.start)
-    el.addEventListener('touchmove', ctx.end)
+    el.addEventListener('touchstart', ctx.start, listenOpts.notPassive)
+    el.addEventListener('touchmove', ctx.end, listenOpts.notPassive)
     el.addEventListener('touchcancel', ctx.end)
     el.addEventListener('touchend', ctx.end)
   },
@@ -107,8 +107,8 @@ export default {
         document.removeEventListener('mousemove', ctx.mouseEnd, true)
         document.removeEventListener('click', ctx.mouseEnd, true)
       }
-      el.removeEventListener('touchstart', ctx.start)
-      el.removeEventListener('touchmove', ctx.end)
+      el.removeEventListener('touchstart', ctx.start, listenOpts.notPassive)
+      el.removeEventListener('touchmove', ctx.end, listenOpts.notPassive)
       el.removeEventListener('touchcancel', ctx.end)
       el.removeEventListener('touchend', ctx.end)
 

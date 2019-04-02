@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 import QTab from './QTab.js'
 import { RouterLinkMixin } from '../../mixins/router-link.js'
+import { isSameRoute, isIncludedRoute } from '../../utils/router.js'
 
 export default Vue.extend({
   name: 'QRouteTab',
@@ -18,35 +19,50 @@ export default Vue.extend({
 
   watch: {
     $route () {
-      this.$nextTick(() => {
-        this.__checkActivation()
-      })
+      this.__checkActivation()
     }
   },
 
   methods: {
-    activate (e) {
-      this.$listeners.click !== void 0 && this.$emit('click', e)
-      !this.disable && this.__activateRoute({ name: this.name, selected: true })
-      this.$el.blur()
+    activate (e, keyboard) {
+      if (this.disable !== true) {
+        this.__checkActivation(true)
+      }
+
+      if (keyboard === true) {
+        this.$el.focus()
+      }
+      else {
+        this.$refs.blurTarget !== void 0 && this.$refs.blurTarget.focus()
+      }
     },
 
-    __checkActivation () {
-      if (this.isExactActiveRoute(this.$el)) {
-        this.__activateRoute({ name: this.name, selectable: true, exact: true })
-      }
-      else if (this.isActiveRoute(this.$el)) {
-        const priority = this.$router.resolve(this.to, undefined, this.append).href.length
-        this.__activateRoute({ name: this.name, selectable: true, priority })
-      }
-      else if (this.isActive) {
-        this.__activateRoute({ name: null })
-      }
+    __checkActivation (selected = false) {
+      const
+        current = this.$route,
+        { href, location, route } = this.$router.resolve(this.to, current, this.append),
+        redirected = route.redirectedFrom !== void 0,
+        checkFunction = this.exact === true ? isSameRoute : isIncludedRoute,
+        params = {
+          name: this.name,
+          selected,
+          exact: this.exact,
+          priorityMatched: route.matched.length,
+          priorityHref: href.length
+        }
+
+      checkFunction(current, route) && this.__activateRoute({ ...params, redirected })
+      redirected === true && checkFunction(current, location) && this.__activateRoute(params)
+      this.isActive && this.__activateRoute()
     }
   },
 
   mounted () {
-    this.__checkActivation()
+    this.$router !== void 0 && this.__checkActivation()
+  },
+
+  beforeDestroy () {
+    this.__activateRoute({ remove: true, name: this.name })
   },
 
   render (h) {

@@ -19,7 +19,7 @@
         Standard
       </div>
 
-      <q-input v-bind="props" v-model="text" @focus="onFocus" @blur="onBlur" />
+      <q-input v-bind="props" v-model="text" @focus="onFocus" @blur="onBlur" tabindex="1" />
 
       <q-input v-bind="props" v-model="text" label="Label (stacked) g" stack-label />
 
@@ -447,6 +447,7 @@ export default {
         prefix: this.prefix,
         suffix: this.suffix,
         dense: this.dense,
+        clearable: true,
         square: this.square
       }
 
@@ -462,11 +463,11 @@ export default {
     }
   },
   methods: {
-    onBlur () {
-      console.log('@blur')
+    onBlur (e) {
+      console.log('@blur', e)
     },
-    onFocus () {
-      console.log('@focus')
+    onFocus (e) {
+      console.log('@focus', e)
     },
     onInput (val) {
       console.log('@input', JSON.stringify(val))

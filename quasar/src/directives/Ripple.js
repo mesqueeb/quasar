@@ -1,10 +1,8 @@
 import { css } from '../utils/dom.js'
-import { position } from '../utils/event.js'
+import { position, stop } from '../utils/event.js'
 
 function showRipple (evt, el, ctx, forceCenter) {
-  if (ctx.modifiers.stop === true) {
-    evt.stopPropagation()
-  }
+  ctx.modifiers.stop === true && stop(evt)
 
   let { center, color } = ctx.modifiers
   center = center === true || forceCenter === true
@@ -30,6 +28,7 @@ function showRipple (evt, el, ctx, forceCenter) {
   })
 
   node.className = `q-ripple${color ? ' text-' + color : ''}`
+  node.setAttribute('dir', 'ltr')
   node.appendChild(innerNode)
   el.appendChild(node)
 

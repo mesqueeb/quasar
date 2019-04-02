@@ -23,6 +23,7 @@ $toggle-transition = .22s cubic-bezier(.4,0,.2,1)
     top 10px
     transform translate3d(0, 0, 0)
     transition transform $toggle-transition, background-color $toggle-transition, border-color .22s
+    user-select none
 
   &__thumb
     width 20px
@@ -34,8 +35,9 @@ $toggle-transition = .22s cubic-bezier(.4,0,.2,1)
 
     .q-icon
       font-size 12px
-      width 0
+      width 20px
       height 0
+      line-height 0
       color black
       opacity .54
 

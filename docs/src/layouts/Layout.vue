@@ -6,8 +6,8 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
         q-icon(name="menu")
 
       q-btn.quasar-logo.text-bold(key="logo", flat, no-caps, no-wrap, stretch, to="/")
-        q-avatar
-          img(src="https://cdn.quasar-framework.org/img/quasar-logo.png")
+        q-avatar.doc-layout-avatar
+          img(src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg")
         q-toolbar-title(shrink) Quasar
 
       q-space
@@ -38,19 +38,25 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
       app-menu.q-my-lg
 
     .absolute-top.bg-white.layout-drawer-toolbar
-      q-input.full-width.doc-algolia(
-        ref="docAlgolia"
-        v-model="search"
-        dense
-        standout
-        square
-        placeholder="Search..."
+      form(
+        autocorrect="off"
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
       )
-        template(v-slot:append)
-          q-icon(
-            name="search"
-            @click="$refs.docAlgolia.focus()"
-          )
+        q-input.full-width.doc-algolia(
+          ref="docAlgolia"
+          v-model="search"
+          dense
+          standout
+          square
+          placeholder="Search..."
+        )
+          template(v-slot:append)
+            q-icon(
+              name="search"
+              @click="$refs.docAlgolia.focus()"
+            )
 
   q-drawer(
     v-model="rightDrawerState"
@@ -256,6 +262,9 @@ export default {
 .header-logo
   width 25px
   height 25px
+
+.doc-layout-avatar > div
+  border-radius 0
 
 .layout-drawer-toolbar
   border-bottom 1px solid $separator-color

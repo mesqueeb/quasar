@@ -19,8 +19,8 @@ import '@quasar/extras/animate/<%= asset %>.css'
 
 import 'quasar-styl'
 
-<% css.length > 0 && css.forEach(asset => { %>
-import '<%= asset %>'
+<% css.length > 0 && css.filter(asset => asset.server !== false).forEach(asset => { %>
+import '<%= asset.path %>'
 <% }) %>
 
 import createApp from './app.js'
@@ -41,7 +41,7 @@ if (boot.length > 0) {
     let importName = 'plugin' + hash(asset.path)
     bootNames.push(importName)
 %>
-import <%= importName %> from 'boot/<%= asset.path %>'
+import <%= importName %> from '<%= asset.path %>'
 <% }) } %>
 
 // This exported function will be called by `bundleRenderer`.
@@ -100,7 +100,7 @@ export default context => {
         routeUnchanged = false
         reject({ url })
       }
-      
+
       appOptions.preFetch && matchedComponents.unshift(appOptions)
 
       // Call preFetch hooks on components matched by the route.

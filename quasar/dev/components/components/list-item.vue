@@ -39,6 +39,13 @@
 
         <q-item clickable v-ripple>
           <q-item-section avatar>
+            <q-icon color="primary" name="img:https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg" />
+          </q-item-section>
+          <q-item-section>List item</q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple>
+          <q-item-section avatar>
             <q-icon name="signal_wifi_off" />
           </q-item-section>
           <q-item-section>List item</q-item-section>
@@ -104,6 +111,13 @@
           </q-item-section>
           <q-item-section>List item</q-item-section>
         </q-item>
+
+        <q-item clickable v-ripple>
+          <q-item-section>List item</q-item-section>
+          <q-item-section thumbnail>
+            <img src="https://cdn.quasar-framework.org/img/mountains.jpg">
+          </q-item-section>
+        </q-item>
       </q-list>
 
       <p class="caption">
@@ -115,6 +129,13 @@
             <q-icon name="bluetooth" />
           </q-item-section>
           <q-item-section>Inactive link</q-item-section>
+        </q-item>
+
+        <q-item to="/" exact disable>
+          <q-item-section avatar>
+            <q-icon name="bluetooth" />
+          </q-item-section>
+          <q-item-section>Inactive link - Disabled</q-item-section>
         </q-item>
 
         <q-item :to="$route.path">

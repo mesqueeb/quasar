@@ -37,11 +37,11 @@ export default Vue.extend({
       this.$emit('click', e, go)
       this.hasRouterLink === true && e.navigate !== false && go()
 
-      e !== void 0 && e.qKeyEvent !== true && this.$el.blur()
+      e !== void 0 && e.qKeyEvent !== true && this.$refs.blurTarget !== void 0 && this.$refs.blurTarget.focus()
     },
 
     __onKeydown (e) {
-      if ([13, 32].includes(e.keyCode)) {
+      if ([13, 32].includes(e.keyCode) === true) {
         stopAndPrevent(e)
         if (this.pressed !== true) {
           this.pressed = true
@@ -54,7 +54,7 @@ export default Vue.extend({
     },
 
     __onKeyup (e) {
-      if ([13, 32].includes(e.keyCode)) {
+      if ([13, 32].includes(e.keyCode) === true) {
         stopAndPrevent(e)
         this.__onKeyupAbort()
         const evt = new MouseEvent('click', { ...e })
@@ -80,7 +80,7 @@ export default Vue.extend({
     const
       inner = [].concat(slot(this, 'default')),
       data = {
-        staticClass: 'q-btn inline relative-position q-btn-item non-selectable',
+        staticClass: 'q-btn inline q-btn-item non-selectable',
         class: this.classes,
         style: this.style,
         attrs: this.attrs
@@ -120,13 +120,17 @@ export default Vue.extend({
     if (this.iconRight !== void 0 && this.isRound === false) {
       inner.push(
         h(QIcon, {
-          props: { name: this.iconRight, right: this.stack === false }
+          props: { name: this.iconRight, right: this.stack === false && this.hasLabel === true }
         })
       )
     }
 
     return h(this.isLink ? 'a' : 'button', data, [
-      h('div', { staticClass: 'q-focus-helper' }),
+      h('div', {
+        staticClass: 'q-focus-helper',
+        ref: 'blurTarget',
+        attrs: { tabindex: -1 }
+      }),
 
       this.loading === true && this.percentage !== void 0
         ? h('div', {

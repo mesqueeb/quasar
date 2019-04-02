@@ -2,6 +2,7 @@
 title: Range
 related:
   - /vue-components/slider
+  - /vue-components/field
 ---
 The QRange component is a great way to offer the user the selection of a sub-range of values between a minimum and maximum value, with optional steps to select those values. An example use case for the Range component would be to offer a price range selection.
 
@@ -30,6 +31,8 @@ In the example below, move the slider to see the label.
 <doc-example title="Markers" file="QRange/Markers" />
 
 <doc-example title="Always display label" file="QRange/LabelAlways" />
+
+<doc-example title="Custom label values" file="QRange/LabelValue" />
 
 Use the `drag-range` or `drag-only-range` props to allow the user to move the selected range or only a predetermined range as a whole.
 

@@ -14,7 +14,9 @@ export default Vue.extend({
       type: Number,
       default: 500
     },
-    disable: Boolean
+    scrollTarget: {},
+    disable: Boolean,
+    reverse: Boolean
   },
 
   data () {
@@ -33,6 +35,10 @@ export default Vue.extend({
       else {
         this.resume()
       }
+    },
+
+    scrollTarget () {
+      this.updateScrollTarget()
     }
   },
 
@@ -47,8 +53,15 @@ export default Vue.extend({
         scrollPosition = getScrollPosition(this.scrollContainer),
         containerHeight = height(this.scrollContainer)
 
-      if (scrollPosition + containerHeight + this.offset >= scrollHeight) {
-        this.trigger()
+      if (this.reverse === false) {
+        if (scrollPosition + containerHeight + this.offset >= scrollHeight) {
+          this.trigger()
+        }
+      }
+      else {
+        if (scrollPosition < this.offset) {
+          this.trigger()
+        }
       }
     },
 
@@ -59,10 +72,22 @@ export default Vue.extend({
 
       this.index++
       this.fetching = true
+
+      const heightBefore = getScrollHeight(this.scrollContainer)
+
       this.$emit('load', this.index, () => {
         if (this.working === true) {
           this.fetching = false
           this.$nextTick(() => {
+            if (this.reverse === true) {
+              const
+                heightAfter = getScrollHeight(this.scrollContainer),
+                scrollPosition = getScrollPosition(this.scrollContainer),
+                heightDifference = heightAfter - heightBefore
+
+              this.scrollContainer.scrollTop = scrollPosition + heightDifference
+            }
+
             this.$el.closest('body') && this.poll()
           })
         }
@@ -94,7 +119,16 @@ export default Vue.extend({
         this.scrollContainer.removeEventListener('scroll', this.poll, listenOpts.passive)
       }
 
-      this.scrollContainer = getScrollTarget(this.$el)
+      if (typeof this.scrollTarget === 'string') {
+        this.scrollContainer = document.querySelector(this.scrollTarget)
+        if (this.scrollContainer === null) {
+          console.error(`InfiniteScroll: scroll target container "${this.scrollTarget}" not found`, this)
+          return
+        }
+      }
+      else {
+        this.scrollContainer = this.scrollTarget instanceof Element ? this.scrollTarget : getScrollTarget(this.$el)
+      }
 
       if (this.working === true) {
         this.scrollContainer.addEventListener('scroll', this.poll, listenOpts.passive)
@@ -108,6 +142,14 @@ export default Vue.extend({
 
     this.updateScrollTarget()
     this.immediatePoll()
+
+    if (this.reverse === true) {
+      const
+        scrollHeight = getScrollHeight(this.scrollContainer),
+        containerHeight = height(this.scrollContainer)
+
+      this.scrollContainer.scrollTop = scrollHeight - containerHeight
+    }
   },
 
   beforeDestroy () {
@@ -120,11 +162,16 @@ export default Vue.extend({
     const content = this.$scopedSlots.default !== void 0
       ? this.$scopedSlots.default()
       : []
+    const body = this.fetching === true
+      ? [ h('div', { staticClass: 'q-infinite-scroll__loading' }, slot(this, 'loading')) ]
+      : []
 
-    return h('div', { staticClass: 'q-infinite-scroll' }, content.concat([
-      this.fetching
-        ? h('div', { staticClass: 'q-infinite-scroll__loading' }, slot(this, 'loading'))
-        : null
-    ]))
+    return h(
+      'div',
+      { staticClass: 'q-infinite-scroll' },
+      this.reverse === false
+        ? content.concat(body)
+        : body.concat(content)
+    )
   }
 })

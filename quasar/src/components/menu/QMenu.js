@@ -6,8 +6,9 @@ import PortalMixin from '../../mixins/portal.js'
 import TransitionMixin from '../../mixins/transition.js'
 
 import ClickOutside from './ClickOutside.js'
+import uid from '../../utils/uid.js'
 import { getScrollTarget } from '../../utils/scroll.js'
-import { stop, position, listenOpts } from '../../utils/event.js'
+import { stop, prevent, position, listenOpts } from '../../utils/event.js'
 import EscapeKey from '../../utils/escape-key.js'
 import { MenuTreeMixin, closeRootMenu } from './menu-tree.js'
 
@@ -27,6 +28,12 @@ export default Vue.extend({
   },
 
   props: {
+    persistent: Boolean,
+    autoClose: Boolean,
+
+    noParentEvent: Boolean,
+    noRefocus: Boolean,
+
     fit: Boolean,
     cover: Boolean,
 
@@ -42,11 +49,8 @@ export default Vue.extend({
       type: Array,
       validator: validateOffset
     },
-    noParentEvent: Boolean,
 
     touchPosition: Boolean,
-    persistent: Boolean,
-    autoClose: Boolean,
 
     maxHeight: {
       type: String,
@@ -55,6 +59,12 @@ export default Vue.extend({
     maxWidth: {
       type: String,
       default: null
+    }
+  },
+
+  data () {
+    return {
+      menuId: uid()
     }
   },
 
@@ -94,7 +104,15 @@ export default Vue.extend({
   methods: {
     __show (evt) {
       clearTimeout(this.timer)
-      evt !== void 0 && evt.preventDefault()
+      evt !== void 0 && prevent(evt)
+
+      this.__refocusTarget = this.noRefocus === false
+        ? document.activeElement
+        : void 0
+
+      if (this.__refocusTarget !== void 0) {
+        this.__refocusTarget.blur()
+      }
 
       this.scrollTarget = getScrollTarget(this.anchorEl)
       this.scrollTarget.addEventListener('scroll', this.updatePosition, listenOpts.passive)
@@ -102,7 +120,7 @@ export default Vue.extend({
         window.addEventListener('scroll', this.updatePosition, listenOpts.passive)
       }
 
-      EscapeKey.register(() => {
+      EscapeKey.register(this, () => {
         this.$emit('escape-key')
         this.hide()
       })
@@ -129,34 +147,38 @@ export default Vue.extend({
 
         this.timer = setTimeout(() => {
           this.$emit('show', evt)
-        }, 600)
+        }, 300)
       }, 0)
     },
 
     __hide (evt) {
-      this.__cleanup()
+      this.__anchorCleanup(true)
 
-      evt !== void 0 && evt.preventDefault()
+      evt !== void 0 && prevent(evt)
+
+      if (this.__refocusTarget !== void 0) {
+        this.__refocusTarget.focus()
+      }
 
       this.timer = setTimeout(() => {
         this.__hidePortal()
         this.$emit('hide', evt)
-      }, 600)
+      }, 300)
     },
 
-    __cleanup () {
+    __anchorCleanup (hiding) {
       clearTimeout(this.timer)
       this.absoluteOffset = void 0
-
-      EscapeKey.pop()
-      this.__unregisterTree()
 
       if (this.unwatch !== void 0) {
         this.unwatch()
         this.unwatch = void 0
       }
 
-      if (this.scrollTarget) {
+      if (hiding === true || this.showing === true) {
+        EscapeKey.pop(this)
+        this.__unregisterTree()
+
         this.scrollTarget.removeEventListener('scroll', this.updatePosition, listenOpts.passive)
         if (this.scrollTarget !== window) {
           window.removeEventListener('scroll', this.updatePosition, listenOpts.passive)
@@ -165,7 +187,7 @@ export default Vue.extend({
     },
 
     __onAutoClose (e) {
-      closeRootMenu(this.portalId)
+      closeRootMenu(this.menuId)
       this.$listeners.click !== void 0 && this.$emit('click', e)
     },
 
@@ -220,6 +242,14 @@ export default Vue.extend({
           }] : null
         }, slot(this, 'default')) : null
       ])
+    },
+
+    __onPortalCreated (vm) {
+      vm.menuParentId = this.menuId
+    },
+
+    __onPortalClose () {
+      closeRootMenu(this.menuId)
     }
   }
 })

@@ -30,6 +30,11 @@ const gettingStarted = [
     path: 'playground'
   },
   {
+    name: 'Release notes',
+    badge: 'new',
+    path: 'release-notes'
+  },
+  {
     name: 'Roadmap',
     path: 'roadmap'
   },
@@ -83,6 +88,21 @@ const options = [
   {
     name: 'Global Event Bus',
     path: 'global-event-bus'
+  }
+]
+
+const security = [
+  {
+    name: `DO's and DON'Ts`,
+    path: 'dos-and-donts'
+  },
+  {
+    name: 'Report a vulnerability',
+    path: 'report-a-vulnerability'
+  },
+  {
+    name: 'Get help!',
+    path: 'get-help'
   }
 ]
 
@@ -159,16 +179,6 @@ const cli = [
       {
         name: 'Supporting IE',
         path: 'supporting-ie'
-      }
-    ]
-  },
-  {
-    name: 'App Extensions',
-    path: 'app-extensions',
-    children: [
-      {
-        name: 'Introduction',
-        path: 'introduction'
       }
     ]
   },
@@ -446,14 +456,17 @@ const layout = [
 
 const directives = [
   {
-    name: 'Close Dialog',
-    path: 'close-dialog',
+    name: 'Close Popup',
+    path: 'close-popup',
     badge: 'new'
   },
   {
+    name: 'Close Dialog',
+    path: 'close-dialog'
+  },
+  {
     name: 'Close Menu',
-    path: 'close-menu',
-    badge: 'new'
+    path: 'close-menu'
   },
   {
     name: 'Go Back (Handling Back Button)',
@@ -630,6 +643,16 @@ const components = [
       {
         name: 'Select',
         path: 'select'
+      },
+      {
+        name: 'Form',
+        badge: 'new',
+        path: 'form'
+      },
+      {
+        name: 'Field (wrapper)',
+        badge: 'new',
+        path: 'field'
       },
       {
         name: 'Radio',
@@ -824,6 +847,44 @@ const components = [
   }
 ]
 
+const appExtensions = [
+  {
+    name: 'Introduction',
+    path: 'introduction'
+  },
+  {
+    name: 'Discover App Extensions',
+    path: 'discover'
+  },
+  {
+    name: 'Development Guide',
+    path: 'development-guide',
+    opened: true,
+    children: [
+      {
+        name: 'Introduction',
+        path: 'introduction'
+      },
+      {
+        name: 'Prompts API',
+        path: 'prompts-api'
+      },
+      {
+        name: 'Install API',
+        path: 'install-api'
+      },
+      {
+        name: 'Index API',
+        path: 'index-api'
+      },
+      {
+        name: 'Uninstall API',
+        path: 'uninstall-api'
+      }
+    ]
+  }
+]
+
 const utils = [
   {
     name: 'Date Utils',
@@ -875,6 +936,12 @@ module.exports = [
     children: options
   },
   {
+    name: 'Security',
+    icon: 'security',
+    path: 'security',
+    children: security
+  },
+  {
     name: 'Quasar CLI',
     icon: 'build',
     path: 'quasar-cli',
@@ -909,6 +976,12 @@ module.exports = [
     icon: 'extension',
     path: 'quasar-plugins',
     children: plugins
+  },
+  {
+    name: 'App Extensions',
+    icon: 'note_add',
+    path: 'app-extensions',
+    children: appExtensions
   },
   {
     name: 'Quasar Utils',

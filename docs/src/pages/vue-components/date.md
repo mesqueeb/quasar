@@ -3,6 +3,7 @@ title: QDate
 related:
   - /vue-components/time
   - /quasar-utils/date-utils
+  - /vue-components/field
 ---
 
 The QDate component provides a method to input date. Currently it supports Gregorian (default) and Persian calendars.
@@ -33,6 +34,10 @@ For landscape mode, you can use it along with `$q.screen` to make QDate responsi
 QDate requires a default year + month when model is unfilled (like `null`, `void 0`/`undefined`).
 
 <doc-example title="Default year month" file="QDate/DefaultYearMonth" />
+
+The default view can be changed.
+
+<doc-example title="Default view" file="QDate/DefaultView" />
 
 The first day of the week is applied depending on the [Quasar Language Pack](/options/quasar-language-packs) that you've set, but you can also force it, like in the example below.
 

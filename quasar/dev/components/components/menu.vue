@@ -22,7 +22,7 @@
                 v-for="n in 20"
                 :key="n"
                 clickable
-                v-close-menu
+                v-close-popup
                 @click="showNotify()"
                 @keyup.native.13.32="showNotify()"
               >
@@ -39,7 +39,7 @@
                 v-for="n in 20"
                 :key="n"
                 clickable
-                v-close-menu
+                v-close-popup
                 @click="showNotify()"
                 @keyup.native.13.32="showNotify()"
               >
@@ -56,7 +56,7 @@
                 v-for="n in 20"
                 :key="n"
                 clickable
-                v-close-menu
+                v-close-popup
                 @click="showNotify()"
                 @keyup.native.13.32="showNotify()"
               >
@@ -66,11 +66,67 @@
           </q-menu>
         </q-btn>
 
-        <q-btn ref="target4" color="negative" label="Disabled Popover">
-          <q-menu disable>
-            This Popover content won't be shown because of "disable"
-          </q-menu>
-        </q-btn>
+        <q-btn @click="dialog = true" label="Dialog" />
+        <q-dialog v-model="dialog">
+          <q-card class="q-pa-xl">
+            <div class="q-gutter-md">
+              <q-btn label="Close Dialog" v-close-popup />
+              <q-btn label="Open Dialog" @click="dialog2 = true" />
+              <q-btn label="Menu" color="primary">
+                <q-menu>
+                  <q-list>
+                    <q-item clickable>
+                      <q-item-section @click="dialog2 = true">
+                        Open Dialog
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-close-popup clickable>
+                      <q-item-section @click="dialog2 = true">
+                        Close Menu and Open Dialog
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-for="n in 5" :key="n" v-close-popup clickable>
+                      <q-item-section>Menu Item {{ n }}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
+          </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="dialog2">
+          <q-card class="q-pa-xl">
+            <div class="q-gutter-md">
+              <q-btn label="Close Dialog" v-close-popup />
+              <q-btn label="Menu" color="primary">
+                <q-menu>
+                  <q-list>
+                    <q-item v-for="n in 5" :key="n" v-close-popup clickable>
+                      <q-item-section>Menu Item {{ n }}</q-item-section>
+                    </q-item>
+                    <q-item clickable>
+                      <q-item-section>Submenu Label</q-item-section>
+                      <q-item-section side>
+                        <q-icon name="keyboard_arrow_right" />
+                      </q-item-section>
+                      <q-menu anchor="top right" self="top left">
+                        <q-list>
+                          <q-item v-for="n in 5" :key="n" v-close-popup clickable>
+                            <q-item-section>Menu Item {{ n }}</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup:2>
+                            <q-item-section>Close dialog</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
+          </q-card>
+        </q-dialog>
       </div>
 
       <div class="q-gutter-md q-my-md">
@@ -108,7 +164,7 @@
                   <q-item
                     v-for="n in 5"
                     :key="n"
-                    v-close-menu
+                    v-close-popup
                     clickable
                     @click="showNotify()"
                     @keyup.native.13.32="showNotify()"
@@ -202,7 +258,7 @@
                 <q-item
                   v-for="n in 5"
                   :key="n"
-                  v-close-menu
+                  v-close-popup
                   clickable
                   @click="showNotify()"
                   @keyup.native.13.32="showNotify()"
@@ -227,7 +283,7 @@
                 <q-item
                   v-for="n in 5"
                   :key="n"
-                  v-close-menu
+                  v-close-popup
                   clickable
                   @click="showNotify()"
                   @keyup.native.13.32="showNotify()"
@@ -246,7 +302,7 @@
                 <q-item
                   v-for="n in 5"
                   :key="n"
-                  v-close-menu
+                  v-close-popup
                   clickable
                   @click="showNotify()"
                   @keyup.native.13.32="showNotify()"
@@ -290,7 +346,7 @@
                 <q-item
                   v-for="n in 5"
                   :key="n"
-                  v-close-menu
+                  v-close-popup
                   clickable
                   @click="showNotify()"
                   @keyup.native.13.32="showNotify()"
@@ -310,10 +366,10 @@
             <q-menu touch-position>
               <q-list>
                 <q-item
-                  v-close-menu
+                  v-close-popup
                   clickable
                 >
-                  <q-item-section>v-close-menu</q-item-section>
+                  <q-item-section>v-close-popup</q-item-section>
                 </q-item>
 
                 <q-item
@@ -329,10 +385,10 @@
                   <q-menu anchor="top right" self="top left">
                     <q-list>
                       <q-item
-                        v-close-menu
+                        v-close-popup
                         clickable
                       >
-                        <q-item-section>v-close-menu</q-item-section>
+                        <q-item-section>v-close-popup</q-item-section>
                       </q-item>
 
                       <q-item
@@ -421,7 +477,7 @@ export default {
       gigi: '',
       fit: false,
       cover: false,
-      toggle: false,
+      toggle: true,
       anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
       selfOrigin: { vertical: 'top', horizontal: 'left' },
       terms: '',
@@ -434,7 +490,10 @@ export default {
       vIfTest: true,
       touchPosition: true,
       contextMenu: true,
-      targetEl: '#target-img-1'
+      targetEl: '#target-img-1',
+
+      dialog: false,
+      dialog2: false
     }
   },
   computed: {

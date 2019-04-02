@@ -192,7 +192,6 @@ You can join them in supporting Quasar development by [pledging on Patreon](http
 - Chad Shryock
 - Ross Ball
 - KPA Productions
-- Tanya Trimbakova
 - eae
 - Tomer Shalev
 - Ildemaro Martinez Jr.
@@ -230,6 +229,10 @@ You can join them in supporting Quasar development by [pledging on Patreon](http
 - Ivar de Pieterman
 - Birch P Browning
 - Дмитрий Полянин
+- Guillaume Malignon
+- Alvin Tse Chen Hao
+- ThomasD
+- Michael Freeman
 
 - Ken ($5)
 - Mahesh Narayanamurthi ($5)

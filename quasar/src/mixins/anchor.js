@@ -1,4 +1,5 @@
 import { clearSelection } from '../utils/selection.js'
+import { prevent } from '../utils/event.js'
 
 export default {
   props: {
@@ -17,7 +18,7 @@ export default {
       }
     },
 
-    target (val) {
+    target () {
       if (this.anchorEl !== void 0) {
         this.__unconfigureAnchorEl()
       }
@@ -29,39 +30,53 @@ export default {
   methods: {
     __showCondition (evt) {
       // abort with no parent configured or on multi-touch
-      return !(this.anchorEl === void 0 || (evt !== void 0 && evt.touches !== void 0 && evt.touches.length > 1))
+      if (this.anchorEl === void 0) {
+        return false
+      }
+      if (evt === void 0) {
+        return true
+      }
+      return evt.defaultPrevented !== true &&
+        (evt.touches === void 0 || evt.touches.length <= 1)
     },
 
     __contextClick (evt) {
-      this.hide(evt)
-      this.show(evt)
+      if (evt === void 0 || evt.defaultPrevented !== true) {
+        this.hide(evt)
+        this.show(evt)
+        prevent(evt)
+      }
     },
 
     __toggleKey (evt) {
-      if (evt.keyCode === 13) {
+      if (evt !== void 0 && evt.keyCode === 13 && evt.defaultPrevented !== true) {
         this.toggle(evt)
       }
     },
 
     __mobileTouch (evt) {
-      this.__mobileCleanup()
-      if (evt && evt.touches && evt.touches.length > 1) {
+      this.__mobileCleanup(evt)
+
+      if (this.__showCondition(evt) !== true) {
         return
       }
+
       this.hide(evt)
       this.anchorEl.classList.add('non-selectable')
-      clearSelection()
+
       this.touchTimer = setTimeout(() => {
-        this.__mobileCleanup()
-        this.touchTimer = setTimeout(() => {
-          this.show(evt)
-        }, 10)
-      }, 600)
+        this.show(evt)
+      }, 300)
     },
 
-    __mobileCleanup () {
+    __mobileCleanup (evt) {
       this.anchorEl.classList.remove('non-selectable')
       clearTimeout(this.touchTimer)
+
+      if (this.showing === true && evt !== void 0) {
+        clearSelection()
+        prevent(evt)
+      }
     },
 
     __unconfigureAnchorEl (context = this.contextMenu) {
@@ -116,14 +131,19 @@ export default {
       if (this.target && typeof this.target === 'string') {
         const el = document.querySelector(this.target)
         if (el !== null) {
-          this.__setAnchorEl(el)
+          this.anchorEl = el
+          this.__configureAnchorEl()
         }
         else {
+          this.anchorEl = void 0
           console.error(`Anchor: target "${this.target}" not found`, this)
         }
       }
       else if (this.target !== false) {
         this.__setAnchorEl(this.parentEl)
+      }
+      else {
+        this.anchorEl = void 0
       }
     }
   },
@@ -147,7 +167,7 @@ export default {
 
   beforeDestroy () {
     clearTimeout(this.touchTimer)
-    this.__cleanup !== void 0 && this.__cleanup()
+    this.__anchorCleanup !== void 0 && this.__anchorCleanup()
 
     if (this.anchorEl !== void 0) {
       this.__unconfigureAnchorEl()

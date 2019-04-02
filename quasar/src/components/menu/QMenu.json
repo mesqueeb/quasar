@@ -22,7 +22,7 @@
       "values": [
         "top left", "top middle", "top right",
         "center left", "center middle", "center right",
-        "bottom left", "bottom center", "bottom right"
+        "bottom left", "bottom middle", "bottom right"
       ],
       "examples": [ "top left", "bottom right" ]
     },
@@ -33,7 +33,7 @@
       "values": [
         "top left", "top middle", "top right",
         "center left", "center middle", "center right",
-        "bottom left", "bottom center", "bottom right"
+        "bottom left", "bottom middle", "bottom right"
       ],
       "examples": [ "top left", "bottom right" ]
     },
@@ -62,6 +62,11 @@
     "auto-close": {
       "type": "Boolean",
       "desc": "Allows any click/tap in the menu to close it; Useful instead of attaching events to each menu item that should close the menu on click/tap"
+    },
+
+    "no-refocus": {
+      "type": "Boolean",
+      "desc": "(Accessibility) When Menu gets hidden, do not refocus on the DOM element that previously had focus"
     },
 
     "max-height": {

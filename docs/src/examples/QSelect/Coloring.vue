@@ -22,17 +22,17 @@
       <q-select color="teal" outlined v-model="model" :options="options" label="Label">
         <template v-slot:append>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/img/quasar-logo.png">
+            <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
           </q-avatar>
         </template>
       </q-select>
 
-      <q-select color="orange" standout bottom-slots v-model="model" :options="options" label="Label" counter>
+      <q-select clearable color="orange" standout bottom-slots v-model="model" :options="options" label="Label" counter>
         <template v-slot:prepend>
           <q-icon name="place" />
         </template>
         <template v-slot:append>
-          <q-icon name="close" @click="model = ''" class="cursor-pointer" />
+          <q-icon name="favorite" />
         </template>
 
         <template v-slot:hint>

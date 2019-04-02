@@ -22,17 +22,17 @@
       <q-input color="teal" outlined v-model="text" label="Label">
         <template v-slot:append>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/img/quasar-logo.png">
+            <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
           </q-avatar>
         </template>
       </q-input>
 
-      <q-input color="orange" standout bottom-slots v-model="text" label="Label" counter>
+      <q-input color="orange" standout bottom-slots v-model="text" label="Label" counter clearable>
         <template v-slot:prepend>
           <q-icon name="place" />
         </template>
         <template v-slot:append>
-          <q-icon name="close" @click="text = ''" class="cursor-pointer" />
+          <q-icon name="favorite" />
         </template>
 
         <template v-slot:hint>

@@ -54,6 +54,110 @@
         lazy-rules
       />
 
+      <q-select
+        v-bind="{[type]: true}"
+        v-model="stringSingle"
+        :options="stringOptions"
+        label="Single - Required, Lazy"
+        :rules="[
+          val => !!val || '* Required',
+        ]"
+        lazy-rules
+      />
+
+      <q-select
+        v-bind="{[type]: true}"
+        v-model="stringSingle"
+        :options="stringOptions"
+        use-input
+        label="Single - use-input - Required, Lazy"
+        :rules="[
+          val => !!val || '* Required',
+        ]"
+        lazy-rules
+      />
+
+      <q-field
+        v-bind="{[type]: true}"
+        label="Slider - >= 10, Lazy"
+        stack-label
+        :value="num"
+        :rules="[
+          val => val >= 10 || 'Select at least 10',
+        ]"
+        lazy-rules
+      >
+        <template v-slot:control>
+          <q-slider
+            class="q-mt-xl q-mx-md"
+            v-model="num"
+            :min="0"
+            :max="50"
+            label-always
+          />
+        </template>
+      </q-field>
+
+      <q-field
+        v-bind="{[type]: true}"
+        label="Date - required, Lazy"
+        stack-label
+        :value="date"
+        :rules="[
+          val => !!val || '* Required',
+        ]"
+        lazy-rules
+      >
+        <template v-slot:control>
+          <q-date
+            v-model="date"
+          />
+        </template>
+      </q-field>
+
+      <q-field
+        v-bind="{[type]: true}"
+        label="Time - required, Lazy"
+        stack-label
+        :value="time"
+        :rules="[
+          val => !!val || '* Required',
+        ]"
+        lazy-rules
+      >
+        <template v-slot:control>
+          <q-time
+            v-model="time"
+          />
+        </template>
+      </q-field>
+
+      <q-field
+        v-bind="{[type]: true}"
+        label="Knob - >= 10, Lazy"
+        stack-label
+        :value="num"
+        :rules="[
+          val => val >= 10 || 'Select at least 10',
+        ]"
+        lazy-rules
+      >
+        <template v-slot:control>
+          <q-knob
+            class="q-mt-md"
+            v-model="num"
+            color="black"
+            center-color="grey-8"
+            size="150px"
+            show-value
+            :min="0"
+            :max="50"
+          >
+            {{ num }}
+          </q-knob>
+        </template>
+      </q-field>
+
       <q-input
         ref="input3"
         v-bind="{[type]: true}"
@@ -223,7 +327,14 @@ export default {
       type: 'filled',
       modelExternal: '',
       error: false,
-      errorMessage: 'First error'
+      errorMessage: 'First error',
+      stringSingle: null,
+      stringOptions: [
+        'Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'
+      ],
+      num: 0,
+      date: '',
+      time: ''
     }
 
     for (let i = 1; i <= n; i++) {

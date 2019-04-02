@@ -14,14 +14,15 @@ Simply replace the version string in all the CSS and JS tags that refer to Quasa
 ### Quasar CLI
 
 ```bash
-$ yarn add quasar@latest
-```
+# run these commands inside
+# of a Quasar v1 project
+# (need global @quasar/cli to be >= 1.0.0-beta.3)
 
-You may also want to make sure you have the latest of the other Quasar packages too:
+# check for upgradable packages
+$ quasar upgrade
 
-```bash
-$ yarn add @quasar/extras@latest
-$ yarn add --dev @quasar/app@latest
+# do the actual upgrade
+$ quasar upgrade --install
 ```
 
 ### Vue CLI
@@ -323,14 +324,14 @@ The colors `faded`, `dark`, `light` were removed. If you need those, re-add them
 ||Legacy|v1|
 |-|-|-|
 |h1|`.q-display-4`|`.text-h1`|
-|h2|`.q-display3`|`.text-h2`|
-|h3|`.q-display2`|`.text-h3` |
-|h4|`.q-display1`|`.text-h4` |
+|h2|`.q-display-3`|`.text-h2`|
+|h3|`.q-display-2`|`.text-h3` |
+|h4|`.q-display-1`|`.text-h4` |
 |h5|`.q-headline`|`.text-h5` |
 |h6|`.q-title`|`.text-h6` |
 ||`.q-subheading`|`.text-subtitle1` or `.text-subtitle2` |
-||`.q-body1`|`.text-body1` |
-||`.q-body2`|`.text-body2` |
+||`.q-body-1`|`.text-body1` |
+||`.q-body-2`|`.text-body2` |
 ||`.q-caption`|`.text-caption` |
 |||`.text-overline` |
 
@@ -457,9 +458,7 @@ The colors `faded`, `dark`, `light` were removed. If you need those, re-add them
 
 |Legacy|v1|
 |-|-|
-||`v-close-dialog`|
-|`v-close-overlay`|`v-close-menu`|
-||`v-touch-repeat`|
+|`v-close-overlay`|`v-close-popup`|
 
   </div>
 </div>
@@ -1086,7 +1085,7 @@ The structure looks the same, but some functions have been renamed.
 |`ok`||
 |`message`||
 |`options`||
-|`prevent-close`||
+|`prevent-close`|`persistent`|
 |`prompt`||
 |`stack-buttons`||
 |`title`||
@@ -1095,8 +1094,9 @@ The structure looks the same, but some functions have been renamed.
 ||`full-height`|
 ||`full-width`|
 ||`maximized`|
-||`persistent`|
 ||`seamless`|
+||`no-refocus`|
+||`auto-close`|
 ||`transition-hide`|
 ||`transition-show`|
 
@@ -1172,7 +1172,8 @@ The structure looks the same, but some functions have been renamed.
 
 ### QField
 
-- **removed**, the functionality of QField is now built into [QInput](/vue-components/input) and [QSelect](/vue-components/select).
+- **updated**, **completely new**
+- Do NOT use to wrap QInput or QSelect; the functionality of QField is now built into [QInput](/vue-components/input) and [QSelect](/vue-components/select).
 
 If you use it to wrap Input, just move all attributes from QField to QInput. If you use `error` and `error-label`, enable `bottom-slots` on QInput and change `error-label` to `error-message`.
 
@@ -1272,7 +1273,6 @@ Replace `:handler` with `@load`.
 |`align`||
 |`before`||
 |`clear-value`||
-|`clearable`||
 |`decimals`||
 |`float-label`||
 |`hide-underline`||
@@ -1621,7 +1621,6 @@ Replace `:handler` with `@load`.
 |`disabled`||
 |`keep-on-screen`||
 |`no-focus`||
-|`no-refocus`||
 ||`auto-close`|
 ||`context-class`|
 ||`context-menu`|
@@ -1775,9 +1774,7 @@ Replace `:handler` with `@load`.
 |`decimals`||
 |`error`||
 |`fill-handle-always`||
-|`left-label-value`||
 |`square`||
-|`right-label-value`||
 |`warning`||
 
   </div>
@@ -1841,7 +1838,7 @@ Replace `:handler` with `@load`.
 
 ### QSelect
 
-- Type of `stack-label` was changed from `string` to `string|number`
+- Type of `stack-label` was changed from `string` to `boolean`
 - Type of `display-value` was changed from `string` to `string|number`
 
 <div class="row">
@@ -1857,7 +1854,6 @@ Replace `:handler` with `@load`.
 |`chips-bg-color`||
 |`chips-color`||
 |`clear-value`||
-|`clearable`||
 |`filter`||
 |`filter-placeholder`||
 |`float-label`||
@@ -1908,7 +1904,6 @@ Replace `:handler` with `@load`.
 |`decimals`||
 |`error`||
 |`fill-handle-always`||
-|`label-value`||
 |`square`||
 |`warning`||
 
@@ -2105,7 +2100,7 @@ Remove `slot="title"` from all tabs. It's not needed anymore. If you use QTabs w
 ||`indicator-color`|
 ||`left-icon`|
 ||`right-icon`|
-||`top-indicator`|
+||`switch-indicator`|
 ||`narrow-indicator`|
 ||`inline-label`|
 ||`no-caps`|

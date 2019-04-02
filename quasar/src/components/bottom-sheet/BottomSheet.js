@@ -14,6 +14,8 @@ import QItemSection from '../list/QItemSection.js'
 export default Vue.extend({
   name: 'BottomSheetPlugin',
 
+  inheritAttrs: false,
+
   props: {
     title: String,
     message: String,
@@ -25,11 +27,7 @@ export default Vue.extend({
     color: {
       type: String,
       default: 'primary'
-    },
-
-    // QDialog props
-    seamless: Boolean,
-    persistent: Boolean
+    }
   },
 
   methods: {
@@ -51,9 +49,9 @@ export default Vue.extend({
     __getGrid (h) {
       return this.actions.map(action => {
         return action.label === void 0
-          ? h(QSeparator, { staticClass: 'col-12' })
+          ? h(QSeparator, { staticClass: 'col-all' })
           : h('div', {
-            staticClass: 'q-bottom-sheet__item col-4 col-sm-3 q-hoverable q-focusable cursor-pointer relative-position',
+            staticClass: 'q-bottom-sheet__item q-hoverable q-focusable cursor-pointer relative-position',
             class: action.classes,
             attrs: { tabindex: 0 },
             on: {
@@ -140,8 +138,7 @@ export default Vue.extend({
       ref: 'dialog',
 
       props: {
-        seamless: this.seamless,
-        persistent: this.persistent,
+        ...this.$attrs,
         position: 'bottom'
       },
 

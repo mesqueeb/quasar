@@ -191,8 +191,8 @@
   section.fixed-top.landing__toolbar.text-white
     q-toolbar.q-pa-none
       q-btn.quasar-logo.text-bold(flat, no-caps, no-wrap, to="/start")
-        q-avatar
-          img(src="https://cdn.quasar-framework.org/img/quasar-logo.png")
+        q-avatar.doc-landing-avatar
+          img(src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg")
         q-toolbar-title(shrink) Docs
 
       q-space
@@ -220,6 +220,9 @@ export default {
 
 <style lang="stylus">
 @import '~quasar-variables'
+
+.doc-landing-avatar > div
+  border-radius 0
 
 .landing
   background #000 url('https://cdn.quasar-framework.org/img/quasar-cover.jpg') no-repeat center center fixed

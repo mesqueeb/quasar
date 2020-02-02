@@ -1,5 +1,6 @@
 ---
 title: Frameless Electron Window
+desc: How to hide the window frame in a Quasar desktop app.
 related:
   - /vue-components/bar
 ---
@@ -7,7 +8,7 @@ related:
 A nice combo is to use frameless Electron window along with [QBar](/vue-components/bar) component. Here's why.
 
 ## Setting frameless window
-In your `src-electron/main-process/electron-main.js` file we will make en edit to these lines:
+In your `src-electron/main-process/electron-main.js` file we will make an edit to these lines:
 
 ```js
 mainWindow = new BrowserWindow({
@@ -50,9 +51,12 @@ In the example above, notice that we add `q-electron-drag` to our QBar and we al
 ```js
 // some .vue file
 
-// we guard the Electron API calls, but this
+// We guard the Electron API calls, but this
 // is only needed if we build same app with other
 // Quasar Modes as well (SPA/PWA/Cordova/SSR...)
+
+// The code below requires Node Integration being kept turned "on"
+// More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
 
 export default {
   // ...

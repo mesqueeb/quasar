@@ -1,10 +1,12 @@
 ---
 title: Loading Plugin
+desc: A Quasar plugin which can display a loading state for your app through an overlay with a spinner and a message.
 related:
   - /vue-components/linear-progress
   - /vue-components/circular-progress
   - /vue-components/inner-loading
   - /vue-components/spinners
+  - /vue-components/skeleton
   - /quasar-plugins/loading-bar
   - /vue-components/ajax-bar
 ---

@@ -1,5 +1,6 @@
 ---
 title: Formatter Utils
+desc: A set of Quasar methods for formatting values. Capitalizing, padding, normalizing and more. 
 ---
 
 ### Helping Tree-Shake
@@ -7,7 +8,7 @@ You will notice all examples import `format` Object from Quasar. However, if you
 
 Example:
 ```js
-// we import all of `date`
+// we import all of `format`
 import { format } from 'quasar'
 // destructuring to keep only what is needed
 const { capitalize, humanStorageSize } = format

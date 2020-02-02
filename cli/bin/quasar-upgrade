@@ -19,7 +19,7 @@ if (argv.help) {
     Works only in a project folder by upgrading to latest minor versions
     of all quasar related packages.
 
-    This will not upgrade official Quasar App Extensions though.
+    This will also upgrade official Quasar App Extensions.
 
   Usage
     # checks for upgrades only
@@ -44,34 +44,34 @@ const
 const root = require('../lib/get-project-root')()
 const { log, fatal } = require('../lib/logger')
 
+if (!root) {
+  fatal(`⚠️  Error. This command must be executed inside a Quasar project folder only.`)
+}
+
 if (!fs.existsSync(path.join(root, 'node_modules'))) {
   fatal('⚠️  Please run "yarn" / "npm install" first\n')
 }
 
 const pkg = require(path.join(root, 'package.json'))
 
-function isQuasarPackage (name) {
-  if (name === 'quasar') {
-    return true
-  }
-
-  if (
-    name.indexOf('@quasar/') > -1 &&
-    name.indexOf('quasar-app-extension') === -1
-  ) {
-    return true
-  }
-
-  return false
-}
-
 function getLatestVersion (packager, packageName, curVersion) {
-  let versions = JSON.parse(
-    execSync(
-      `${packager} info ${packageName} versions --json`,
-      { stdio: ['ignore', 'pipe', 'pipe'] }
+  let versions
+
+  try {
+    versions = JSON.parse(
+      execSync(
+        `${packager} info ${packageName} versions --json`,
+        { stdio: ['ignore', 'pipe', 'pipe'] }
+      )
     )
-  )
+  }
+  catch (err) {
+    return null
+  }
+
+  if (versions.type === 'error') {
+    return null
+  }
 
   if (packager === 'yarn') {
     versions = versions.data
@@ -94,6 +94,7 @@ function upgradeQuasar () {
   }
 
   const packager = require('../lib/node-packager')(root)
+  const getPackageJson = require('../lib/get-package-json')(root)
 
   console.log()
   log(`Gathering information with ${packager}...`)
@@ -103,18 +104,27 @@ function upgradeQuasar () {
 
   for (const type of Object.keys(deps)) {
     for (const packageName of Object.keys(pkg[type] || {})) {
-      if (isQuasarPackage(packageName) === false) {
+      // is it a Quasar package?
+      if (packageName !== 'quasar' && packageName !== 'eslint-plugin-quasar' && !packageName.startsWith('@quasar/')) {
         continue
       }
 
-      const json = path.join(root, 'node_modules', packageName, 'package.json')
-      const curVersion = fs.existsSync(json)
-        ? require(json).version
+      const json = getPackageJson(packageName)
+      const curVersion = json !== null
+        ? json.version
         : null
 
       const latestVersion = getLatestVersion(packager, packageName, curVersion)
 
-      if (curVersion !== latestVersion) {
+      const current = curVersion === null
+        ? red('Missing!')
+        : curVersion
+
+      if (latestVersion === null) {
+        console.log(` ${green(packageName)}: ${current} → ${red('Skipping!')}`)
+        console.log(`   (⚠️  NPM server returned an error, so we cannot detect latest version)`)
+      }
+      else if (curVersion !== latestVersion) {
         deps[type].push({
           packageName,
           latestVersion
@@ -122,21 +132,21 @@ function upgradeQuasar () {
 
         updateAvailable = true
 
-        const current = curVersion === null
-          ? red('Missing!')
-          : curVersion
-
         console.log(` ${green(packageName)}: ${current} → ${latestVersion}`)
       }
     }
   }
 
   if (!updateAvailable) {
+    // The string `Congrats!` in the following log line is parsed by
+    // @quasar/wizard AE. Do not change under any circumstances.
     console.log('  Congrats! All Quasar packages are up to date.\n')
     return
   }
 
   if (!argv.install) {
+    console.log()
+    console.log(` See ${green('https://quasar.dev/start/release-notes')} for release notes.`)
     console.log()
     console.log(' Run "quasar upgrade -i" to do the actual upgrade.')
     console.log()
@@ -160,7 +170,13 @@ function upgradeQuasar () {
       // installing the new version might fail on Windows
       removeSync(path.join(root, 'node_modules', dep.packageName))
 
-      params.push(`${dep.packageName}@^${dep.latestVersion}`)
+      const pinned = /^\d/.test(
+        pkg.dependencies[dep.packageName] ||
+        pkg.devDependencies[dep.packageName] ||
+        '^' // fallback, just in case
+      )
+
+      params.push(`${dep.packageName}@${pinned ? '' : '^'}${dep.latestVersion}`)
     })
 
     console.log()

@@ -1,5 +1,6 @@
 ---
 title: Markup Table
+desc: The QMarkupTable Vue component is a helper wrapper which styles a native table.
 related:
   - /vue-components/table
 ---
@@ -14,8 +15,13 @@ For advanced functionality like pagination, sorting, filtering, and many more, y
 <doc-installation components="QMarkupTable" />
 
 ## Usage
+
 ::: warning
 Notice that the content of `QMarkupTable` reflects an accurate markup representation of a native HTML `<table>`, having a `<thead>` and `<tbody>` to wrap header and table body. This is required.
+:::
+
+::: warning UMD developers
+This component will *NOT* work as-is within the UMD version of Quasar. Browsers parse the template HTML before Vue kicks in and renders it, so the markup needs to be correct. `<q-markup-table> <thead>` or `<q-markup-table> <tbody>` is not. The solution is to directly use the QMarkupTable Vue rendered tag (`<table class="....`).
 :::
 
 <doc-example title="Basic" file="QMarkupTable/Basic" />

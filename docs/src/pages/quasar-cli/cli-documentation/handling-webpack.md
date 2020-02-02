@@ -1,5 +1,6 @@
 ---
 title: Handling Webpack
+desc: How to manage Webpack in a Quasar app.
 related:
   - /quasar-cli/quasar-conf-js
 ---
@@ -18,7 +19,10 @@ build: {
       enforce: 'pre',
       test: /\.(js|vue)$/,
       loader: 'eslint-loader',
-      exclude: /(node_modules|quasar)/
+      exclude: /(node_modules|quasar)/,
+      options: {
+        formatter: require('eslint').CLIEngine.getFormatter('stylish')
+      }
     })
   }
 }
@@ -34,7 +38,9 @@ build: {
     chain.module.rule('eslint')
       .test(/\.(js|vue)$/)
       .enforce('pre')
-      .exclude(/[\\/]node_modules[\\/]/)
+      .exclude
+        .add((/[\\/]node_modules[\\/]/))
+        .end()
       .use('eslint-loader')
         .loader('eslint-loader')
   }
@@ -88,7 +94,6 @@ Quasar comes with a bunch of useful Webpack aliases preconfigured. You can use t
 | `pages` | /src/pages |
 | `assets` | /src/assets |
 | `boot` | /src/boot |
-| `quasar-variables` | /.quasar/variables.styl |
 
 Also if you configure to build with the Vue compiler version (quasar.conf > build > vueCompiler: true), `vue$` resolves to  `vue/dist/vue.esm.js`.
 

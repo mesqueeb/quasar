@@ -1,6 +1,6 @@
 <template>
   <div class="q-gutter-md row items-start">
-    <q-card class="color" v-for="color in colors" :key="color">
+    <q-card flat class="color" v-for="color in colors" :key="color">
       <q-card-section
         class="flex flex-center text-white"
         :class="'bg-' + color"
@@ -24,15 +24,15 @@
 export default {
   data () {
     return {
-      colors: ['red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'grey', 'blue-grey']
+      colors: [ 'red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue', 'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber', 'orange', 'deep-orange', 'brown', 'grey', 'blue-grey' ]
     }
   }
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="sass" scoped>
 .color
-  width 135px
+  width: 135px
 .detailed-color
-  height 40px
+  height: 40px
 </style>

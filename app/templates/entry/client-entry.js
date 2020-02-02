@@ -21,7 +21,13 @@ import '@quasar/extras/<%= asset %>/<%= asset %>.css'
 import '@quasar/extras/animate/<%= asset %>.css'
 <% }) %>
 
-import 'quasar-styl'
+// We load Quasar stylesheet file
+import 'quasar/dist/quasar.<%= __css.quasarSrcExt %>'
+
+<% if (framework.cssAddon) { %>
+// We add Quasar addons, if they were requested
+import 'quasar/src/css/flex-addon.<%= __css.quasarSrcExt %>'
+<% } %>
 
 <% css.length > 0 && css.filter(asset => asset.client !== false).forEach(asset => { %>
 import '<%= asset.path %>'
@@ -42,7 +48,7 @@ if (boot.length > 0) {
     return name.charAt(0).toUpperCase() + name.slice(1)
   }
   boot.filter(asset => asset.client !== false).forEach(asset => {
-    let importName = 'b_' + hash(asset.path)
+    let importName = 'qboot_' + hash(asset.path)
     bootNames.push(importName)
 %>
 import <%= importName %> from '<%= asset.path %>'
@@ -52,14 +58,7 @@ import <%= importName %> from '<%= asset.path %>'
 import { addPreFetchHooks } from './client-prefetch.js'
 <% } %>
 
-<%
-const needsFastClick = ctx.mode.pwa || (ctx.mode.cordova && ctx.target.ios)
-if (needsFastClick) {
-%>
-import FastClick from 'fastclick'
-<% } %>
-
-<% if (ctx.mode.electron) { %>
+<% if (ctx.mode.electron && electron.nodeIntegration === true) { %>
 import electron from 'electron'
 Vue.prototype.$q.electron = electron
 <% } %>
@@ -74,30 +73,50 @@ console.info('[Quasar] Running <%= ctx.modeName.toUpperCase() + (ctx.mode.ssr &&
 <% if (ctx.mode.pwa) { %>console.info('[Quasar] Forcing PWA into the network-first approach to not break Hot Module Replacement while developing.')<% } %>
 <% } %>
 
-const { app, <%= store ? 'store, ' : '' %>router } = createApp()
-
-<% if (needsFastClick) { %>
-<% if (ctx.mode.pwa) { %>
+<% if (ctx.mode.cordova && ctx.target.ios) { %>
+import '@quasar/fastclick'
+<% } else if (ctx.mode.pwa) { %>
 // Needed only for iOS PWAs
 if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream && window.navigator.standalone) {
-<% } %>
-  document.addEventListener('DOMContentLoaded', () => {
-    FastClick.attach(document.body)
-  }, false)
-<% if (ctx.mode.pwa) { %>}<% } %>
+  import(/* webpackChunkName: "fastclick"  */ '@quasar/fastclick')
+}
 <% } %>
 
 async function start () {
+  const { app, <%= store ? 'store, ' : '' %>router } = await createApp()
+
+  <% if (ctx.mode.ssr && store && ssr.manualHydration !== true) { %>
+  // prime the store with server-initialized state.
+  // the state is determined during SSR and inlined in the page markup.
+  if (window.__INITIAL_STATE__) {
+    store.replaceState(window.__INITIAL_STATE__)
+  }
+  <% } %>
+
   <% if (bootNames.length > 0) { %>
+  let routeUnchanged = true
+  const redirect = url => {
+    routeUnchanged = false
+    window.location.href = url
+  }
+
+  const urlPath = window.location.href.replace(window.location.origin, '')
   const bootFiles = [<%= bootNames.join(',') %>]
-  for (let i = 0; i < bootFiles.length; i++) {
+
+  for (let i = 0; routeUnchanged === true && i < bootFiles.length; i++) {
+    if (typeof bootFiles[i] !== 'function') {
+      continue
+    }
+
     try {
       await bootFiles[i]({
         app,
         router,
         <%= store ? 'store,' : '' %>
         Vue,
-        ssrContext: null
+        ssrContext: null,
+        redirect,
+        urlPath
       })
     }
     catch (err) {
@@ -110,18 +129,13 @@ async function start () {
       return
     }
   }
+
+  if (routeUnchanged === false) {
+    return
+  }
   <% } %>
 
   <% if (ctx.mode.ssr) { %>
-
-    // prime the store with server-initialized state.
-    // the state is determined during SSR and inlined in the page markup.
-    <% if (store) { %>
-    if (window.__INITIAL_STATE__) {
-      store.replaceState(window.__INITIAL_STATE__)
-    }
-    <% } %>
-
     const appInstance = new Vue(app)
 
     // wait until router has resolved all async before hooks
@@ -142,9 +156,11 @@ async function start () {
     <% if (ctx.mode.cordova) { %>
     document.addEventListener('deviceready', () => {
     Vue.prototype.$q.cordova = window.cordova
+    <% } else if (ctx.mode.capacitor) { %>
+    Vue.prototype.$q.capacitor = window.Capacitor
     <% } %>
 
-      new Vue(app)
+    new Vue(app)
 
     <% if (ctx.mode.cordova) { %>
     }, false) // on deviceready

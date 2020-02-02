@@ -1,14 +1,14 @@
-const
-  fs = require('fs-extra'),
-  path = require('path'),
-  merge = require('webpack-merge')
+const fs = require('fs-extra')
+const path = require('path')
+const merge = require('webpack-merge')
+const semver = require('semver')
 
-const
-  appPaths = require('../app-paths'),
-  logger = require('../helpers/logger'),
-  warn = logger('app:extension(install)', 'red'),
-  quasarAppVersion = require('../../package.json').version,
-  getCallerPath = require('../helpers/get-caller-path')
+const appPaths = require('../app-paths')
+const logger = require('../helpers/logger')
+const warn = logger('app:extension(install)', 'red')
+const getPackageJson = require('../helpers/get-package-json')
+const getCallerPath = require('../helpers/get-caller-path')
+const extensionJson = require('./extension-json')
 
 /**
  * API for extension's /install.js script
@@ -16,7 +16,6 @@ const
 module.exports = class InstallAPI {
   constructor ({ extId, prompts }) {
     this.extId = extId
-    this.quasarAppVersion = quasarAppVersion
     this.prompts = prompts
     this.resolve = appPaths.resolve
     this.appDir = appPaths.appDir
@@ -29,8 +28,40 @@ module.exports = class InstallAPI {
   }
 
   /**
+   * Get the internal persistent config of this extension.
+   * Returns empty object if it has none.
+   *
+   * @return {object} cfg
+   */
+  getPersistentConf () {
+    return extensionJson.getInternal(this.extId)
+  }
+
+  /**
+   * Set the internal persistent config of this extension.
+   * If it already exists, it is overwritten.
+   *
+   * @param {object} cfg
+   */
+  setPersistentConf (cfg) {
+    extensionJson.setInternal(this.extId, cfg || {})
+  }
+
+  /**
+   * Deep merge into the internal persistent config of this extension.
+   * If extension does not have any config already set, this is
+   * essentially equivalent to setting it for the first time.
+   *
+   * @param {object} cfg
+   */
+  mergePersistentConf (cfg = {}) {
+    const currentCfg = this.getPersistentConf()
+    this.setPersistentConf(merge(currentCfg, cfg))
+  }
+
+  /**
    * Ensure the App Extension is compatible with
-   * locally installed @quasar/app through a
+   * host app installed package through a
    * semver condition.
    *
    * If the semver condition is not met, then
@@ -39,26 +70,68 @@ module.exports = class InstallAPI {
    * Example of semver condition:
    *   '1.x || >=2.5.0 || 5.0.0 - 7.2.3'
    *
+   * @param {string} packageName
    * @param {string} semverCondition
    */
-  compatibleWithQuasarApp (semverCondition) {
-    const semver = require('semver')
+  compatibleWith (packageName, semverCondition) {
+    const json = getPackageJson(packageName)
 
-    if (!semver.satisfies(quasarAppVersion, semverCondition)) {
-      warn(`⚠️  Extension(${this.extId}): is not compatible with @quasar/app v${quasarAppVersion}`)
+    if (json === void 0) {
+      warn(`⚠️  Extension(${this.extId}): Dependency not found - ${packageName}. Please install it.`)
+      process.exit(1)
+    }
+
+    if (!semver.satisfies(json.version, semverCondition)) {
+      warn(`⚠️  Extension(${this.extId}): is not compatible with ${packageName} v${json.version}. Required version: ${semverCondition}`)
       process.exit(1)
     }
   }
 
   /**
+   * Check if an app package is installed. Can also
+   * check its version against specific semver condition.
+   *
+   * Example of semver condition:
+   *   '1.x || >=2.5.0 || 5.0.0 - 7.2.3'
+   *
+   * @param {string} packageName
+   * @param {string} (optional) semverCondition
+   * @return {boolean} package is installed and meets optional semver condition
+   */
+  hasPackage (packageName, semverCondition) {
+    const json = getPackageJson(packageName)
+
+    if (json === void 0) {
+      return false
+    }
+
+    return semverCondition !== void 0
+      ? semver.satisfies(json.version, semverCondition)
+      : true
+  }
+
+  /**
    * Check if another app extension is installed
+   * (app extension npm package is installed and it was invoked)
    *
    * @param {string} extId
-   * @return {boolean} has the extension installed.
+   * @return {boolean} has the extension installed & invoked
    */
   hasExtension (extId) {
-    const extensionJson = require('./extension-json')
     return extensionJson.has(extId)
+  }
+
+  /**
+   * Get the version of an an app's package.
+   *
+   * @param {string} packageName
+   * @return {string|undefined} version of app's package
+   */
+  getPackageVersion (packageName) {
+    const json = getPackageJson(packageName)
+    return json !== void 0
+      ? json.version
+      : void 0
   }
 
   /**
@@ -73,9 +146,8 @@ module.exports = class InstallAPI {
     }
 
     if (typeof extPkg === 'string') {
-      const
-        dir = getCallerPath(),
-        source = path.resolve(dir, extPkg)
+      const dir = getCallerPath()
+      const source = path.resolve(dir, extPkg)
 
       if (!fs.existsSync(source)) {
         warn()
@@ -104,9 +176,8 @@ module.exports = class InstallAPI {
       return
     }
 
-    const
-      filePath = appPaths.resolve.app('package.json'),
-      pkg = merge(require(filePath), extPkg)
+    const filePath = appPaths.resolve.app('package.json')
+    const pkg = merge(require(filePath), extPkg)
 
     fs.writeFileSync(
       filePath,
@@ -134,9 +205,8 @@ module.exports = class InstallAPI {
    */
   extendJsonFile (file, newData) {
     if (newData !== void 0 && Object(newData) === newData && Object.keys(newData).length > 0) {
-      const
-        filePath = appPaths.resolve.app(file),
-        data = merge(fs.existsSync(filePath) ? require(filePath) : {}, newData)
+      const filePath = appPaths.resolve.app(file)
+      const data = merge(fs.existsSync(filePath) ? require(filePath) : {}, newData)
 
       fs.writeFileSync(
         appPaths.resolve.app(file),
@@ -154,10 +224,9 @@ module.exports = class InstallAPI {
    * @param {object} scope (optional; rendering scope variables)
    */
   render (templatePath, scope) {
-    const
-      dir = getCallerPath(),
-      source = path.resolve(dir, templatePath),
-      rawCopy = !scope || Object.keys(scope).length === 0
+    const dir = getCallerPath()
+    const source = path.resolve(dir, templatePath)
+    const rawCopy = !scope || Object.keys(scope).length === 0
 
     if (!fs.existsSync(source)) {
       warn()

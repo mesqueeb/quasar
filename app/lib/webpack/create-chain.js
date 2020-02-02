@@ -1,25 +1,33 @@
-const
-  path = require('path'),
-  webpack = require('webpack'),
-  WebpackChain = require('webpack-chain'),
-  VueLoaderPlugin = require('vue-loader/lib/plugin'),
-  WebpackProgress = require('./plugin.progress')
+const fs = require('fs')
+const path = require('path')
+const webpack = require('webpack')
+const WebpackChain = require('webpack-chain')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const WebpackProgress = require('./plugin.progress')
+const BootDefaultExport = require('./plugin.boot-default-export')
 
-const
-  appPaths = require('../app-paths'),
-  injectStyleRules = require('./inject.style-rules')
+const appPaths = require('../app-paths')
+const injectStyleRules = require('./inject.style-rules')
 
 module.exports = function (cfg, configName) {
-  const
-    chain = new WebpackChain(),
-    needsHash = !cfg.ctx.dev && !['electron', 'cordova'].includes(cfg.ctx.modeName),
-    fileHash = needsHash ? '.[hash:8]' : '',
-    chunkHash = needsHash ? '.[contenthash:8]' : '',
-    resolveModules = [
-      'node_modules',
-      appPaths.resolve.app('node_modules'),
-      appPaths.resolve.cli('node_modules')
-    ]
+  const chain = new WebpackChain()
+
+  const needsHash = !cfg.ctx.dev && !['electron', 'cordova', 'capacitor'].includes(cfg.ctx.modeName)
+  const fileHash = needsHash ? '.[hash:8]' : ''
+  const chunkHash = needsHash ? '.[contenthash:8]' : ''
+  const resolveModules = [
+    'node_modules',
+    appPaths.resolve.app('node_modules'),
+    appPaths.resolve.cli('node_modules')
+  ]
+
+  if (configName === 'Capacitor') {
+    // need to also look into /src-capacitor
+    // for deps like @capacitor/core
+    resolveModules.push(
+      appPaths.resolve.capacitor('node_modules')
+    )
+  }
 
   chain.entry('app').add(appPaths.resolve.app('.quasar/client-entry.js'))
   chain.mode(cfg.ctx.dev ? 'development' : 'production')
@@ -53,18 +61,11 @@ module.exports = function (cfg, configName) {
       layouts: appPaths.resolve.src(`layouts`),
       pages: appPaths.resolve.src(`pages`),
       assets: appPaths.resolve.src(`assets`),
-      boot: appPaths.resolve.src(`boot`),
-      'quasar-variables': appPaths.resolve.app(`.quasar/app.quasar-variables.styl`),
-
-      // CLI/App using this one:
-      'quasar-styl': appPaths.resolve.app(`.quasar/app.quasar.styl`),
-      'quasar-addon-styl': cfg.framework.cssAddon
-        ? `quasar/src/css/flex-addon.styl`
-        : appPaths.resolve.app(`.quasar/empty.styl`)
+      boot: appPaths.resolve.src(`boot`)
     })
 
   if (cfg.framework.all === true) {
-    chain.resolve.alias.set('quasar$', appPaths.resolve.app(`node_modules/quasar/dist/quasar.esm.js`))
+    chain.resolve.alias.set('quasar$', 'quasar/dist/quasar.esm.js')
   }
   if (cfg.build.vueCompiler) {
     chain.resolve.alias.set('vue$', 'vue/dist/vue.esm.js')
@@ -73,24 +74,30 @@ module.exports = function (cfg, configName) {
   chain.resolveLoader.modules
     .merge(resolveModules)
 
-  chain.module.noParse(/^(vue|vue-router|vuex|vuex-router-sync)$/)
+  chain.module.noParse(
+    cfg.framework.all === true
+      ? /^(vue|vue-router|vuex|vuex-router-sync|@quasar[\\/]extras|quasar)$/
+      : /^(vue|vue-router|vuex|vuex-router-sync|@quasar[\\/]extras)$/
+  )
 
-  chain.module.rule('vue')
+  const vueRule = chain.module.rule('vue')
     .test(/\.vue$/)
-    .use('vue-loader')
-      .loader('vue-loader')
-      .options({
-        productionMode: cfg.ctx.prod,
-        compilerOptions: {
-          preserveWhitespace: false
-        },
-        transformAssetUrls: {
-          video: 'src',
-          source: 'src',
-          img: 'src',
-          image: 'xlink:href'
-        }
-      })
+
+  if (cfg.framework.all === 'auto') {
+    vueRule.use('quasar-auto-import')
+      .loader(path.join(__dirname, 'loader.auto-import.js'))
+      .options(cfg.framework.autoImportComponentCase)
+  }
+
+  vueRule.use('vue-loader')
+    .loader('vue-loader')
+    .options({
+      productionMode: cfg.ctx.prod,
+      compilerOptions: {
+        preserveWhitespace: false
+      },
+      transformAssetUrls: cfg.build.transformAssetUrls
+    })
 
   chain.module.rule('babel')
     .test(/\.jsx?$/)
@@ -143,6 +150,7 @@ module.exports = function (cfg, configName) {
     .use('url-loader')
       .loader('url-loader')
       .options({
+        esModule: false,
         limit: 10000,
         name: `img/[name]${fileHash}.[ext]`
       })
@@ -152,6 +160,7 @@ module.exports = function (cfg, configName) {
     .use('url-loader')
       .loader('url-loader')
       .options({
+        esModule: false,
         limit: 10000,
         name: `fonts/[name]${fileHash}.[ext]`
       })
@@ -161,6 +170,7 @@ module.exports = function (cfg, configName) {
     .use('url-loader')
       .loader('url-loader')
       .options({
+        esModule: false,
         limit: 10000,
         name: `media/[name]${fileHash}.[ext]`
       })
@@ -169,7 +179,12 @@ module.exports = function (cfg, configName) {
     rtl: cfg.build.rtl,
     sourceMap: cfg.build.sourceMap,
     extract: cfg.build.extractCSS,
-    minify: cfg.build.minify
+    serverExtract: configName === 'Server' && cfg.build.extractCSS,
+    minify: cfg.build.minify,
+    stylusLoaderOptions: cfg.build.stylusLoaderOptions,
+    sassLoaderOptions: cfg.build.sassLoaderOptions,
+    scssLoaderOptions: cfg.build.scssLoaderOptions,
+    lessLoaderOptions: cfg.build.lessLoaderOptions
   })
 
   chain.plugin('vue-loader')
@@ -183,15 +198,57 @@ module.exports = function (cfg, configName) {
       .use(WebpackProgress, [{ name: configName }])
   }
 
+  chain.plugin('boot-default-export')
+    .use(BootDefaultExport)
+
   chain.performance
     .hints(false)
     .maxAssetSize(500000)
 
+  if (configName !== 'Server' && cfg.vendor.disable !== true) {
+    const { add, remove } = cfg.vendor
+    const regex = /[\\/]node_modules[\\/]/
+
+    chain.optimization
+      .splitChunks({
+        cacheGroups: {
+          vendors: {
+            name: 'vendor',
+            chunks: 'all',
+            priority: -10,
+            // a module is extracted into the vendor chunk if...
+            test: add !== void 0 || remove !== void 0
+              ? module => {
+                if (module.resource) {
+                  if (add !== void 0 && add.test(module.resource)) { return true }
+                  if (remove !== void 0 && remove.test(module.resource)) { return false }
+                }
+                return regex.test(module.resource)
+              }
+              : module => regex.test(module.resource)
+          },
+          common: {
+            name: `chunk-common`,
+            minChunks: 2,
+            priority: -20,
+            chunks: 'all',
+            reuseExistingChunk: true
+          }
+        }
+      })
+
+    // extract webpack runtime and module manifest to its own file in order to
+    // prevent vendor hash from being updated whenever app bundle is updated
+    if (cfg.build.webpackManifest) {
+      chain.optimization.runtimeChunk('single')
+    }
+  }
+
+
   // DEVELOPMENT build
   if (cfg.ctx.dev) {
-    const
-      FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin'),
-      { devCompilationSuccess } = require('../helpers/banner')
+    const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+    const { devCompilationSuccess } = require('../helpers/banner')
 
     chain.optimization
       .noEmitOnErrors(true)
@@ -212,66 +269,28 @@ module.exports = function (cfg, configName) {
         hashDigest: 'hex'
       }])
 
-    // keep chunk ids stable so async chunks have consistent hash
-    const hash = require('hash-sum')
-    chain
-      .plugin('named-chunks')
-        .use(webpack.NamedChunksPlugin, [
-          chunk => chunk.name || hash(
-            Array.from(chunk.modulesIterable, m => m.id).join('_')
-          )
-        ])
-
     if (configName !== 'Server') {
-      const
-        add = cfg.vendor.add,
-        rem = cfg.vendor.remove,
-        regex = /[\\/]node_modules[\\/]/
-
-      chain.optimization
-        .splitChunks({
-          cacheGroups: {
-            vendors: {
-              name: 'vendor',
-              chunks: 'initial',
-              priority: -10,
-              // a module is extracted into the vendor chunk if...
-              test: add || rem
-                ? module => {
-                  if (module.resource) {
-                    if (add && add.test(module.resource)) { return true }
-                    if (rem && rem.test(module.resource)) { return false }
-                  }
-                  return regex.test(module.resource)
-                }
-                : module => regex.test(module.resource)
-            },
-            common: {
-              name: `chunk-common`,
-              minChunks: 2,
-              priority: -20,
-              chunks: 'initial',
-              reuseExistingChunk: true
-            }
-          }
-        })
-
-      // extract webpack runtime and module manifest to its own file in order to
-      // prevent vendor hash from being updated whenever app bundle is updated
-      if (cfg.build.webpackManifest) {
-        chain.optimization.runtimeChunk('single')
-      }
-
       // copy statics to dist folder
       const CopyWebpackPlugin = require('copy-webpack-plugin')
+
+      const copyArray = []
+      const staticsFolder = appPaths.resolve.src('statics')
+
+      if (fs.existsSync(staticsFolder)) {
+        copyArray.push({
+          from: staticsFolder,
+          to: 'statics',
+          ignore: ['.*'].concat(
+            // avoid useless files to be copied
+            ['electron', 'cordova', 'capacitor'].includes(cfg.ctx.modeName)
+              ? [ 'icons/*', 'app-logo-128x128.png' ]
+              : []
+          )
+        })
+      }
+
       chain.plugin('copy-webpack')
-        .use(CopyWebpackPlugin, [
-          [{
-            from: appPaths.resolve.src('statics'),
-            to: 'statics',
-            ignore: ['.*']
-          }]
-        ])
+        .use(CopyWebpackPlugin, [ copyArray ])
     }
 
     // Scope hoisting ala Rollupjs
@@ -283,6 +302,8 @@ module.exports = function (cfg, configName) {
     if (cfg.ctx.debug) {
       // reset default webpack 4 minimizer
       chain.optimization.minimizers.delete('js')
+      // also:
+      chain.optimization.minimize(false)
     }
     else if (cfg.build.minify) {
       const TerserPlugin = require('terser-webpack-plugin')
@@ -291,6 +312,7 @@ module.exports = function (cfg, configName) {
         .minimizer('js')
         .use(TerserPlugin, [{
           terserOptions: cfg.build.uglifyOptions,
+          extractComments: false,
           cache: true,
           parallel: true,
           sourceMap: cfg.build.sourceMap
@@ -298,7 +320,7 @@ module.exports = function (cfg, configName) {
     }
 
     // configure CSS extraction & optimize
-    if (cfg.build.extractCSS) {
+    if (configName !== 'Server' && cfg.build.extractCSS) {
       const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
       // extract css into its own file
@@ -329,6 +351,7 @@ module.exports = function (cfg, configName) {
             cssProcessorPluginOptions: {
               preset: ['default', {
                 mergeLonghand: false,
+                convertValues: false,
                 cssDeclarationSorter: false,
                 reduceTransforms: false
               }]

@@ -1,17 +1,14 @@
-const
-  fs = require('fs'),
-  fse = require('fs-extra'),
-  path = require('path'),
-  compileTemplate = require('lodash.template')
+const fs = require('fs')
+const path = require('path')
+const compileTemplate = require('lodash.template')
 
-const
-  log = require('./helpers/logger')('app:generator')
-  appPaths = require('./app-paths'),
-  quasarFolder = appPaths.resolve.app('.quasar')
+const log = require('./helpers/logger')('app:generator')
+const appPaths = require('./app-paths')
+const quasarFolder = appPaths.resolve.app('.quasar')
 
 class Generator {
   constructor (quasarConfig) {
-    const { ctx, loadingBar, preFetch } = quasarConfig.getBuildConfig()
+    const { ctx, preFetch } = quasarConfig.getBuildConfig()
 
     this.alreadyGenerated = false
     this.quasarConfig = quasarConfig
@@ -30,12 +27,12 @@ class Generator {
     }
 
     this.files = paths.map(file => {
-      const
-        content = fs.readFileSync(
-          appPaths.resolve.cli(`templates/entry/${file}`),
-          'utf-8'
-        ),
-        filename = path.basename(file)
+      const content = fs.readFileSync(
+        appPaths.resolve.cli(`templates/entry/${file}`),
+        'utf-8'
+      )
+
+      const filename = path.basename(file)
 
       return {
         filename,
@@ -43,35 +40,42 @@ class Generator {
         template: compileTemplate(content)
       }
     })
-  }
 
-  prepare () {
-    const
-      now = Date.now() / 1000,
-      then = now - 100,
-      appVariablesFile = appPaths.resolve.cli('templates/app/app.quasar-variables.styl'),
-      appStylFile = appPaths.resolve.cli('templates/app/app.quasar.styl'),
-      emptyStylFile = path.join(quasarFolder, 'empty.styl')
+    if (ctx.prod && ctx.mode.ssr) {
+      const ssrFile = path.join(__dirname, 'ssr/template.prod-webserver.js')
 
-    function copy (file) {
-      const dest = path.join(quasarFolder, path.basename(file))
-      fse.copySync(file, dest)
-      fs.utimes(dest, then, then, function (err) { if (err) throw err })
+      this.files.push({
+        filename: 'ssr.js',
+        dest: path.join(quasarFolder, 'ssr-config.js'),
+        template: compileTemplate(fs.readFileSync(ssrFile, 'utf-8')),
+        dataFn: quasarConfig => ({
+          opts: quasarConfig.ssr.__templateOpts,
+          flags: quasarConfig.ssr.__templateFlags
+        })
+      })
     }
-
-    copy(appStylFile)
-    copy(appVariablesFile)
-
-    fs.writeFileSync(emptyStylFile, '', 'utf-8'),
-    fs.utimes(emptyStylFile, then, then, function (err) { if (err) throw err })
   }
 
   build () {
     log(`Generating Webpack entry point`)
     const data = this.quasarConfig.getBuildConfig()
 
+    // ensure .quasar folder
+    if (!fs.existsSync(quasarFolder)) {
+      fs.mkdirSync(quasarFolder)
+    }
+    else if (!fs.lstatSync(quasarFolder).isDirectory()) {
+      const { removeSync } = require('fs-extra')
+      removeSync(quasarFolder)
+      fs.mkdirSync(quasarFolder)
+    }
+
     this.files.forEach(file => {
-      fs.writeFileSync(file.dest, file.template(data), 'utf-8')
+      const templateData = file.dataFn !== void 0
+        ? file.dataFn(data)
+        : data
+
+      fs.writeFileSync(file.dest, file.template(templateData), 'utf-8')
     })
 
     if (!this.alreadyGenerated) {

@@ -1,17 +1,17 @@
-const
-  logger = require('../helpers/logger'),
-  log = logger('app:extension'),
-  warn = logger('app:extension', 'red'),
-  appPaths = require('../app-paths')
+const logger = require('../helpers/logger')
+const log = logger('app:extension')
+const warn = logger('app:extension', 'red')
+const appPaths = require('../app-paths')
+const { spawnSync } = require('../helpers/spawn')
+const extensionJson = require('./extension-json')
 
 async function renderFolders ({ source, rawCopy, scope }) {
-  const
-    fs = require('fs-extra'),
-    path = require('path'),
-    fglob = require('fast-glob'),
-    isBinary = require('isbinaryfile').isBinaryFileSync,
-    inquirer = require('inquirer'),
-    compileTemplate = require('lodash.template')
+  const fs = require('fs-extra')
+  const path = require('path')
+  const fglob = require('fast-glob')
+  const isBinary = require('isbinaryfile').isBinaryFileSync
+  const inquirer = require('inquirer')
+  const compileTemplate = require('lodash.template')
 
   let overwrite
   const files = fglob.sync(['**/*'], { cwd: source })
@@ -63,13 +63,14 @@ async function renderFolders ({ source, rawCopy, scope }) {
       }
     }
 
+    fs.ensureFileSync(targetPath)
+
     if (rawCopy || isBinary(sourcePath)) {
-      fs.ensureFileSync(targetPath)
       fs.copyFileSync(sourcePath, targetPath)
     }
     else {
       const rawContent = fs.readFileSync(sourcePath, 'utf-8')
-      const template = compileTemplate(rawContent)
+      const template = compileTemplate(rawContent, { 'interpolate': /<%=([\s\S]+?)%>/g })
       fs.writeFileSync(targetPath, template(scope), 'utf-8')
     }
   }
@@ -115,7 +116,7 @@ module.exports = class Extension {
     if (/quasar-app-extension-/.test(this.extId)) {
       this.extId = this.extId.replace('quasar-app-extension-', '')
       log(
-        `When using an extension, "quasar-app-extension-" is added automatically. Just run "quasar ext --add ${
+        `When using an extension, "quasar-app-extension-" is added automatically. Just run "quasar ext add ${
           this.extId
         }"`
       )
@@ -129,23 +130,21 @@ module.exports = class Extension {
     // verify if already installed
     if (skipPkgInstall === true) {
       if (!isInstalled) {
-        warn(`⚠️  Tried to invoke App Extension "${this.extId}" but it's npm package is not installed`)
+        warn(`⚠️  Tried to invoke App Extension "${this.extId}" but its npm package is not installed`)
         process.exit(1)
       }
     }
-    else {
-      if (isInstalled) {
-        const inquirer = require('inquirer')
-        const answer = await inquirer.prompt([{
-          name: 'reinstall',
-          type: 'confirm',
-          message: `Already installed. Reinstall?`,
-          default: false
-        }])
+    else if (isInstalled) {
+      const inquirer = require('inquirer')
+      const answer = await inquirer.prompt([{
+        name: 'reinstall',
+        type: 'confirm',
+        message: `Already installed. Reinstall?`,
+        default: false
+      }])
 
-        if (!answer.reinstall) {
-          return
-        }
+      if (!answer.reinstall) {
+        return
       }
     }
 
@@ -154,11 +153,10 @@ module.exports = class Extension {
 
     const prompts = await this.__getPrompts()
 
+    extensionJson.set(this.extId, prompts)
+
     // run extension install
     const hooks = await this.__runInstallScript(prompts)
-
-    const extensionJson = require('./extension-json')
-    extensionJson.add(this.extId, prompts)
 
     log(`Quasar App Extension "${this.extId}" successfully installed.`)
     log()
@@ -184,16 +182,12 @@ module.exports = class Extension {
         process.exit(1)
       }
     }
-    else {
-      if (!isInstalled) {
-        warn(`⚠️  Quasar App Extension "${this.packageName}" is not installed...`)
-        return
-      }
+    else if (!isInstalled) {
+      warn(`⚠️  Quasar App Extension "${this.packageName}" is not installed...`)
+      return
     }
 
-    const extensionJson = require('./extension-json')
-    const prompts = extensionJson.get(this.extId)
-
+    const prompts = extensionJson.getPrompts(this.extId)
     const hooks = await this.__runUninstallScript(prompts)
 
     extensionJson.remove(this.extId)
@@ -215,21 +209,20 @@ module.exports = class Extension {
   async run (ctx) {
     if (!this.isInstalled()) {
       warn(`⚠️  Quasar App Extension "${this.extId}" is missing...`)
-      process.exit(1)
+      process.exit(1, 'ext-missing')
     }
 
     const script = this.__getScript('index', true)
     const IndexAPI = require('./IndexAPI')
-    const extensionJson = require('./extension-json')
 
     const api = new IndexAPI({
       extId: this.extId,
-      prompts: extensionJson.get(this.extId),
+      prompts: extensionJson.getPrompts(this.extId),
       ctx
     })
 
     log(`Running "${this.extId}" Quasar App Extension...`)
-    await script(api, ctx)
+    await script(api)
 
     return api.__getHooks()
   }
@@ -257,35 +250,31 @@ module.exports = class Extension {
   }
 
   __installPackage () {
-    const
-      spawn = require('../helpers/spawn'),
-      nodePackager = require('../helpers/node-packager'),
-      cmdParam = nodePackager === 'npm'
-        ? ['install', '--save-dev']
-        : ['add', '--dev']
+    const nodePackager = require('../helpers/node-packager')
+    const cmdParam = nodePackager === 'npm'
+      ? ['install', '--save-dev']
+      : ['add', '--dev']
 
     log(`Retrieving "${this.packageFullName}"...`)
-    spawn.sync(
+    spawnSync(
       nodePackager,
       cmdParam.concat(this.packageFullName),
-      appPaths.appDir,
+      { cwd: appPaths.appDir },
       () => warn(`⚠️  Failed to install ${this.packageFullName}`)
     )
   }
 
   __uninstallPackage () {
-    const
-      spawn = require('../helpers/spawn'),
-      nodePackager = require('../helpers/node-packager'),
-      cmdParam = nodePackager === 'npm'
-        ? ['uninstall', '--save-dev']
-        : ['remove']
+    const nodePackager = require('../helpers/node-packager')
+    const cmdParam = nodePackager === 'npm'
+      ? ['uninstall', '--save-dev']
+      : ['remove']
 
     log(`Uninstalling "${this.packageName}"...`)
-    spawn.sync(
+    spawnSync(
       nodePackager,
       cmdParam.concat(this.packageName),
-      appPaths.appDir,
+      { cwd: appPaths.appDir },
       () => warn(`⚠️  Failed to uninstall "${this.packageName}"`)
     )
   }
@@ -337,18 +326,16 @@ module.exports = class Extension {
     }
 
     if (api.__needsNodeModulesUpdate) {
-      const
-        spawn = require('../helpers/spawn'),
-        nodePackager = require('../helpers/node-packager'),
-        cmdParam = nodePackager === 'npm'
-          ? ['install']
-          : []
+      const nodePackager = require('../helpers/node-packager')
+      const cmdParam = nodePackager === 'npm'
+        ? ['install']
+        : []
 
       log(`Updating dependencies...`)
-      spawn.sync(
+      spawnSync(
         nodePackager,
         cmdParam,
-        appPaths.appDir,
+        { cwd: appPaths.appDir },
         () => warn(`⚠️  Failed to update dependencies`)
       )
     }

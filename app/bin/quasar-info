@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
-const
-  parseArgs = require('minimist'),
-  chalk = require('chalk')
+const parseArgs = require('minimist')
+const chalk = require('chalk')
 
-const
-  appPaths = require('../lib/app-paths')
+const getPackageJson = require('../lib/helpers/get-package-json')
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: {
@@ -26,9 +24,8 @@ if (argv.help) {
   process.exit(0)
 }
 
-const
-  os = require('os'),
-  spawn = require('cross-spawn').sync
+const os = require('os')
+const spawn = require('cross-spawn').sync
 
 function getSpawnOutput (command) {
   try {
@@ -43,14 +40,15 @@ function getSpawnOutput (command) {
 }
 
 function safePkgInfo (pkg) {
-  try {
-    const content = require(appPaths.resolve.app(`node_modules/${pkg}/package.json`))
+  const json = getPackageJson(pkg)
+
+  if (json !== void 0) {
     return {
-      key: `  ${String(content.name).trim()}`,
-      value: `${chalk.green(String(content.version).trim())}${content.description ? ` -- ${content.description}` : ''}`
+      key: `  ${String(json.name).trim()}`,
+      value: `${chalk.green(String(json.version).trim())}${json.description ? ` -- ${json.description}` : ''}`
     }
   }
-  catch (err) {
+  else {
     return {
       key: `  ${pkg}`,
       value: chalk.red('Not installed')
@@ -69,6 +67,7 @@ print({ key: '  NPM', value: getSpawnOutput('npm') })
 print({ key: '  yarn', value: getSpawnOutput('yarn') })
 print({ key: '  @quasar/cli', value: chalk.green(process.env.QUASAR_CLI_VERSION) })
 print({ key: '  cordova', value: getSpawnOutput('cordova') })
+
 print({ key: 'Important local packages', section: true })
 
 ;[
@@ -81,6 +80,10 @@ print({ key: 'Important local packages', section: true })
   'electron',
   'electron-packager',
   'electron-builder',
+  '@capacitor/core',
+  '@capacitor/cli',
+  '@capacitor/android',
+  '@capacitor/ios',
   '@babel/core',
   'webpack',
   'webpack-dev-server',

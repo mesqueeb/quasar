@@ -1,5 +1,6 @@
 ---
 title: Handling process.env
+desc: How to differentiate the runtime procedure based on process.env in a Quasar app.
 ---
 
 Accessing `process.env` can help you in many ways:
@@ -111,4 +112,4 @@ build: {
 }
 ```
 
-Alternatively you can use our [@quasar/dotenv](https://github.com/quasarframework/app-extension-dotenv) App Extension.
+Alternatively you can use our [@quasar/dotenv](https://github.com/quasarframework/app-extension-dotenv) or [@quasar/qenv](https://github.com/quasarframework/app-extension-qenv) App Extensions.

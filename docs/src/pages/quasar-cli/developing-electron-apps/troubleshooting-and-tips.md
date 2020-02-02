@@ -1,11 +1,10 @@
 ---
 title: Troubleshooting and Tips
+desc: Tips and tricks for a Quasar desktop app with Electron.
 ---
 
 ## $q.electron
 While you are developing with Electron Mode, you can access `this.$q.electron` in your Vue files. This is an alias to the `electron` Object when imported.
-
-Example:
 
 ```js
 export default {
@@ -20,6 +19,10 @@ export default {
   }
 }
 ```
+
+::: warning
+Accessing `this.$q.electron` requires that the [Node Integration](/quasar-cli/developing-electron-apps/node-integration) is kept turned "on".
+:::
 
 ## Read & Write Local Files
 One great benefit of using Electron is the ability to access the user's file system. This enables you to read and write files on the local system. To help avoid Chromium restrictions and writing to your application's internal files, make sure to make use of electron's APIs, specifically the app.getPath(name) function. This helper method can get you file paths to system directories such as the user's desktop, system temporary files, etc.
@@ -46,3 +49,18 @@ When running your application in development you may have noticed a message from
 
 ┗ ----------------------------
 ```
+
+## Application does not open on Windows with Dark Theme
+Some Chrome DevTools Extensions do not play well with Windows Dark Theme on electron 6+. Quasar offers a workaround in the default `electron-main.js`, that removes the `DevTools Extensions` before starting the application.
+
+```javascript
+import { app, BrowserWindow, nativeTheme } from 'electron'
+
+try {
+  if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
+    require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
+  }
+} catch (_) { }
+```
+
+Please follow [electron bug report](https://github.com/electron/electron/issues/19468) for more details.

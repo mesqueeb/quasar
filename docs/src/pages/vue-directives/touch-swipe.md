@@ -1,5 +1,6 @@
 ---
 title: Touch Swipe Directive
+desc: Vue directive which triggers an event when the user swipes with the finger or mouse on a component or element.
 related:
   - /vue-directives/touch-pan
   - /vue-directives/touch-hold
@@ -22,14 +23,34 @@ Swipe with your mouse on the area below to see it in action. If using a mouse, y
 
 <doc-example title="Several directions" file="TouchSwipe/UpOrLeft" />
 
-### Capturing Mouse Events
-When you want to capture mouse actions too, use the `mouse` modifier:
+### Handling Mouse Events
+When you want to handle mouse events too, use the `mouse` modifier:
+
 ``` html
 <div v-touch-swipe.mouse="userHasSwiped">...</div>
 ```
 
-### Note on HMR
-Due to performance reasons, when doing HMR updates, the argument and modifiers are not updated, so you will require a window refresh.
+### Inhibiting TouchSwipe
+When you want to inhibit TouchSwipe, you can do so by stopping propagation of the `touchstart`/`mousedown` events from the inner content:
 
-## API
+``` html
+<div v-touch-swipe.mouse="userSwiped">
+  <!-- ...content -->
+  <div @touchstart.stop @mousedown.stop>
+    <!--
+      TouchSwipe will not apply here because
+      we are calling stopPropagation() on touchstart
+      and mousedown events
+    -->
+  </div>
+  <!-- ...content -->
+</div>
+```
+
+However, if you are using `capture` or `mouseCapture` modifiers then events will first reach the TouchHold directive then the inner content, so TouchSwipe will still trigger.
+
+## Note on HMR
+Due to performance reasons, not all of the modifiers are reactive. Some require a window/page/component refresh to get updated. Please check the API card for the modifiers which are not marked as reactive.
+
+## TouchSwipe API
 <doc-api file="TouchSwipe" />

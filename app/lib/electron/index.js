@@ -1,11 +1,16 @@
-const
-  spawn = require('../helpers/spawn'),
-  webpack = require('webpack'),
-  logger = require('../helpers/logger'),
-  log = logger('app:electron'),
-  warn = logger('app:electron', 'red'),
-  appPaths = require('../app-paths'),
-  nodePackager = require('../helpers/node-packager')
+const webpack = require('webpack')
+const chokidar = require('chokidar')
+const fs = require('fs')
+const debounce = require('lodash.debounce')
+
+const logger = require('../helpers/logger')
+const log = logger('app:electron')
+const warn = logger('app:electron', 'red')
+const { spawn } = require('../helpers/spawn')
+const appPaths = require('../app-paths')
+const nodePackager = require('../helpers/node-packager')
+const getPackageJson = require('../helpers/get-package-json')
+const getPackage = require('../helpers/get-package')
 
 class ElectronRunner {
   constructor () {
@@ -13,7 +18,9 @@ class ElectronRunner {
     this.watcher = null
   }
 
-  async run (quasarConfig) {
+  init () {}
+
+  async run (quasarConfig, argv) {
     const url = quasarConfig.getBuildConfig().build.APP_URL
 
     if (this.pid) {
@@ -29,8 +36,9 @@ class ElectronRunner {
 
     const compiler = webpack(quasarConfig.getWebpackConfig().main)
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       log(`Building main Electron process...`)
+
       this.watcher = compiler.watch({}, async (err, stats) => {
         if (err) {
           console.log(err)
@@ -49,26 +57,44 @@ class ElectronRunner {
         log()
 
         if (stats.hasErrors()) {
-          warn(`Electron main build failed with errors`)
+          warn(`⚠️  Electron main build failed with errors`)
           return
         }
 
         await this.__stopElectron()
-        this.__startElectron()
+        this.__startElectron(argv._)
 
         resolve()
       })
+
+      const preloadFile = appPaths.resolve.electron('main-process/electron-preload.js')
+
+      if (fs.existsSync(preloadFile)) {
+        // Start watching for electron-preload.js changes
+        this.preloadWatcher = chokidar
+          .watch(preloadFile, { watchers: { chokidar: { ignoreInitial: true } } })
+
+        this.preloadWatcher.on('change', debounce(async () => {
+          console.log()
+          log(`electron-preload.js changed`)
+
+          await this.__stopElectron()
+          this.__startElectron(argv._)
+
+          resolve()
+        }, 1000))
+      }
     })
   }
 
   build (quasarConfig) {
     const cfg = quasarConfig.getBuildConfig()
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       spawn(
         nodePackager,
-        [ 'install', '--production' ],
-        cfg.build.distDir,
+        [ 'install', '--production' ].concat(cfg.electron.unPackagedInstallParams),
+        { cwd: cfg.build.distDir },
         code => {
           if (code) {
             warn(`⚠️  [FAIL] ${nodePackager} failed installing dependencies`)
@@ -78,7 +104,7 @@ class ElectronRunner {
         }
       )
     }).then(() => {
-      return new Promise(async (resolve, reject) => {
+      return new Promise(async resolve => {
         if (typeof cfg.electron.beforePackaging === 'function') {
           log('Running beforePackaging()')
           log()
@@ -98,18 +124,20 @@ class ElectronRunner {
         resolve()
       })
     }).then(() => {
-      const
-        bundlerName = cfg.electron.bundler,
-        bundlerConfig = cfg.electron[bundlerName],
-        bundler = require('./bundler').getBundler(bundlerName),
-        pkgName = `electron-${bundlerName}`
+      const bundlerName = cfg.electron.bundler
+      const bundlerConfig = cfg.electron[bundlerName]
+      const bundler = require('./bundler').getBundler(bundlerName)
+      const pkgName = `electron-${bundlerName}`
 
       return new Promise((resolve, reject) => {
         log(`Bundling app with electron-${bundlerName}...`)
         log()
 
         const bundlePromise = bundlerName === 'packager'
-          ? bundler(bundlerConfig)
+          ? bundler({
+            ...bundlerConfig,
+            electronVersion: getPackageJson('electron').version
+          })
           : bundler.build(bundlerConfig)
 
         bundlePromise
@@ -131,41 +159,52 @@ class ElectronRunner {
   }
 
   stop () {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
+      let counter = 0
+      const maxCounter = (this.watcher ? 1 : 0) + (this.preloadWatcher ? 1 : 0)
+
       const finalize = () => {
-        this.__stopElectron().then(resolve)
+        counter++
+        if (maxCounter <= counter) {
+          this.__stopElectron().then(resolve)
+        }
       }
 
       if (this.watcher) {
         this.watcher.close(finalize)
         this.watcher = null
-        return
       }
 
-      finalize()
+      if (this.preloadWatcher) {
+        this.preloadWatcher.close().then(finalize)
+        this.preloadWatcher = null
+      }
+
+      if (maxCounter === 0) {
+        finalize()
+      }
     })
   }
 
-  __startElectron () {
+  __startElectron (extraParams) {
     log(`Booting up Electron process...`)
     this.pid = spawn(
-      require(appPaths.resolve.app('node_modules/electron')),
+      getPackage('electron'),
       [
         '--inspect=5858',
         appPaths.resolve.app('.quasar/electron/electron-main.js')
-      ],
-      appPaths.appDir,
+      ].concat(extraParams),
+      { cwd: appPaths.appDir },
       code => {
-        if (code) {
+        if (this.killPromise) {
+          this.killPromise()
+          this.killPromise = null
+        }
+        else if (code) {
           warn()
           warn(`⚠️  Electron process ended with error code: ${code}`)
           warn()
           process.exit(1)
-        }
-
-        if (this.killPromise) {
-          this.killPromise()
-          this.killPromise = null
         }
         else { // else it wasn't killed by us
           warn()
@@ -186,7 +225,7 @@ class ElectronRunner {
 
     log('Shutting down Electron process...')
     this.pid = 0
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.killPromise = resolve
       process.kill(pid)
     })

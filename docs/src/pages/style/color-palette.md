@@ -1,23 +1,25 @@
 ---
 title: Color Palette
+desc: How to use and customize the Quasar Color Palette.
 components:
   - color-palette/BrandColors
   - color-palette/ColorList
 ---
-Quasar Framework offers a wide selection of colors out of the box. You can use them both as Stylus variables in your CSS code or directly as CSS classes in your HTML templates.
+Quasar Framework offers a wide selection of colors out of the box. You can use them both as Sass/SCSS/Stylus variables in your CSS code or directly as CSS classes in your HTML templates.
 
 ## Brand Colors
 Most of the colors that Quasar Components use are strongly linked with these three colors that you can change. Choosing these colors is the first step one should take when differentiating the design of an App. You'll notice immediately upon changing their default values that Quasar Components follow these colors as a guideline.
 
 <brand-colors />
 
-::: tip
-Also check [Theme Builder](/style/theme-builder) for a tool on customizing the brand colors of your website/app.
+::: tip TIPS
+* Also check [Theme Builder](/style/theme-builder) for a tool on customizing the brand colors of your website/app.
+* `dark` was added in Quasar v1.3.0.
 :::
 
 ## Color List
 
-Here's the list of colors provided out of the box. Within your app's `*.vue` files you can use them as CSS classes (in HTML templates) or as Stylus variables (in `<style lang="stylus">` tags -- don't forget to also `@import '~quasar-variables'`).
+Here's the list of colors provided out of the box. Within your app's `*.vue` files you can use them as CSS classes (in HTML templates) or as [Sass/SCSS variables](/style/sass-scss-variables) or as [Stylus variables](/style/stylus-variables) in `<style lang="...">` tags.
 
 <color-list />
 
@@ -32,15 +34,31 @@ Use `text-` or `bg-` prefixes as class names to change the color of text or the 
 <p class="bg-positive">...</p>
 ```
 
-## Using Stylus Variables
-In your app's `*.vue` files you can use the colors as `$primary`, `$red-1`, and so on.
+## Using Sass/SCSS/Stylus Variables
+In your app's `*.vue` files you can use the colors as `$primary`, `$red-1`, and so on. Note that for Sass/SCSS you will need "@quasar/app" v1.1.0+ AND Quasar v1.1.1+.
+
+```html
+<!-- Notice lang="sass" -->
+<style lang="sass">
+div
+  color: $red-1
+  background-color: $grey-5
+</style>
+```
+
+```html
+<!-- Notice lang="scss" -->
+<style lang="scss">
+div {
+  color: $red-1;
+  background-color: $grey-5;
+}
+</style>
+```
 
 ```html
 <!-- Notice lang="stylus" -->
 <style lang="stylus">
-// "quasar-variables" is a Webpack alias injected by Quasar CLI
-@import '~quasar-variables'
-
 div
   color $red-1
   background-color $grey-5
@@ -72,7 +90,7 @@ This is only supported on [browsers that support CSS Variables](https://caniuse.
 It is not going to work on IE11, but it will fall back to the brand colors from the CSS theme.
 :::
 
-You can dynamically customize the brand colors during run-time: `primary`, `secondary`, `accent`, `positive`, `negative`, `info`, `warning`. That means you can have one build of your application with a default color theme but show it with a runtime selected one.
+You can dynamically customize the brand colors during run-time: `primary`, `secondary`, `accent`, `dark`, `positive`, `negative`, `info`, `warning`. That means you can have one build of your application with a default color theme but show it with a runtime selected one.
 
 The main color configuration is done using CSS custom properties, stored on the root element (`:root`). Each property has a name of `--q-color-${name}` (example: `--q-color-primary`, `--q-color-secondary`) and should have a valid CSS color as value.
 
@@ -87,7 +105,7 @@ Quasar offers a helper function for setting custom colors in the `colors` utils:
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `colorName` | String | *Yes* | One of `primary`, `secondary`, `accent`, `positive`, `negative`, `info`, `warning` |
+| `colorName` | String | *Yes* | One of `primary`, `secondary`, `accent`, `dark`, `positive`, `negative`, `info`, `warning` |
 | `colorValue` | String | *Yes* | Valid CSS color value |
 | `element` | Element | - | (Default: `document.body`) Element where the custom property will be set. |
 
@@ -110,7 +128,7 @@ Quasar offers a helper function for setting custom colors in the `colors` utils:
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| `colorName` | String | *Yes* | One of `primary`, `secondary`, `accent`, `positive`, `negative`, `info`, `warning` |
+| `colorName` | String | *Yes* | One of `primary`, `secondary`, `accent`, `dark`, `positive`, `negative`, `info`, `warning` |
 | `element` | Element | - | (Default: `document.body`) Element where the custom property will be read. |
 
 Example of getting brand colors using the helper:

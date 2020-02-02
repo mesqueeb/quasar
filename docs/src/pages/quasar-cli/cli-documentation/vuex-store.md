@@ -1,5 +1,6 @@
 ---
 title: App Vuex Store
+desc: How to manage the Vuex Store in a Quasar App.
 ---
 In large applications, state management often becomes complex due to multiple pieces of state scattered across many components and the interactions between them. It is often overlooked that the source of truth in Vue instances is the raw data object - a Vue instance simply proxies access to it. Therefore, if you have a piece of state that should be shared by multiple instances, you should avoid duplicating it and share it by identity.
 
@@ -79,7 +80,7 @@ export default function (/* { ssrContext } */) {
   if (process.env.DEV && module.hot) {
     module.hot.accept(['./showcase'], () => {
       const newShowcase = require('./showcase').default
-      store.hotUpdate({ modules: { showcase: newShowcase } })
+      Store.hotUpdate({ modules: { showcase: newShowcase } })
     })
   }
 
@@ -96,8 +97,11 @@ export const updateDrawerState = (state, opened) => {
 }
 
 // src/store/showcase/state.js
-export default {
-  drawerState: true
+// Always use a function to return state if you use SSR
+export default function () {
+  return {
+    drawerState: true
+  }
 }
 ```
 
@@ -126,4 +130,4 @@ export default {
 ```
 
 ## Store Code Splitting
-You can take advantage of the [PreFetch Feature](/quasar-cli/cli-documentation/prefetch-feature#Store-Code-Splitting) to code split code for modules.
+You can take advantage of the [PreFetch Feature](/quasar-cli/cli-documentation/prefetch-feature#Store-Code-Splitting) to code-split Vuex modules.

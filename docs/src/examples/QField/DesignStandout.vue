@@ -15,6 +15,12 @@
         </template>
       </q-field>
 
+      <q-field standout="bg-teal text-white" label="Custom standout" stack-label :dense="dense">
+        <template v-slot:control>
+          <div class="self-center full-width no-outline" tabindex="0">{{text}}</div>
+        </template>
+      </q-field>
+
       <q-field standout square hint="With perfect square borders" :dense="dense">
         <template v-slot:control>
           <div class="self-center full-width no-outline" tabindex="0">{{text}}</div>
@@ -38,7 +44,7 @@
 
         <template v-slot:append>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
+            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg">
           </q-avatar>
         </template>
       </q-field>
@@ -83,7 +89,7 @@
       <q-field standout :value="text" bottom-slots label="Label" stack-label counter maxlength="12" :dense="dense">
         <template v-slot:before>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/img/avatar5.jpg">
+            <img src="https://cdn.quasar.dev/img/avatar5.jpg">
           </q-avatar>
         </template>
 

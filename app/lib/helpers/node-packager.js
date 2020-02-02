@@ -1,9 +1,8 @@
 const fs = require('fs')
 
-const
-  appPaths = require('../app-paths'),
-  spawn = require('cross-spawn').sync,
-  warn = require('./logger')('app:node-packager', 'red')
+const appPaths = require('../app-paths')
+const spawn = require('cross-spawn').sync
+const warn = require('./logger')('app:node-packager', 'red')
 
 function isInstalled (cmd) {
   try {
@@ -15,12 +14,6 @@ function isInstalled (cmd) {
 }
 
 function getPackager () {
-  if (!fs.existsSync(appPaths.resolve.app('node_modules'))) {
-    warn('⚠️  Please run "yarn" / "npm install" first')
-    warn()
-    process.exit(1)
-  }
-
   if (fs.existsSync(appPaths.resolve.app('yarn.lock'))) {
     return 'yarn'
   }

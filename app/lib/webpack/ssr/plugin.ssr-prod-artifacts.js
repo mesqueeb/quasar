@@ -1,11 +1,10 @@
-const
-  fs = require('fs'),
-  path = require('path'),
-  compileTemplate = require('lodash.template')
+const fs = require('fs')
+const path = require('path')
+const compileTemplate = require('lodash.template')
 
-const
-  appPaths = require('../../app-paths'),
-  { getIndexHtml } = require('../../ssr/html-template')
+const appPaths = require('../../app-paths')
+const getFixedDeps = require('../../helpers/get-fixed-deps')
+const { getIndexHtml } = require('../../ssr/html-template')
 
 module.exports = class SsrProdArtifacts {
   constructor (cfg = {}) {
@@ -17,46 +16,21 @@ module.exports = class SsrProdArtifacts {
       /*
        * /template.html
        */
-      const
-        htmlFile = appPaths.resolve.app(this.cfg.sourceFiles.indexHtmlTemplate),
-        htmlTemplate = getIndexHtml(fs.readFileSync(htmlFile, 'utf-8'), this.cfg)
+      const htmlFile = appPaths.resolve.app(this.cfg.sourceFiles.indexHtmlTemplate)
+      const htmlTemplate = getIndexHtml(fs.readFileSync(htmlFile, 'utf-8'), this.cfg)
 
       compiler.assets['../template.html'] = {
-        source: () => new Buffer(htmlTemplate),
+        source: () => Buffer.from(htmlTemplate, 'utf8'),
         size: () => Buffer.byteLength(htmlTemplate)
-      }
-
-      /*
-       * /ssr.js
-       */
-      const
-        ssrFile = path.join(__dirname, 'template.ssr.js'),
-        ssrTemplate = compileTemplate(fs.readFileSync(ssrFile, 'utf-8'))({
-          opts: this.cfg.ssr.__templateOpts,
-          flags: this.cfg.ssr.__templateFlags
-        })
-
-      compiler.assets['../ssr.js'] = {
-        source: () => new Buffer(ssrTemplate),
-        size: () => Buffer.byteLength(ssrTemplate)
-      }
-
-      /*
-       * /index.js
-       */
-      const index = `require('./server/${this.cfg.ssr.__index}')`
-      compiler.assets[`../${this.cfg.ssr.__index}`] = {
-        source: () => new Buffer(index),
-        size: () => Buffer.byteLength(index)
       }
 
       /*
        * /package.json
        */
-      const
-        appPkg = require(appPaths.resolve.app('package.json')),
-        cliPkg = require(appPaths.resolve.cli('package.json')),
-        deps = cliPkg.dependencies
+      const appPkg = require(appPaths.resolve.app('package.json'))
+      const cliPkg = require(appPaths.resolve.cli('package.json'))
+      const appDeps = getFixedDeps(appPkg.dependencies)
+      const cliDeps = cliPkg.dependencies
 
       let pkg = {
         name: appPkg.name,
@@ -67,26 +41,26 @@ module.exports = class SsrProdArtifacts {
         scripts: {
           start: 'node index.js'
         },
-        dependencies: Object.assign(appPkg.dependencies || {}, {
-          '@quasar/babel-preset-app': deps['@quasar/babel-preset-app'],
+        dependencies: Object.assign(appDeps, {
+          '@quasar/babel-preset-app': cliDeps['@quasar/babel-preset-app'],
           'compression': '^1.0.0',
           'express': '^4.0.0',
-          'lru-cache': deps['lru-cache'],
-          'vue': deps.vue,
-          'vue-server-renderer': deps['vue-server-renderer'],
-          'vue-router': deps['vue-router']
+          'lru-cache': cliDeps['lru-cache'],
+          'vue': cliDeps.vue,
+          'vue-server-renderer': cliDeps['vue-server-renderer'],
+          'vue-router': cliDeps['vue-router']
         }),
         engines: appPkg.engines,
         quasar: { ssr: true }
       }
 
       if (this.cfg.store) {
-        pkg.dependencies.vuex = deps.vuex
+        pkg.dependencies.vuex = cliDeps.vuex
       }
 
       pkg = JSON.stringify(pkg, null, 2)
       compiler.assets['../package.json'] = {
-        source: () => new Buffer(pkg),
+        source: () => Buffer.from(pkg, 'utf8'),
         size: () => Buffer.byteLength(pkg)
       }
 

@@ -1,5 +1,6 @@
 ---
 title: Floating Action Button
+desc: How to use the QFab component. Floating Action Buttons for your Quasar app.
 related:
   - /layout/layout
   - /layout/page
@@ -20,11 +21,17 @@ If you want a non-expandable FAB, all you need is a round button – wrapped in 
 
 <doc-example title="Basic" file="QFab/NonExpandable" />
 
-### Exandable
+### Expandable
 
 <doc-example title="Expandable" file="QFab/Expandable" />
 
 <doc-example title="With QPageSticky" file="QFab/PageSticky" />
+
+### Draggable
+
+Below is a nice example of using [TouchPan](/vue-directives/touch-pan) for making the QFab draggable across the screen.
+
+<doc-example title="Draggable" file="QFab/Draggable" />
 
 ## QFab API
 <doc-api file="QFab" />

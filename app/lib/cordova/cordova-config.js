@@ -1,21 +1,19 @@
-const
-  fs = require('fs'),
-  et = require('elementtree')
+const fs = require('fs')
+const et = require('elementtree')
 
-const
-  appPaths = require('../app-paths'),
-  logger = require('../helpers/logger'),
-  log = logger('app:cordova-conf')
-  warn = logger('app:cordova-conf', 'red')
+const appPaths = require('../app-paths')
+const logger = require('../helpers/logger')
+const log = logger('app:cordova-conf')
+const warn = logger('app:cordova-conf', 'red')
+const ensureConsistency = require('../cordova/ensure-consistency')
 
 const filePath = appPaths.resolve.cordova('config.xml')
 
 function setFields (root, cfg) {
   Object.keys(cfg).forEach(key => {
-    const
-      el = root.find(key),
-      values = cfg[key],
-      isObject = Object(values) === values
+    const el = root.find(key)
+    const values = cfg[key]
+    const isObject = Object(values) === values
 
     if (!el) {
       if (isObject) {
@@ -41,11 +39,14 @@ function setFields (root, cfg) {
 
 class CordovaConfig {
   prepare (cfg) {
-    this.doc = et.parse(fs.readFileSync(filePath, 'utf-8'))
+    ensureConsistency()
+
+    const doc = et.parse(fs.readFileSync(filePath, 'utf-8'))
     this.pkg = require(appPaths.resolve.app('package.json'))
     this.APP_URL = cfg.build.APP_URL
+    this.tamperedFiles = []
 
-    const root = this.doc.getroot()
+    const root = doc.getroot()
 
     root.set('id', cfg.cordova.id || this.pkg.cordovaId || 'org.quasar.cordova.app')
     root.set('version', cfg.cordova.version || this.pkg.version)
@@ -65,45 +66,18 @@ class CordovaConfig {
       if (cfg.devServer.https && cfg.ctx.targetName === 'ios') {
         const node = root.find('name')
         if (node) {
-          const filePath = appPaths.resolve.cordova(
-            `platforms/ios/${node.text}/Classes/AppDelegate.m`
-          )
-
-          if (!fs.existsSync(filePath)) {
-            warn()
-            warn()
-            warn()
-            warn()
-            warn(`AppDelegate.m not found. Your App will revoke the devserver's SSL certificate.`)
-            warn(`Please report the cordova CLI version and cordova-ios package that you are using.`)
-            warn(`Also, disable HTTPS from quasar.conf.js > devServer > https`)
-            warn()
-            warn()
-            warn()
-            warn()
-          }
-          else {
-            this.iosDelegateFilePath = filePath
-            this.iosDelegateOriginal = fs.readFileSync(this.iosDelegateFilePath, 'utf-8')
-
-            // required for allowing devserver's SSL certificate on iOS
-            if (this.iosDelegateOriginal.indexOf('allowsAnyHTTPSCertificateForHost') === -1) {
-              this.iosDelegateNew = this.iosDelegateOriginal + `
-
-@implementation NSURLRequest(DataController)
-+ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host
-{
-    return YES;
-}
-@end
-`
-            }
-          }
+          this.__prepareAppDelegate(node)
+          this.__prepareWkWebEngine(node)
         }
       }
     }
 
-    this.__save()
+    // needed for QResizeObserver until ResizeObserver Web API is supported by all platforms
+    if (!root.find(`allow-navigation[@href='about:*']`)) {
+      et.SubElement(root, 'allow-navigation', { href: 'about:*' })
+    }
+
+    this.__save(doc)
   }
 
   reset () {
@@ -111,7 +85,8 @@ class CordovaConfig {
       return
     }
 
-    const root = this.doc.getroot()
+    const doc = et.parse(fs.readFileSync(filePath, 'utf-8'))
+    const root = doc.getroot()
 
     root.find('content').set('src', 'index.html')
 
@@ -120,22 +95,105 @@ class CordovaConfig {
       root.remove(nav)
     }
 
-    if (this.iosDelegateOriginal && this.iosDelegateNew) {
-      this.iosDelegateNew = this.iosDelegateOriginal
-    }
+    this.tamperedFiles.forEach(file => {
+      file.content = file.originalContent
+    })
 
-    this.__save()
+    this.__save(doc)
+
+    this.tamperedFiles = []
   }
 
-  __save () {
-    const content = this.doc.write({ indent: 4 })
+  __save (doc) {
+    const content = doc.write({ indent: 4 })
     fs.writeFileSync(filePath, content, 'utf8')
     log('Updated Cordova config.xml')
 
-    if (this.iosDelegateFilePath && this.iosDelegateNew) {
-      fs.writeFileSync(this.iosDelegateFilePath, this.iosDelegateNew, 'utf8')
-      log('Updated AppDelegate.m')
+    this.tamperedFiles.forEach(file => {
+      fs.writeFileSync(file.path, file.content, 'utf8')
+      log(`Updated ${file.name}`)
+    })
+  }
+
+  __prepareAppDelegate (node) {
+    const appDelegatePath = appPaths.resolve.cordova(
+      `platforms/ios/${node.text}/Classes/AppDelegate.m`
+    )
+
+    if (!fs.existsSync(appDelegatePath)) {
+      warn()
+      warn()
+      warn()
+      warn()
+      warn(`AppDelegate.m not found. Your App will revoke the devserver's SSL certificate.`)
+      warn(`Please report the cordova CLI version and cordova-ios package that you are using.`)
+      warn(`Also, disable HTTPS from quasar.conf.js > devServer > https`)
+      warn()
+      warn()
+      warn()
+      warn()
     }
+    else {
+      const tamperedFile = {
+        name: 'AppDelegate.m',
+        path: appDelegatePath
+      }
+
+      tamperedFile.originalContent = fs.readFileSync(appDelegatePath, 'utf-8')
+
+      // required for allowing devserver's SSL certificate on iOS
+      if (tamperedFile.originalContent.indexOf('allowsAnyHTTPSCertificateForHost') === -1) {
+        tamperedFile.content = tamperedFile.originalContent + `
+
+@implementation NSURLRequest(DataController)
++ (BOOL)allowsAnyHTTPSCertificateForHost:(NSString *)host
+{
+return YES;
+}
+@end
+`
+        this.tamperedFiles.push(tamperedFile)
+      }
+    }
+  }
+
+  __prepareWkWebEngine (node) {
+    [
+      'cordova-plugin-ionic-webview',
+      'cordova-plugin-wkwebview-engine'
+    ].forEach(plugin => {
+      const wkWebViewEnginePath = appPaths.resolve.cordova(
+        `platforms/ios/${node.text}/Plugins/${plugin}/CDVWKWebViewEngine.m`
+      )
+
+      if (fs.existsSync(wkWebViewEnginePath)) {
+        const tamperedFile = {
+          name: `${plugin} > CDVWKWebViewEngine.m`,
+          path: wkWebViewEnginePath
+        }
+
+        tamperedFile.originalContent = fs.readFileSync(wkWebViewEnginePath, 'utf-8')
+
+        // Credit: https://gist.github.com/PeterStegnar/63cb8c9a39a13265c3a855e24a33ca37#file-cdvwkwebviewengine-m-L68-L74
+        // Enables untrusted SSL connection
+        if (tamperedFile.originalContent.indexOf('SecTrustRef serverTrust = challenge.protectionSpace.serverTrust') === -1) {
+          const lookupString = '@implementation CDVWKWebViewEngine'
+          const insertIndex = tamperedFile.originalContent.indexOf(lookupString) + lookupString.length
+
+          tamperedFile.content = tamperedFile.originalContent.substring(0, insertIndex) + `
+
+  - (void)webView:(WKWebView *)webView
+  didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
+  completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
+  SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
+  completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
+  }
+  ` + tamperedFile.originalContent.substring(insertIndex)
+
+          this.tamperedFiles.push(tamperedFile)
+        }
+      }
+    })
   }
 }
 

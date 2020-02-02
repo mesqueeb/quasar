@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <div class="q-gutter-y-md column" style="max-width: 300px">
-      <q-toggle v-model="dense" label="Dense QInput" />
+      <q-toggle v-model="dense" label="Dense QField" />
 
       <q-field filled :dense="dense">
         <template v-slot:control>
@@ -38,7 +38,7 @@
 
         <template v-slot:append>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
+            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg">
           </q-avatar>
         </template>
       </q-field>
@@ -83,7 +83,7 @@
       <q-field filled :value="text" bottom-slots label="Label" stack-label counter maxlength="12" :dense="dense">
         <template v-slot:before>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/img/avatar5.jpg">
+            <img src="https://cdn.quasar.dev/img/avatar5.jpg">
           </q-avatar>
         </template>
 

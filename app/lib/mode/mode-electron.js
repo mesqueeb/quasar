@@ -1,27 +1,27 @@
-const
-  fs = require('fs'),
-  fse = require('fs-extra'),
-  appPaths = require('../app-paths'),
-  logger = require('../helpers/logger'),
-  log = logger('app:mode-electron'),
-  warn = logger('app:mode-electron', 'red'),
-  spawn = require('../helpers/spawn'),
-  nodePackager = require('../helpers/node-packager')
+const fs = require('fs')
+const fse = require('fs-extra')
 
-const
-  electronDeps = {
-    'electron': '4.0.5',
-    'electron-debug': '2.1.0',
-    'electron-devtools-installer': '2.2.4',
-    'devtron': '1.4.0'
-  }
+const appPaths = require('../app-paths')
+const logger = require('../helpers/logger')
+const log = logger('app:mode-electron')
+const warn = logger('app:mode-electron', 'red')
+const { spawnSync } = require('../helpers/spawn')
+const nodePackager = require('../helpers/node-packager')
+const { bundlerIsInstalled } = require('../electron/bundler')
+
+const electronDeps = {
+  'electron': '^7.0.0',
+  'electron-debug': '^3.0.0',
+  'electron-devtools-installer': '^2.2.4',
+  'devtron': '^1.4.0'
+}
 
 class Mode {
   get isInstalled () {
     return fs.existsSync(appPaths.electronDir)
   }
 
-  add (params) {
+  add () {
     if (this.isInstalled) {
       warn(`Electron support detected already. Aborting.`)
       return
@@ -32,17 +32,21 @@ class Mode {
       : ['add', '--dev']
 
     log(`Installing Electron dependencies...`)
-    spawn.sync(
+    spawnSync(
       nodePackager,
       cmdParam.concat(Object.keys(electronDeps).map(dep => {
         return `${dep}@${electronDeps[dep]}`
       })),
-      appPaths.appDir,
+      { cwd: appPaths.appDir },
       () => warn('Failed to install Electron dependencies')
     )
 
     log(`Creating Electron source folder...`)
-    fse.copySync(appPaths.resolve.cli('templates/electron'), appPaths.electronDir)
+    fse.copySync(
+      appPaths.resolve.cli('templates/electron'),
+      appPaths.electronDir
+    )
+
     log(`Electron support was added`)
   }
 
@@ -57,13 +61,21 @@ class Mode {
 
     const cmdParam = nodePackager === 'npm'
       ? ['uninstall', '--save-dev']
-      : ['remove', '--dev']
+      : ['remove']
+
+    const deps = Object.keys(electronDeps)
+
+    ;['packager', 'builder'].forEach(bundlerName => {
+      if (bundlerIsInstalled(bundlerName)) {
+        deps.push(`electron-${bundlerName}`)
+      }
+    })
 
     log(`Uninstalling Electron dependencies...`)
-    spawn.sync(
+    spawnSync(
       nodePackager,
-      cmdParam.concat(Object.keys(electronDeps)),
-      appPaths.appDir,
+      cmdParam.concat(deps),
+      { cwd: appPaths.appDir },
       () => warn('Failed to uninstall Electron dependencies')
     )
 

@@ -1,5 +1,6 @@
 ---
 title: App Extension Install API
+desc: The API for the install script of a Quasar App Extension. Initializes the app space by rendering or changing files and more.
 ---
 
 This page refers to `src/install.js` file which is executed on the installation of the App Extension only. Not all App Extensions will need an install -- this is an optional step.
@@ -16,11 +17,8 @@ module.exports = function (api) {
 ## api.extId
 Contains the `ext-id` (String) of this App Extension.
 
-## api.quasarAppVersion
-Contains the exact `@quasar/app` package version in String format.
-
 ## api.prompts
-Is an Object which has the answers to the prompts when this App Extension gets installed. For more info on prompts, check out [Prompts API](/app-extensions/development-guide/prompts).
+Is an Object which has the answers to the prompts when this App Extension gets installed. For more info on prompts, check out [Prompts API](/app-extensions/development-guide/prompts-api).
 
 ## api.resolve
 Resolves paths within the app on which this App Extension is running. Eliminates the need to import `path` and resolve the paths yourself.
@@ -48,8 +46,9 @@ api.resolve.electron('some-file.js')
 ## api.appDir
 Contains the full path (String) to the root of the app on which this App Extension is running.
 
-## api.compatibleWithQuasarApp
-Ensure the App Extension is compatible with locally installed @quasar/app through a semver condition.
+## api.compatibleWith
+
+Ensure the App Extension is compatible with a package installed in the host app through a semver condition.
 
 If the semver condition is not met, then @quasar/app errors out and halts execution.
 
@@ -57,24 +56,60 @@ Example of semver condition: `'1.x || >=2.5.0 || 5.0.0 - 7.2.3'`.
 
 ```js
 /**
+ * @param {string} packageName
  * @param {string} semverCondition
  */
-api.compatibleWithQuasarApp('1.x')
+api.compatibleWith('@quasar/app', '1.x')
+```
+
+## api.hasPackage
+
+Determine if some package is installed in the host app through a semver condition.
+
+Example of semver condition: `'1.x || >=2.5.0 || 5.0.0 - 7.2.3'`.
+
+```js
+/**
+ * @param {string} packageName
+ * @param {string} (optional) semverCondition
+ * @return {boolean} package is installed and meets optional semver condition
+ */
+if (api.hasPackage('vuelidate')) {
+  // hey, this app has it (any version of it)
+}
+if (api.hasPackage('quasar', '^1.0.0')) {
+  // hey, this app has v1 installed
+}
 ```
 
 ## api.hasExtension
-Check if another app extension is installed.
+Check if another app extension is npm installed and Quasar CLI has invoked it.
 
 ```js
 /**
  * Check if another app extension is installed
  *
  * @param {string} extId
- * @return {boolean} has the extension installed.
+ * @return {boolean} has the extension installed & invoked
  */
 if (api.hasExtension(extId)) {
   // hey, we have it
 }
+```
+
+## api.getPackageVersion
+
+Get the version of a host app package.
+
+```js
+/**
+ * @param {string} packageName
+ * @return {string|undefined} version of app's package
+ */
+console.log( api.getPackageVersion(packageName) )
+// output examples:
+//   1.1.3
+//   undefined (when package not found)
 ```
 
 ## api.extendPackageJson
@@ -127,7 +162,7 @@ api.render('./path/to/a/template/folder')
 ### Filename edge cases
 If you want to render a template file that either begins with a dot (i.e. .env) you will have to follow a specific naming convention, since dotfiles are ignored when publishing your plugin to npm:
 
-```
+```bash
 # templates containing dotfiles must use an
 # underscore instead of the dot in their names:
 
@@ -139,12 +174,23 @@ some-folder/_env
 /.env
 ```
 
+If you want to render a file whose name actually begins with an underscore, then the filename must begin with `__` (two underscore characters instead of only one):
+
+```bash
+some-folder/__my.css
+
+# When calling api.render('./template'), this will be
+# rendered in the project folder as:
+
+/_my.css
+```
+
 ### Using scope
 You can also inject some decision-making code into the files to be rendered by interpolating with [lodash.template](https://www.npmjs.com/package/lodash.template) syntax.
 
 Example:
 
-```
+```js
 // src/install.js
 // (my-folder is located in same folder as
 // the file in which following call takes place)
@@ -157,7 +203,7 @@ Let's imagine we use a [Prompts API](/app-extensions/development-guide/prompts-a
 
 We can take some decisions on what the files that we render look like, during rendering them. This removes the need of creating two folders and deciding which to render, based on some decision.
 
-```
+```js
 // src/my-folder/some-file.js
 
 <% if (prompts.featureX) { %>
@@ -169,8 +215,45 @@ const message = 'This is content when we don\'t have "Feature X"'
 
 Possibilities are limited only by your imagination.
 
+## api.getPersistentConf
+
+Get the internal persistent config of this extension. Returns empty object if it has none.
+
+```js
+/**
+ * @return {object} cfg
+ */
+api.getPersistentConf()
+```
+
+## api.setPersistentConf
+
+Set the internal persistent config of this extension. If it already exists, it is overwritten.
+
+```js
+/**
+ * @param {object} cfg
+ */
+api.setPersistentConf({
+  // ....
+})
+```
+
+## api.mergePersistentConf
+
+Deep merge into the internal persistent config of this extension. If extension does not have any config already set, this is essentially equivalent to setting it for the first time.
+
+```js
+/**
+ * @param {object} cfg
+ */
+api.mergePersistentConf({
+  // ....
+})
+```
+
 ## api.onExitLog
-Adds a message to be printed after App CLI finishes up installing the App Extension and is about to exit.
+Adds a message to be printed after App CLI finishes up installing the App Extension and is about to exit. Can be called multiple times to register multiple exit logs.
 
 ```js
 /**

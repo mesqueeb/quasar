@@ -1,10 +1,11 @@
 <template lang="pug">
 q-page.doc-page
 
-  h1.doc-heading.doc-h1#Introduction(@click="copyHeading('Introduction')")
+  h1.doc-heading.doc-h1#Introduction(v-if="title" @click="copyHeading('Introduction')")
     span {{ title }}
-    a.doc-page__top-link.float-right(:href="editHref", target="_blank", rel="noopener noreferrer")
-      q-icon(name="edit", @click.stop)
+    q-badge.q-ml-sm.doc-page__badge(v-if="badge") {{ badge }}
+    a.doc-page__top-link.float-right(v-if="noEdit === false", :href="editHref", target="_blank", rel="noopener noreferrer")
+      q-icon(:name="mdiPencil", @click.stop)
         q-tooltip Improve page
 
   slot
@@ -17,13 +18,12 @@ q-page.doc-page
         :key="link.category + link.path"
         :to="link.path"
       )
-        .row.items-center
+        .row.no-wrap.items-center
           .col
             .doc-page-nav__categ.text-uppercase {{ link.category || 'Docs' }}
             .doc-page-nav__name.text-weight-bold {{ link.name }}
 
-          .col-auto.q-pl-lg
-            q-icon(name="launch")
+          q-icon.q-ml-lg(:name="mdiLaunch")
 
   .doc-page-nav.text-primary.q-pb-xl(v-if="nav !== void 0")
     .text-h6.q-pb-md Ready for more?
@@ -33,64 +33,95 @@ q-page.doc-page
         :key="link.category + link.path"
         :to="link.path"
       )
-        .row.items-center
-          .col-auto(
+        .row.no-wrap.items-center
+          q-icon(
+            :name="link.dir === 'left' ? mdiChevronLeft : mdiChevronRight"
             v-if="link.dir !== void 0"
-            :class="link.dir === 'right' ? 'order-last q-pl-md' : 'order-first q-pr-md'"
+            :class="link.dir === 'right' ? 'order-last q-ml-md' : 'order-first q-mr-md'"
           )
-            q-icon(:name="`chevron_${link.dir}`")
 
           .col
             .doc-page-nav__categ.text-uppercase {{ link.category || 'Docs' }}
             .doc-page-nav__name.text-weight-bold {{ link.name }}
 
   .doc-page-footer
-    q-separator
+    q-separator.q-mb-sm
 
-    .q-my-sm
-      | Caught a mistake? <doc-link :to="editHref">Suggest an edit on Github</doc-link>
+    .q-mb-md(v-if="noEdit === false")
+      | Caught a mistake? <doc-link :to="editHref">Suggest an edit on GitHub</doc-link>
 
-    .doc-page-footer__icons.row.items-center
-      a(href="https://github.com/quasarframework/quasar", target="_blank")
-        q-icon(name="fab fa-github")
+    .doc-page-footer__icons.row.items-center.q-gutter-sm
+      a(href="https://github.quasar.dev", target="_blank", rel="noopener")
+        q-icon(:name="fabGithub")
 
-      a(href="https://twitter.com/quasarframework", target="_blank")
-        q-icon(name="fab fa-twitter")
+      a(href="https://blog.quasar.dev", target="_blank", rel="noopener")
+        q-icon(:name="mdiBlogger")
 
-      a(href="https://medium.com/quasar-framework", target="_blank")
-        q-icon(name="fab fa-medium")
+      a(href="https://chat.quasar.dev", rel="noopener", target="_blank")
+        q-icon(:name="mdiChat")
 
-      a(href="https://discord.gg/5TDhbDg", target="_blank")
-        q-icon(name="fab fa-discord")
+      a(href="https://forum.quasar.dev/", rel="noopener", target="_blank")
+        q-icon(:name="mdiForum")
 
-      a(href="https://forum.quasar-framework.org/", target="_blank")
-        q-icon(name="fas fa-comments")
+      a(href="https://twitter.quasar.dev", target="_blank", rel="noopener")
+        q-icon(:name="fabTwitter")
 
-      a(href="https://www.patreon.com/quasarframework", target="_blank")
-        q-icon(name="fab fa-patreon")
+      a(href="https://facebook.quasar.dev", target="_blank", rel="noopener")
+        q-icon(:name="fabFacebook")
 
-    div
-      | Released under the <doc-link to="https://github.com/quasarframework/quasar/blob/dev/LICENSE">MIT LICENSE</doc-link> | <doc-link to="https://www.iubenda.com/privacy-policy/40685560">Privacy Policy</doc-link>
+      a(href="https://donate.quasar.dev", rel="sponsored", target="_blank")
+        q-icon(:name="mdiCharity")
+
+    div.q-mt-md
+      | <doc-link to="https://github.com/quasarframework/quasar/blob/dev/LICENSE">MIT LICENSE</doc-link> | <doc-link to="https://www.iubenda.com/privacy-policy/40685560">Privacy Policy</doc-link> | <doc-link to="https://github.com/quasarframework/quasar-art">Quasar Artwork</doc-link>
 
     div Copyright © 2015 - {{ year }} PULSARDEV SRL, Razvan Stoenescu
-
 </template>
 
 <script>
+import {
+  fabGithub, fabTwitter, fabFacebook
+} from '@quasar/extras/fontawesome-v5'
+
+import {
+  mdiBlogger, mdiForum, mdiChat, mdiCharity,
+  mdiPencil, mdiLaunch,
+  mdiChevronLeft, mdiChevronRight
+} from '@quasar/extras/mdi-v4'
+
 import { copyHeading } from 'assets/page-utils'
+
+const year = (new Date()).getFullYear()
 
 export default {
   name: 'DocPage',
 
+  created () {
+    this.fabGithub = fabGithub
+    this.fabTwitter = fabTwitter
+    this.fabFacebook = fabFacebook
+
+    this.mdiBlogger = mdiBlogger
+    this.mdiForum = mdiForum
+    this.mdiChat = mdiChat
+    this.mdiCharity = mdiCharity
+    this.mdiPencil = mdiPencil
+    this.mdiLaunch = mdiLaunch
+    this.mdiChevronLeft = mdiChevronLeft
+    this.mdiChevronRight = mdiChevronRight
+  },
+
   props: {
     title: String,
     related: Array,
-    nav: Array
+    nav: Array,
+    noEdit: Boolean,
+    badge: String
   },
 
   data () {
     return {
-      year: (new Date()).getFullYear()
+      year
     }
   },
 
@@ -106,70 +137,84 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-@import '~quasar-variables'
-
+<style lang="sass">
 .doc-page
-  padding 16px 46px
-  font-weight 300
-  max-width 900px
-  margin-left auto
-  margin-right auto
+  padding: 16px 46px
+  font-weight: 300
+  max-width: 900px
+  margin-left: auto
+  margin-right: auto
 
   > div, > pre
-    margin-bottom 22px
+    margin-bottom: 22px
 
   &__top-link
-    color inherit
-    text-decoration none
-    outline 0
+    color: inherit
+    text-decoration: none
+    outline: 0
 
-@media (max-width 600px)
+  &__badge
+    vertical-align: super
+
+@media (max-width: 600px)
   .doc-page
-    padding 16px
+    padding: 16px
 
 .doc-page-related
-  color $grey-9
-  transition color .28s
+  color: $grey-9
+  transition: color .28s
+  border: 1px solid rgba(0,0,0,.1)
 
   &:hover
-    color $primary
+    color: $primary
 
 .doc-page-related-bordered
-  border 1px solid $separator-color
+  border: 1px solid $separator-color
 
 .doc-page-footer
-  font-size 12px
-  padding 36px 0 16px
+  font-size: 12px
+  padding: 36px 0 16px
 
   &__icons
-    font-size 28px
+    font-size: 28px
 
     a
-      margin 0 8px 8px
-      text-decoration none
-      outline 0
-      color $primary
-      transition color .28s
+      text-decoration: none
+      outline: 0
+      color: $primary
+      transition: color .28s
 
       &:hover
-        color $grey-8
+        color: $grey-8
 
 .doc-page-nav
-  margin 68px 0 0
-  margin-bottom 0 !important
+  margin: 68px 0 0
+  margin-bottom: 0 !important
+
+  .q-link
+    position: relative
+    &:before
+      content: ''
+      position: absolute
+      top: 0
+      right: 0
+      bottom: 0
+      left: 0
+      background: #000
+      opacity: 0
+      transition: opacity .28s
+    &:focus:before
+      opacity: .1
 
   & + &
-    margin-top 0
+    margin-top: 0
 
   .q-icon
-    font-size 1.75em
-    top 12px
-    right 10px
+    font-size: 1.75em
 
   &__categ
-    font-size .8em
+    font-size: .8em
 
   &__name
-    font-size 1em
+    font-size: 1em
 </style>

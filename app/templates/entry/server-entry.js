@@ -17,7 +17,13 @@ import '@quasar/extras/<%= asset %>/<%= asset %>.css'
 import '@quasar/extras/animate/<%= asset %>.css'
 <% }) %>
 
-import 'quasar-styl'
+// We load Quasar stylesheet file
+import 'quasar/dist/quasar.<%= __css.quasarSrcExt %>'
+
+<% if (framework.cssAddon) { %>
+// We add Quasar addons, if they were requested
+import 'quasar/src/css/flex-addon.<%= __css.quasarSrcExt %>'
+<% } %>
 
 <% css.length > 0 && css.filter(asset => asset.server !== false).forEach(asset => { %>
 import '<%= asset.path %>'
@@ -38,7 +44,7 @@ if (boot.length > 0) {
     return name.charAt(0).toUpperCase() + name.slice(1)
   }
   boot.filter(asset => asset.server !== false).forEach(asset => {
-    let importName = 'plugin' + hash(asset.path)
+    let importName = 'qboot_' + hash(asset.path)
     bootNames.push(importName)
 %>
 import <%= importName %> from '<%= asset.path %>'
@@ -51,24 +57,40 @@ import <%= importName %> from '<%= asset.path %>'
 // return a Promise that resolves to the app instance.
 export default context => {
   return new Promise(async (resolve, reject) => {
-    const { app, <%= store ? 'store, ' : '' %>router } = createApp(context)
+    const { app, <%= store ? 'store, ' : '' %>router } = await createApp(context)
 
     <% if (bootNames.length > 0) { %>
+    let routeUnchanged = true
+    const redirect = url => {
+      routeUnchanged = false
+      reject({ url })
+    }
+
     const bootFiles = [<%= bootNames.join(',') %>]
-    for (let i = 0; i < bootFiles.length; i++) {
+    for (let i = 0; routeUnchanged === true && i < bootFiles.length; i++) {
+      if (typeof bootFiles[i] !== 'function') {
+        continue
+      }
+
       try {
         await bootFiles[i]({
           app,
           router,
           <%= store ? 'store,' : '' %>
           Vue,
-          ssrContext: context
+          ssrContext: context,
+          redirect,
+          urlPath: context.url
         })
       }
       catch (err) {
         reject(err)
         return
       }
+    }
+
+    if (routeUnchanged === false) {
+      return
     }
     <% } %>
 

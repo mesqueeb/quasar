@@ -3,7 +3,6 @@ module.exports = {
 
   parserOptions: {
     parser: 'babel-eslint',
-    sourceType: 'module'
   },
 
   env: {
@@ -19,7 +18,8 @@ module.exports = {
 
   // required to lint *.vue files
   plugins: [
-    'vue'
+    'vue',
+    'quasar'
   ],
 
   globals: {
@@ -38,6 +38,9 @@ module.exports = {
     'one-var': 'off',
     'prefer-promise-reject-errors': 'off',
 
+    'no-void': 'off',
+    'quotes': 'off',
+    'array-bracket-spacing': ['error', 'always'],
     'brace-style': ['error', 'stroustrup'],
 
     'import/first': 'off',
@@ -49,6 +52,8 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/no-extraneous-dependencies': 'off',
     'import/no-webpack-loader-syntax': 'off',
+
+    'quasar/check-valid-props': 'warn',
 
     // allow console.log during development only
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',

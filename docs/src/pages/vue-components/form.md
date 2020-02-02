@@ -1,5 +1,6 @@
 ---
 title: Form
+desc: The QForm Vue component renders a form and allows easy validation of child form components like QInput, QSelect or QField.
 related:
   - /vue-components/input
   - /vue-components/select
@@ -44,12 +45,21 @@ this.$refs.myForm.validate().then(success => {
   }
   else {
     // oh no, user has filled in
-    // at least an invalid value
+    // at least one invalid value
   }
 })
 
 // to reset validations:
 this.$refs.myForm.resetValidation()
+```
+
+## Turning off Autocompletion
+If you want to turn off the way that some browsers use autocorrection or spellchecking of all of the input elements of your form, you can also add these pure HTML attributes to the QForm component:
+```html
+autocorrect="off"
+autocapitalize="off"
+autocomplete="off"
+spellcheck="false"
 ```
 
 ## QForm API

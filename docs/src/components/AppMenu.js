@@ -1,16 +1,39 @@
+import {
+  QExpansionItem,
+  QItem,
+  QItemSection,
+  QIcon,
+  QBadge,
+  QList
+} from 'quasar'
+
 import Menu from 'assets/menu.js'
-import './AppMenu.styl'
+import './AppMenu.sass'
 
 export default {
   name: 'AppMenu',
 
+  watch: {
+    $route (route) {
+      this.showMenu(this.$refs[route.path])
+    }
+  },
+
   methods: {
+    showMenu (comp) {
+      if (comp !== void 0 && comp !== this) {
+        this.showMenu(comp.$parent)
+        comp.show !== void 0 && comp.show()
+      }
+    },
+
     getDrawerMenu (h, menu, path, level) {
       if (menu.children !== void 0) {
         return h(
-          'q-expansion-item',
+          QExpansionItem,
           {
             staticClass: 'non-selectable',
+            ref: path,
             props: {
               label: menu.name,
               dense: level > 0,
@@ -30,33 +53,55 @@ export default {
         )
       }
 
-      return h('q-item', {
-        props: {
-          to: path,
-          dense: level > 0,
-          insetLevel: level > 1 ? 1.2 : level
-        },
+      const props = {
+        to: path,
+        dense: level > 0,
+        insetLevel: level > 1 ? 1.2 : level
+      }
+
+      const attrs = {}
+
+      if (menu.external === true) {
+        Object.assign(props, {
+          to: void 0,
+          clickable: true,
+          tag: 'a'
+        })
+
+        attrs.href = menu.path
+        attrs.target = '_blank'
+      }
+
+      return h(QItem, {
+        ref: path,
+        props,
+        attrs,
         staticClass: 'app-menu-entry non-selectable'
       }, [
         menu.icon !== void 0
-          ? h('q-item-section', {
+          ? h(QItemSection, {
             props: { avatar: true }
-          }, [ h('q-icon', { props: { name: menu.icon } }) ])
+          }, [ h(QIcon, { props: { name: menu.icon } }) ])
           : null,
 
-        h('q-item-section', [ menu.name ]),
+        h(QItemSection, [ menu.name ]),
 
         menu.badge !== void 0
-          ? h('q-item-section', {
+          ? h(QItemSection, {
             props: { side: true }
-          }, [ h('q-badge', [ menu.badge ]) ])
+          }, [ h(QBadge, [ menu.badge ]) ])
           : null
       ])
     }
   },
+
   render (h) {
-    return h('q-list', { staticClass: 'app-menu' }, Menu.map(
+    return h(QList, { staticClass: 'app-menu' }, Menu.map(
       item => this.getDrawerMenu(h, item, '/' + item.path, 0)
     ))
+  },
+
+  mounted () {
+    this.showMenu(this.$refs[this.$route.path])
   }
 }

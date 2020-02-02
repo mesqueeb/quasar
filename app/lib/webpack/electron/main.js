@@ -1,21 +1,17 @@
-const
-  fs = require('fs'),
-  path = require('path'),
-  chalk = require('chalk'),
-  webpack = require('webpack'),
-  WebpackChain = require('webpack-chain'),
-  WebpackProgress = require('../plugin.progress')
+const webpack = require('webpack')
+const merge = require('webpack-merge')
+const WebpackChain = require('webpack-chain')
+const WebpackProgress = require('../plugin.progress')
 
-const
-  appPaths = require('../../app-paths')
+const appPaths = require('../../app-paths')
 
 module.exports = function (cfg, configName) {
-  const
-    { dependencies:appDeps = {} } = require(appPaths.resolve.cli('package.json')),
-    { dependencies:cliDeps = {} } = require(appPaths.resolve.app('package.json'))
+  const { dependencies:appDeps = {} } = require(appPaths.resolve.app('package.json'))
+  const { dependencies:cliDeps = {} } = require(appPaths.resolve.cli('package.json'))
 
   const chain = new WebpackChain()
   const resolveModules = [
+    'node_modules',
     appPaths.resolve.app('node_modules'),
     appPaths.resolve.cli('node_modules')
   ]
@@ -75,11 +71,19 @@ module.exports = function (cfg, configName) {
   chain.optimization
     .noEmitOnErrors(true)
 
-  chain.plugin('progress')
-    .use(WebpackProgress, [{ name: configName }])
+  if (cfg.build.showProgress) {
+    chain.plugin('progress')
+      .use(WebpackProgress, [{ name: configName }])
+  }
+
+  const env = merge({}, cfg.build.env, {
+    QUASAR_NODE_INTEGRATION: JSON.stringify(
+      cfg.electron.nodeIntegration === true
+    )
+  })
 
   chain.plugin('define')
-    .use(webpack.DefinePlugin, [ cfg.build.env ])
+    .use(webpack.DefinePlugin, [ env ])
 
   if (cfg.ctx.prod) {
     if (cfg.build.minify) {
@@ -100,6 +104,30 @@ module.exports = function (cfg, configName) {
     // write package.json file
     chain.plugin('package-json')
       .use(ElectronPackageJson)
+
+    const fs = require('fs')
+    const copyArray = []
+
+    const filesToCopy = [
+      appPaths.resolve.app('.npmrc'),
+      appPaths.resolve.app('.yarnrc'),
+      appPaths.resolve.electron('main-process/electron-preload.js')
+    ]
+
+    filesToCopy.forEach(filename => {
+      if (fs.existsSync(filename)) {
+        copyArray.push({
+          from: filename,
+          to: '.'
+        })
+      }
+    })
+
+    if (copyArray.length > 0) {
+      const CopyWebpackPlugin = require('copy-webpack-plugin')
+      chain.plugin('copy-webpack')
+        .use(CopyWebpackPlugin, [ copyArray ])
+    }
   }
 
   return chain

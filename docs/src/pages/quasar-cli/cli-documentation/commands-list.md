@@ -1,5 +1,6 @@
 ---
 title: Commands List
+desc: The entire list of Quasar CLI commands.
 ---
 
 Familiarize yourself with the list of available commands inside a Quasar project:
@@ -12,8 +13,6 @@ $ quasar
 | | | | | | |/ _` / __|/ _` | '__|
 | |_| | |_| | (_| \__ \ (_| | |
  \__\_\\__,_|\__,_|___/\__,_|_|
-
-
 
   Example usage
     $ quasar <command> <options>
@@ -42,6 +41,8 @@ $ quasar
     info, i       Display info about your machine and your App
     help, h       Displays this message
 
+  If the specified command is not found, then "quasar run"
+  will be executed with the provided arguments.
 
   Commands supplied by @quasar/cli global installation:
 
@@ -59,12 +60,8 @@ $ quasar [command name] --help
 
 Creates an App folder with initial project boilerplate.
 
-``` bash
-# currently installs v0.17, for v1 see below
+```bash
 $ quasar create <folder_name>
-
-## for Quasar v1.0-beta, run this instead:
-$ quasar create <folder_name> -b dev
 ```
 
 ## upgrade
@@ -78,6 +75,10 @@ $ quasar upgrade
 # do the actual upgrade
 $ quasar upgrade --install
 ```
+
+::: warning Note for code editor terminals
+If you're using a code editor terminal instead of the real one, you run `quasar upgrade` and get an error *Command not found* or *@quasar/cli* version appears to be *undefined*, you will need to go to the settings of your code editor terminal and untick the option (or its equivalent) *Add 'node_modules/.bin' from the project root to %PATH%* then restart your code editor.
+:::
 
 ## info
 The Quasar CLI is equipped with a stable combination of multiple NPM build packages (Webpack, Vue, etc) which gets updated frequently after heavy testing.
@@ -94,10 +95,26 @@ $ quasar dev -h
   Description
     Starts the app in development mode (hot-code reloading, error
     reporting, etc)
+
   Usage
+    $ quasar dev
     $ quasar dev -p <port number>
+
+    $ quasar dev -m ssr
+
+    # alias for "quasar dev -m cordova -T ios"
+    $ quasar dev -m ios
+
+    # alias for "quasar dev -m cordova -T android"
+    $ quasar dev -m android
+
+    # passing extra parameters and/or options to
+    # underlying "cordova" or "electron" executables:
+    $ quasar dev -m ios -- some params --and options --here
+    $ quasar dev -m electron -- --no-sandbox --disable-setuid-sandbox
+
   Options
-    --mode, -m       App mode [spa|ssr|pwa|cordova|electron] (default: spa)
+    --mode, -m       App mode [spa|ssr|pwa|cordova|capacitor|electron] (default: spa)
     --port, -p       A port number on which to start the application
     --hostname, -H   A hostname to use for serving the application
     --help, -h       Displays this message
@@ -106,7 +123,17 @@ $ quasar dev -h
     --target, -T     (required) App target
                         [android|ios|blackberry10|browser|osx|ubuntu|webos|windows]
     --emulator, -e   (optional) Emulator name
-                        Example: iPhone-7, iPhone-X
+                        Examples: iPhone-7, iPhone-X
+                        iPhone-X,com.apple.CoreSimulator.SimRuntime.iOS-12-2
+    --ide, -i        Open IDE (Android Studio / XCode) instead of letting Cordova
+                        booting up the emulator, in which case the "--emulator"
+                        param will have no effect
+
+    --devtools, -d   Open remote Vue Devtools
+
+    Only for Capacitor mode:
+    --target, -T     (required) App target
+                        [android|ios]
 ```
 
 The Quasar development server allows you to develop your App by compiling and maintaining code in-memory. A web server will serve your App while offering hot-reload out of the box. Running in-memory offers faster rebuilds when you change your code.
@@ -129,9 +156,16 @@ $ quasar dev -m pwa
 
 # Developing a Mobile App (through Cordova)
 $ quasar dev -m cordova -T [android|ios]
+# or the short form:
+$ quasar dev -m [android|ios]
 
 # Developing an Electron App
 $ quasar dev -m electron
+
+# passing extra parameters and/or options to
+# underlying "cordova" or "electron" executables:
+$ quasar dev -m ios -- some params --and options --here
+$ quasar dev -m electron -- --no-sandbox --disable-setuid-sandbox
 ```
 
 If you wish to change the hostname or port serving your App you have 3 options:
@@ -161,28 +195,53 @@ If there appears to be an issue with hot reload, you can try two fixes:
   sudo quasar dev
   ```
 
-## build / clean
+## build
 ```bash
 $ quasar build -h
 
   Description
     Builds distributables of your app.
+
   Usage
+    $ quasar build
     $ quasar build -p <port number>
+
+    $ quasar build -m ssr
+
+    # alias for "quasar build -m cordova -T ios"
+    $ quasar build -m ios
+
+    # alias for "quasar build -m cordova -T android"
+    $ quasar build -m android
+
+    # passing extra parameters and/or options to
+    # underlying "cordova" executable:
+    $ quasar build -m ios -- some params --and options --here
+
   Options
-    --mode, -m      App mode [spa|ssr|pwa|cordova|electron] (default: spa)
+    --mode, -m      App mode [spa|ssr|pwa|cordova|capacitor|electron] (default: spa)
     --target, -T    App target
                       - Cordova (default: all installed)
                         [android|ios|blackberry10|browser|osx|ubuntu|webos|windows]
+                      - Capacitor
+                        [android|ios]
                       - Electron with default "electron-packager" bundler (default: yours)
                         [darwin|win32|linux|mas|all]
                       - Electron with "electron-builder" bundler (default: yours)
                         [darwin|mac|win32|win|linux|all]
+    --publish, -P   Also trigger publishing hooks (if any are specified)
+                      - Has special meaning when building with Electron mode and using
+                        electron-builder as bundler
     --debug, -d     Build for debugging purposes
-    --skip-pkg, -s  Build only UI (skips creating Cordova/Electron executables)
+    --skip-pkg, -s  Build only UI (skips creating Cordova/Capacitor/Electron executables)
                       - Cordova (it only fills in /src/cordova/www folder with the UI code)
+                      - Capacitor (it only fills in /src/capacitor/www folder with the UI code)
                       - Electron (it only creates the /dist/electron/UnPackaged folder)
     --help, -h      Displays this message
+
+    ONLY for Cordova and Capacitor mode:
+    --ide, -i       Open IDE (Android Studio / XCode) instead of finalizing with a
+                    terminal/console-only build
 
     ONLY for Electron mode:
     --bundler, -b   Bundler (electron-packager or electron-builder)
@@ -192,23 +251,45 @@ $ quasar build -h
                           [ia32|x64|armv7l|arm64|mips64el|all]
                       - with "electron-builder" bundler:
                           [ia32|x64|armv7l|arm64|all]
+
+    ONLY for electron-builder (when using "publish" parameter):
+    --publish, -P  Publish options [onTag|onTagOrDraft|always|never]
+                     - see https://www.electron.build/configuration/publish
 ```
 
 The Quasar CLI can pack everything together and optimize your App for production. It minifies source code, extracts vendor components, leverages browser cache and much more.
 
 ``` bash
-# build for production
+# Build a SPA for production
 $ quasar build
+# ...or
+$ quasar build -m spa
 
-# build a PWA (check other modes as well)
+# Build a SSR for production
+$ quasar build -m ssr
+
+# Build a PWA for production
 $ quasar build -m pwa
 
-# create a production build with ability to debug it
+# Build a Mobile App (through Cordova)
+$ quasar build -m cordova -T [android|ios]
+# or the short form:
+$ quasar build -m [android|ios]
+
+# Build an Electron App for production
+$ quasar build -m electron
+
+# passing extra parameters and/or options to
+# underlying "cordova" executable:
+$ quasar build -m ios -- some params --and options --here
+
+# Create a production build with ability to debug it
 # (has source-maps and code is NOT minified)
-$ quasar build -d
+$ quasar build -d [-m <mode>]
 ```
 
-You can also clean up all the build assets:
+## clean
+Cleans up all the build assets:
 ``` bash
 $ quasar clean
 ```
@@ -287,6 +368,44 @@ This command is useful to describe the API of any Quasar components/directives/p
 Examples: `$ quasar describe QIcon`, `$ quasar describe TouchPan`, `$ quasar describe Cookies`.
 
 ```bash
+$ quasar describe -h
+
+  Description
+    Describes a component API for project's Quasar version being used
+
+  Usage
+    $ quasar describe <component/directive/Quasar plugin>
+
+    # display everything:
+    $ quasar describe QIcon
+
+    # displaying only props:
+    $ quasar describe QIcon -p
+    # displaying props and methods only:
+    $ quasar describe QIcon -p -m
+    # filtering by "si":
+    $ quasar describe QIcon -f si
+    # filtering only props by "co":
+    $ quasar describe QIcon -p -f co
+
+    # Open docs URL:
+    $ quasar describe QIcon -d
+
+  Options
+    --filter, -f <filter> Filters the API
+    --props, -p           Displays the API props
+    --slots, -s           Displays the API slots
+    --methods, -m         Displays the API methods
+    --events, -e          Displays the API events
+    --value, -v           Displays the API value
+    --arg, -a             Displays the API arg
+    --modifiers, -M       Displays the API modifiers
+    --injection, -i       Displays the API injection
+    --quasar, -q          Displays the API quasar conf options
+    --help, -h            Displays this message
+```
+
+```bash
 $ quasar describe QIcon
 
  Describing QIcon component API
@@ -362,7 +481,7 @@ $ quasar inspect -h
 ```
 
 ## ext
-This command is used to manage [App Extensions](/quasar-cli/app-extensions/introduction).
+This command is used to manage [App Extensions](/app-extensions/introduction).
 
 ```bash
 $ quasar ext -h
@@ -394,7 +513,7 @@ $ quasar ext -h
 ```
 
 ## run
-This command is used to run commands supplied by the [App Extensions](/quasar-cli/app-extensions/introduction) that you've installed into your project folder.
+This command is used to run commands supplied by the [App Extensions](/app-extensions/introduction) that you've installed into your project folder.
 
 ```bash
 $ quasar run -h
@@ -404,20 +523,22 @@ $ quasar run -h
 
   Usage
     $ quasar run <extension-id> <cmd> [args, params]
+    $ quasar <extension-id> <cmd> [args, params]
 
-    $ quasar run iconify create -s
+    $ quasar run iconify create pic -s --mark some_file
+    $ quasar iconify create pic -s --mark some_file
         # Note: "iconify" is an example and not a real extension.
         # Looks for installed extension called "iconify"
         # (quasar-app-extension-iconify extension package)
         # and runs its custom defined "create" command
-        # with "-s --mark some_file" params
+        # with "pic" argument and "-s --mark some_file" params
 
   Options
     --help, -h       Displays this message
 ```
 
 ## serve
-This command can be used in production too and it is being supplied by the globall installation of `@quasar/cli` package.
+This command can be used in production too and it is being supplied by the global installation of `@quasar/cli` package.
 
 ```bash
 $ quasar serve -h
@@ -433,26 +554,32 @@ $ quasar serve -h
     control is yielded to /index.js and params have no effect.
 
   Options
-    --port, -p             Port to use (default: 8080)
-    --hostname, -H         Address to use (default: 0.0.0.0)
-    --gzip, -g             Compress content (default: true)
-    --silent, -s           Supress log message
-    --colors               Log messages with colors (default: true)
-    --open, -o             Open browser window after starting
-    --cache, -c <number>   Cache time (max-age) in seconds;
-                           Does not apply to /service-worker.js
-                           (default: 86400 - 24 hours)
-    --micro, -m <seconds>  Use micro-cache (default: 1 second)
-    --history              Use history api fallback;
-                           All requests fallback to index.html
-    --https                Enable HTTPS
-    --cert, -C [path]      Path to SSL cert file (Optional)
-    --key, -K [path]       Path to SSL key file (Optional)
-    --proxy <file.js>      Proxy specific requests defined in file;
-                           File must export Array ({ path, rule })
-                           See example below. "rule" is defined at:
-                           https://github.com/chimurai/http-proxy-middleware
-    --help, -h             Displays this message
+    --port, -p              Port to use (default: 4000)
+    --hostname, -H          Address to use (default: 0.0.0.0)
+    --gzip, -g              Compress content (default: true)
+    --silent, -s            Suppress log message
+    --colors                Log messages with colors (default: true)
+    --open, -o              Open browser window after starting
+    --cache, -c <number>    Cache time (max-age) in seconds;
+                            Does not apply to /service-worker.js
+                            (default: 86400 - 24 hours)
+    --micro, -m <seconds>   Use micro-cache (default: 1 second)
+
+    --history               Use history api fallback;
+                              All requests fallback to /index.html,
+                              unless using "--index" parameter
+    --index, -i <file>      History mode (only!) index url path
+                              (default: index.html)
+
+    --https                 Enable HTTPS
+    --cert, -C [path]       Path to SSL cert file (Optional)
+    --key, -K [path]        Path to SSL key file (Optional)
+    --proxy <file.js>       Proxy specific requests defined in file;
+                            File must export Array ({ path, rule })
+                            See example below. "rule" is defined at:
+                            https://github.com/chimurai/http-proxy-middleware
+    --cors                  Enable CORS for all requests
+    --help, -h              Displays this message
 
   Proxy file example
     module.exports = [

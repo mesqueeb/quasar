@@ -1,6 +1,5 @@
-const
-  appPaths = require('../../app-paths'),
-  PwaManifestPlugin = require('./plugin.pwa-manifest')
+const appPaths = require('../../app-paths')
+const PwaManifestPlugin = require('./plugin.pwa-manifest')
 
 module.exports = function (chain, cfg) {
   // write manifest.json file
@@ -8,10 +7,9 @@ module.exports = function (chain, cfg) {
     .use(PwaManifestPlugin, [ cfg ])
 
   let defaultOptions
-  const
-    WorkboxPlugin = require('workbox-webpack-plugin'),
-    pluginMode = cfg.pwa.workboxPluginMode,
-    log = require('../../helpers/logger')('app:workbox')
+  const WorkboxPlugin = require('workbox-webpack-plugin')
+  const pluginMode = cfg.pwa.workboxPluginMode
+  const log = require('../../helpers/logger')('app:workbox')
 
   if (pluginMode === 'GenerateSW') {
     const pkg = require(appPaths.resolve.app('package.json'))
@@ -30,15 +28,21 @@ module.exports = function (chain, cfg) {
     log('[InjectManifest] Using your custom service-worker written file')
   }
 
-  let opts = Object.assign(
-    defaultOptions,
-    cfg.pwa.workboxOptions
-  )
+  let opts = {
+    ...defaultOptions,
+    ...cfg.pwa.workboxOptions
+  }
 
   if (cfg.ctx.mode.ssr) {
-    if (!opts.directoryIndex) {
+    if (pluginMode === 'GenerateSW' && !opts.directoryIndex) {
       opts.directoryIndex = '/'
     }
+
+    if (!opts.exclude) {
+      opts.exclude = []
+    }
+
+    opts.exclude.push('../vue-ssr-client-manifest.json')
 
     // if Object form:
     if (cfg.ssr.pwa && cfg.ssr.pwa !== true) {

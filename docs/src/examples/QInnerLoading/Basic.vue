@@ -5,7 +5,7 @@
     </q-btn>
 
     <q-card class="bg-grey-3 relative-position card-example">
-      <q-card-section>
+      <q-card-section class="q-pb-none">
         <div class="text-h6">Lorem Ipsum</div>
       </q-card-section>
 
@@ -53,8 +53,8 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="sass" scoped>
 .card-example
-  width 288px
-  height 290px
+  width: 288px
+  height: 290px
 </style>

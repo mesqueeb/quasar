@@ -1,10 +1,9 @@
-const
-  fs = require('fs'),
-  logger = require('../helpers/logger'),
-  log = logger('app:extension-manager'),
-  warn = logger('app:extension-manager', 'red'),
-  chalk = require('chalk'),
-  appPaths = require('../app-paths')
+const fs = require('fs')
+const logger = require('../helpers/logger')
+const log = logger('app:extension-manager')
+const warn = logger('app:extension-manager', 'red')
+const chalk = require('chalk')
+const appPaths = require('../app-paths')
 
 const extensionPath = appPaths.resolve.app('quasar.extensions.json')
 
@@ -46,15 +45,21 @@ class ExtensionJson {
     return this.extensions
   }
 
-  add (extId, opts) {
-    log(`Adding "${extId}" extension prompts to /quasar.extensions.json ...`)
+  set (extId, opts) {
+    log(`Updating /quasar.extensions.json for "${extId}" extension ...`)
     this.extensions[extId] = opts
     this.__save()
   }
 
+  setInternal (extId, opts) {
+    const cfg = this.get(extId)
+    cfg.__internal = opts
+    this.set(extId, cfg)
+  }
+
   remove (extId) {
     if (this.has(extId)) {
-      log(`Removing "${extId}" extension prompts from /quasar.extensions.json ...`)
+      log(`Removing "${extId}" extension from /quasar.extensions.json ...`)
       delete this.extensions[extId]
       this.__save()
     }
@@ -62,6 +67,16 @@ class ExtensionJson {
 
   get (extId) {
     return this.extensions[extId] || {}
+  }
+
+  getPrompts (extId) {
+    const { __internal, ...prompts } = this.get(extId)
+    return prompts
+  }
+
+  getInternal (extId) {
+    const cfg = this.get(extId)
+    return cfg.__internal || {}
   }
 
   has (extId) {

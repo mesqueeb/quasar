@@ -23,20 +23,21 @@
           div(:class="`bg-primary text-${dark.primary === true ? 'white' : 'black'} shadow-2`")
             q-bar(dense, :dark="dark.primary")
               q-space
-              q-icon.q-mr-xs(name="fas fa-square", size="12px", style="opacity: 0.5")
-              q-icon.q-mr-xs(name="fas fa-circle", size="12px", style="opacity: 0.5")
-              q-icon.q-mr-sm.rotate-90(name="fas fa-play", size="12px", style="opacity: 0.5")
+              q-icon.q-mr-xs(:name="fasSquare", size="12px", style="opacity: 0.5")
+              q-icon.q-mr-xs(:name="fasCircle", size="12px", style="opacity: 0.5")
+              q-icon.q-mr-sm.rotate-90(:name="fasPlay", size="12px", style="opacity: 0.5")
 
             q-toolbar
-              q-btn(flat, dense, round, icon="arrow_back")
+              q-btn(flat, dense, round, :icon="mdiArrowLeft")
               q-space
-              q-btn(flat, dense, round, icon="search")
-              q-btn(flat, dense, round, icon="menu")
+              q-toggle.q-mr-sm(dense, v-model="darkMode", :dark="dark.primary", color="red", label="Dark page")
+              q-btn(flat, dense, round, :icon="mdiMagnify")
+              q-btn(flat, dense, round, :icon="mdiMenu")
 
             q-toolbar(inset)
               q-toolbar-title Quasar
 
-          .q-px-md.q-py-lg
+          .q-px-md.q-py-lg(:class="pageClass")
             .row.q-col-gutter-md
               .col-12.col-sm-6.col-md-4.col-lg-3(
                 v-for="color in sideColors"
@@ -44,11 +45,11 @@
               )
                 q-card(flat, :class="`bg-${color} text-${dark[color] === true ? 'white' : 'black'}`")
                   q-card-section
-                    .text-h6.row.no-wrap
+                    .text-h6.row.no-wrap.items-center
                       .ellipsis.text-capitalize {{ color }}
                       q-space
                       q-icon(
-                        v-if="color !== 'secondary'"
+                        v-if="color !== 'secondary' && color !== 'dark'"
                         :name="$q.iconSet.type[color]"
                         size="24px"
                       )
@@ -57,7 +58,7 @@
 
             q-btn(
               fab
-              icon="map"
+              :icon="mdiMapMarkerRadius"
               color="accent"
               :text-color="dark.accent === true ? 'white' : 'black'"
               class="absolute"
@@ -72,7 +73,9 @@
     q-dialog(v-model="exportDialog")
       q-card
         q-tabs.text-grey-7(v-model="exportTab", active-color="primary" align="justify")
-          q-tab(name="styl", no-caps, label="quasar.variables.styl")
+          q-tab(name="sass", no-caps, label="Sass")
+          q-tab(name="scss", no-caps, label="SCSS")
+          q-tab(name="styl", no-caps, label="Stylus")
           q-tab(name="quasar-cli", no-caps, label="Quasar CLI")
           q-tab(name="umd", no-caps, label="UMD")
           q-tab(name="vue-cli", no-caps, label="Vue CLI")
@@ -80,6 +83,12 @@
         q-separator
 
         q-tab-panels.bg-code(v-model="exportTab", animated)
+          q-tab-panel.q-pa-none(name="sass")
+            doc-code(copy) {{ sassExport }}
+
+          q-tab-panel.q-pa-none(name="scss")
+            doc-code(copy) {{ scssExport }}
+
           q-tab-panel.q-pa-none(name="styl")
             doc-code(copy) {{ stylusExport }}
 
@@ -100,15 +109,37 @@
 
 <script>
 import { colors } from 'quasar'
+
+import {
+  fasSquare, fasCircle, fasPlay
+} from '@quasar/extras/fontawesome-v5'
+
+import {
+  mdiArrowLeft, mdiMagnify, mdiMenu, mdiMapMarkerRadius
+} from '@quasar/extras/mdi-v4'
+
 const { setBrand, luminosity } = colors
 
 export default {
+  created () {
+    this.fasSquare = fasSquare
+    this.fasCircle = fasCircle
+    this.fasPlay = fasPlay
+
+    this.mdiArrowLeft = mdiArrowLeft
+    this.mdiMagnify = mdiMagnify
+    this.mdiMenu = mdiMenu
+    this.mdiMapMarkerRadius = mdiMapMarkerRadius
+  },
+
   data () {
     return {
       colors: {
         primary: '#027BE3',
         secondary: '#26A69A',
         accent: '#9C27B0',
+
+        dark: '#1d1d1d',
 
         positive: '#21BA45',
         negative: '#C10015',
@@ -120,6 +151,7 @@ export default {
         primary: true,
         secondary: true,
         accent: true,
+        dark: true,
 
         positive: true,
         negative: true,
@@ -127,10 +159,11 @@ export default {
         warning: false
       },
 
+      darkMode: false,
       exportDialog: false,
-      exportTab: 'styl',
-      list: ['primary', 'secondary', 'accent', 'positive', 'negative', 'info', 'warning'],
-      sideColors: ['secondary', 'positive', 'negative', 'info', 'warning']
+      exportTab: 'sass',
+      list: [ 'primary', 'secondary', 'accent', 'dark', 'positive', 'negative', 'info', 'warning' ],
+      sideColors: [ 'secondary', 'dark', 'positive', 'negative', 'info', 'warning' ]
     }
   },
 
@@ -145,6 +178,10 @@ export default {
 
     'colors.accent' (val) {
       this.update('accent', val)
+    },
+
+    'colors.dark' (val) {
+      this.update('dark', val)
     },
 
     'colors.positive' (val) {
@@ -165,10 +202,42 @@ export default {
   },
 
   computed: {
+    pageClass () {
+      return this.darkMode === true
+        ? 'bg-grey-10 text-white'
+        : 'bg-white text-black'
+    },
+
+    sassExport () {
+      return `// src/css/quasar.variables.sass\n\n` +
+        `$primary   : ${this.colors.primary}\n` +
+        `$secondary : ${this.colors.secondary}\n` +
+        `$accent    : ${this.colors.accent}\n\n` +
+        `$dark      : ${this.colors.dark}\n\n` +
+        `$positive  : ${this.colors.positive}\n` +
+        `$negative  : ${this.colors.negative}\n` +
+        `$info      : ${this.colors.info}\n` +
+        `$warning   : ${this.colors.warning}`
+    },
+
+    scssExport () {
+      return `// src/css/quasar.variables.scss\n\n` +
+        `$primary   : ${this.colors.primary};\n` +
+        `$secondary : ${this.colors.secondary};\n` +
+        `$accent    : ${this.colors.accent};\n\n` +
+        `$dark      : ${this.colors.dark};\n\n` +
+        `$positive  : ${this.colors.positive};\n` +
+        `$negative  : ${this.colors.negative};\n` +
+        `$info      : ${this.colors.info};\n` +
+        `$warning   : ${this.colors.warning};`
+    },
+
     stylusExport () {
-      return `$primary   = ${this.colors.primary}\n` +
+      return `// src/css/quasar.variables.styl\n\n` +
+        `$primary   = ${this.colors.primary}\n` +
         `$secondary = ${this.colors.secondary}\n` +
         `$accent    = ${this.colors.accent}\n\n` +
+        `$dark      = ${this.colors.dark}\n\n` +
         `$positive  = ${this.colors.positive}\n` +
         `$negative  = ${this.colors.negative}\n` +
         `$info      = ${this.colors.info}\n` +
@@ -177,6 +246,7 @@ export default {
 
     quasarCliExport () {
       return `// quasar.conf.js
+// (will not work for IE11)
 
 return {
   framework: {
@@ -185,6 +255,8 @@ return {
         primary: '${this.colors.primary}',
         secondary: '${this.colors.secondary}',
         accent: '${this.colors.accent}',
+
+        dark: '${this.colors.dark}',
 
         positive: '${this.colors.positive}',
         negative: '${this.colors.negative}',
@@ -198,11 +270,15 @@ return {
 
     umdExport () {
       return `// place before including Quasar UMD script
+// (will not work for IE11)
+
 window.quasarConfig = {
   brand: {
     primary: '${this.colors.primary}',
     secondary: '${this.colors.secondary}',
     accent: '${this.colors.accent}',
+
+    dark: '${this.colors.dark}',
 
     positive: '${this.colors.positive}',
     negative: '${this.colors.negative}',
@@ -214,12 +290,16 @@ window.quasarConfig = {
 
     vueCliExport () {
       return `// main.js
+// (will not work for IE11)
+
 Vue.use(Quasar, {
   config: {
     brand: {
       primary: '${this.colors.primary}',
       secondary: '${this.colors.secondary}',
       accent: '${this.colors.accent}',
+
+      dark: '${this.colors.dark}',
 
       positive: '${this.colors.positive}',
       negative: '${this.colors.negative}',

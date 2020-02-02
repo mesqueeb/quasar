@@ -1,6 +1,7 @@
-const
-  appPaths = require('../app-paths'),
-  { removeSync } = require('fs-extra')
+const { removeSync } = require('fs-extra')
+
+const appPaths = require('../app-paths')
+const extensionJson = require('./extension-json')
 
 /**
  * API for extension's /uninstall.js script
@@ -18,13 +19,22 @@ module.exports = class UninstallAPI {
   }
 
   /**
-   * Check if another app extension is installed
+   * Get the internal persistent config of this extension.
+   * Returns empty object if it has none.
+   *
+   * @return {object} internal persistent config of this extension
+   */
+  getPersistentConf () {
+    return extensionJson.getInternal(this.extId)
+  }
+
+  /**
+   * Check if another app extension is installed.
    *
    * @param {string} extId
    * @return {boolean} has the extension installed.
    */
   hasExtension (extId) {
-    const extensionJson = require('./extension-json')
     return extensionJson.has(extId)
   }
 

@@ -2,37 +2,44 @@
 q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
   q-header.header(elevated)
     q-toolbar
-      q-btn.q-mr-sm(flat, dense, round, @click="leftDrawerState = !leftDrawerState", aria-label="Menu")
-        q-icon(name="menu")
+      q-btn.q-mr-sm(flat, dense, round, @click="toggleLeftDrawer", aria-label="Menu", :icon="mdiMenu")
 
       q-btn.quasar-logo.text-bold(key="logo", flat, no-caps, no-wrap, stretch, to="/")
         q-avatar.doc-layout-avatar
-          img(src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg")
+          img(src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg")
         q-toolbar-title(shrink) Quasar
 
       q-space
 
       header-menu.self-stretch.row.no-wrap(v-if="$q.screen.gt.xs")
 
-      q-btn.q-ml-xs(flat, dense, round, @click="rightDrawerState = !rightDrawerState", aria-label="Menu")
-        q-icon(name="assignment")
+      q-btn.q-ml-xs(
+        v-show="hasRightDrawer",
+        flat,
+        dense,
+        round,
+        @click="toggleRightDrawer",
+        aria-label="Menu"
+        :icon="mdiClipboardText"
+      )
 
   q-drawer(
     v-model="leftDrawerState"
-    bordered
     show-if-above
+    bordered
     content-class="doc-left-drawer"
   )
     q-scroll-area(style="height: calc(100% - 50px); margin-top: 50px")
       .row.justify-center.q-my-lg
         q-btn(
           type="a"
-          href="https://www.patreon.com/quasarframework"
+          href="https://donate.quasar.dev"
           target="_blank"
+          rel="noopener"
           size="13px"
           color="primary"
-          icon="fab fa-patreon"
-          label="Become a Patron"
+          :icon="mdiHeartOutline"
+          label="Donate to Quasar"
         )
 
       app-menu.q-my-lg
@@ -44,26 +51,31 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
         autocomplete="off"
         spellcheck="false"
       )
-        q-input.full-width.doc-algolia(
+        q-input.full-width.doc-algolia.bg-primary(
           ref="docAlgolia"
           v-model="search"
           dense
-          standout
           square
-          placeholder="Search..."
+          dark
+          borderless
+          :placeholder="searchPlaceholder"
+          @focus="onSearchFocus"
+          @blur="onSearchBlur"
         )
           template(v-slot:append)
             q-icon(
-              name="search"
+              :name="mdiMagnify"
               @click="$refs.docAlgolia.focus()"
             )
+      .layout-drawer-toolbar__shadow.absolute-full.overflow-hidden.no-pointer-events
 
   q-drawer(
+    v-if="hasRightDrawer"
     v-model="rightDrawerState"
+    show-if-above
     side="right"
     content-class="bg-grey-1"
     :width="180"
-    show-if-above
     @on-layout="updateRightDrawerOnLayout"
   )
     q-scroll-area.fit
@@ -93,7 +105,7 @@ q-layout.doc-layout(view="lHh LpR lff", @scroll="onScroll")
       router-view
 
   q-page-scroller
-    q-btn(fab, color="red", icon="keyboard_arrow_up")
+    q-btn(fab-mini, color="primary", glossy, :icon="mdiChevronUp")
 </template>
 
 <script>
@@ -101,12 +113,19 @@ import { scroll } from 'quasar'
 import AppMenu from 'components/AppMenu'
 import HeaderMenu from 'components/HeaderMenu'
 
+import {
+  mdiMenu, mdiClipboardText, mdiHeartOutline, mdiMagnify, mdiChevronUp
+} from '@quasar/extras/mdi-v4'
+
 export default {
   name: 'Layout',
 
-  meta: {
-    title: 'Welcome!',
-    titleTemplate: title => `${title} | Quasar Framework`
+  created () {
+    this.mdiMenu = mdiMenu
+    this.mdiClipboardText = mdiClipboardText
+    this.mdiHeartOutline = mdiHeartOutline
+    this.mdiMagnify = mdiMagnify
+    this.mdiChevronUp = mdiChevronUp
   },
 
   components: {
@@ -116,8 +135,8 @@ export default {
 
   watch: {
     $route () {
-      this.leftDrawerState = true
-      this.rightDrawerState = true
+      this.leftDrawerState = this.$q.screen.width > 1023
+      this.rightDrawerState = this.$q.screen.width > 1023
       this.$nextTick(() => {
         this.updateActiveToc(document.documentElement.scrollTop || document.body.scrollTop)
       })
@@ -127,6 +146,7 @@ export default {
   data () {
     return {
       search: '',
+      searchFocused: false,
       rightDrawerOnLayout: false,
       activeToc: void 0
     }
@@ -149,10 +169,28 @@ export default {
       set (val) {
         this.$store.commit('updateRightDrawerState', val)
       }
+    },
+
+    hasRightDrawer () {
+      return this.$store.state.toc.length > 0 || this.$q.screen.lt.sm === true
+    },
+
+    searchPlaceholder () {
+      return this.searchFocused === true
+        ? 'Type to start searching...'
+        : (this.$q.platform.is.desktop === true ? `Type ' / ' to focus here...` : 'Search...')
     }
   },
 
   methods: {
+    toggleLeftDrawer () {
+      this.leftDrawerState = !this.leftDrawerState
+    },
+
+    toggleRightDrawer () {
+      this.rightDrawerState = !this.rightDrawerState
+    },
+
     resetScroll (el, done) {
       document.documentElement.scrollTop = 0
       document.body.scrollTop = 0
@@ -202,7 +240,7 @@ export default {
       const toc = this.$store.state.toc
       let last
 
-      for (let i in toc) {
+      for (const i in toc) {
         const section = toc[i]
         const item = document.getElementById(section.id)
 
@@ -224,72 +262,127 @@ export default {
       if (last !== void 0) {
         this.activeToc = last
       }
+    },
+
+    focusOnSearch (evt) {
+      if (
+        evt.target.tagName !== 'INPUT' &&
+        String.fromCharCode(evt.keyCode) === '/'
+      ) {
+        evt.preventDefault()
+        this.search = ''
+        if (!this.leftDrawerState) {
+          this.leftDrawerState = true
+        }
+        setTimeout(() => {
+          this.$refs.docAlgolia.focus()
+        })
+      }
+    },
+
+    onSearchFocus () {
+      this.searchFocused = true
+    },
+
+    onSearchBlur () {
+      this.searchFocused = false
     }
   },
 
   mounted () {
-    import('docsearch.js').then(docsearch => docsearch.default({
-      apiKey: '5c15f3938ef24ae49e3a0e69dc4a140f',
-      indexName: 'quasar-framework',
-      inputSelector: '.doc-algolia input',
-      algoliaOptions: {
-        hitsPerPage: 7
-      },
-      handleSelected: (a, b, suggestion, c, context) => {
-        const url = suggestion.url
-          .replace('https://v1.quasar-framework.org', '')
+    import('docsearch.js').then(docsearch => {
+      docsearch.default({
+        apiKey: '5c15f3938ef24ae49e3a0e69dc4a140f',
+        indexName: 'quasar-framework',
+        inputSelector: '.doc-algolia input',
+        algoliaOptions: {
+          hitsPerPage: 7
+        },
+        handleSelected: (a, b, suggestion, c, context) => {
+          const url = suggestion.url.replace('https://quasar.dev', '')
 
-        this.search = ''
-        this.$router.push(url)
-        this.$refs.docAlgolia.blur()
+          this.search = ''
+          this.$router.push(url)
+          this.$refs.docAlgolia.blur()
+        }
+      })
+
+      if (this.$q.platform.is.desktop === true) {
+        window.addEventListener('keypress', this.focusOnSearch)
       }
-    }))
+    })
   },
 
   beforeDestroy () {
     clearTimeout(this.scrollTimer)
+
+    if (this.$q.platform.is.desktop === true) {
+      window.removeEventListener('keypress', this.focusOnSearch)
+    }
   }
 }
 </script>
 
-<style lang="stylus">
-@import '~quasar-variables'
+<style lang="sass">
 @import '../css/docsearch'
 
 .header
-  background linear-gradient(145deg, $primary 11%, $dark-primary 75%)
+  background: linear-gradient(145deg, $primary 11%, $dark-primary 75%)
 
 .header-logo
-  width 25px
-  height 25px
+  width: 25px
+  height: 25px
 
 .doc-layout-avatar > div
-  border-radius 0
+  border-radius: 0
 
 .layout-drawer-toolbar
-  border-bottom 1px solid $separator-color
+  > form
+    margin-right: -2px
+  &__shadow
+    bottom: -10px
+    &:after
+      content: ''
+      position: absolute
+      top: 0
+      right: 0
+      bottom: 10px
+      left: 0
+      box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2), 0 0px 10px rgba(0, 0, 0, 0.24)
 
-.q-drawer--mobile .doc-toc
-  .q-item
-    margin-left 3px
-  .q-item--active
-    font-weight 600
+.doc-algolia
+  .q-field__control
+    padding: 0 18px 0 16px !important
+  &.q-field--focused
+    .q-icon
+      color: #fff
+
+.q-drawer--mobile
+  .layout-drawer-toolbar form
+    margin-right: -1px
+  .doc-algolia .q-field__control
+    padding-right: 17px !important
+  .doc-toc
+    .q-item
+      margin-left: 3px
+    .q-item--active
+      font-weight: 600
 
 .doc-toc .q-item
-  border-radius 10px 0 0 10px
-  margin-top 1px
-  margin-bottom 1px
+  border-radius: 10px 0 0 10px
+  margin-top: 1px
+  margin-bottom: 1px
 
   &.q-item--active
-    background lighten($primary, 90%)
+    background: scale-color($primary, $lightness: 90%)
 
 .doc-left-drawer
-  overflow inherit !important
+  overflow: inherit !important
 
 .quasar-logo
   img
-    transform rotate(0deg)
-    transition transform .8s ease-in-out
+    transform: rotate(0deg)
+    transition: transform .8s ease-in-out
   &:hover img
-    transform rotate(-360deg)
+    transform: rotate(-360deg)
 </style>

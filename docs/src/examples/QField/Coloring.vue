@@ -19,6 +19,15 @@
         </template>
       </q-field>
 
+      <q-field color="grey-3" label-color="orange" outlined label="Label" stack-label>
+        <template v-slot:append>
+          <q-icon name="event" color="orange" />
+        </template>
+        <template v-slot:control>
+          <div class="self-center full-width no-outline" tabindex="0">{{text}}</div>
+        </template>
+      </q-field>
+
       <q-field color="lime-11" bg-color="green" filled label="Label" stack-label>
         <template v-slot:prepend>
           <q-icon name="event" />
@@ -31,7 +40,7 @@
       <q-field color="teal" outlined label="Label" stack-label>
         <template v-slot:append>
           <q-avatar>
-            <img src="https://cdn.quasar-framework.org/logo/svg/quasar-logo.svg">
+            <img src="https://cdn.quasar.dev/logo/svg/quasar-logo.svg">
           </q-avatar>
         </template>
         <template v-slot:control>

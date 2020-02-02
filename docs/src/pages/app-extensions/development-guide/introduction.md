@@ -1,5 +1,6 @@
 ---
 title: App Extension Development
+desc: How to setup your machine for a Quasar App Extension development and getting started quickly.
 ---
 
 This section of the docs deals with creating your own App Extensions.
@@ -40,13 +41,22 @@ Except for `src/index.js`, all the other files are optional. You can manually ad
 | `src/index.js` | Is executed on `quasar dev` and `quasar build` |
 | `src/uninstall.js` | Extends the uninstallation procedure of the App Extension |
 
+## Handling package dependencies
+
+If your App Extension has its own dependencies over some packages in order for it to be able to run (except for packages supplied by Quasar CLI, like "quasar", "@quasar/extras", "@quasar/app" -- you should use "api.compatibleWith()" for those in your /install.js and /index.js scripts -- check [Install API](/app-extensions/development-guide/install-api) and [Index API](/app-extensions/development-guide/index-api)), then yarn/npm installing them into your App Extension folder will supply them into the hosting app.
+
+Example: You are creating a UI component that depends on "my-table" npm package (name is bogus, just for making a point here), then you should yarn/npm install "my-table" in your App Extension folder.
+
+::: warning
+Never yarn/npm install packages that are supplied by the Quasar CLI, because App Extensions should not be so intrusive and force the user to use a certain Quasar version. Instead, make use of "api.compatibleWith()" for those, which is equivalent to softly saying "Sorry, you need to install this version of Quasar if you want to take advantage of my App Extension".
+:::
+
 ## Manually testing
 
 We need to create a Quasar project folder to be able to test it while we develop the extension:
 
 ```bash
-# "-b dev" is temporary until final 1.0 build
-$ quasar create test-app -b dev
+$ quasar create test-app
 ```
 
 ### Install and prompts scripts
@@ -76,6 +86,23 @@ $ quasar ext invoke my-ext
 ```
 
 This will trigger the installation of our new App Extension. You need to redo these two steps each time you make changes and you want to test them.
+
+Additionally, if you would like to have HMR (hot module reload) capabilities in your test app while developing your App Extension, then your `quasar.conf.js > devServer > watchOptions` would look like this:
+
+```js
+// quasar.conf.js
+devServer: {
+  watchOptions: {
+    ignored: [
+      'node_modules',
+
+      // be sure to change <myextid> below to
+      // your App Extension name:
+      '!node_modules/quasar-app-extension-<myextid>'
+    ]
+  }
+}
+```
 
 ### Uninstall script
 

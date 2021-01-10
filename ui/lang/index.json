@@ -4,6 +4,10 @@
     "nativeName": "العربية"
   },
   {
+    "isoName": "az-latn",
+    "nativeName": "Azerbaijani (latin)"
+  },
+  {
     "isoName": "bg",
     "nativeName": "български език"
   },
@@ -49,6 +53,10 @@
   },
   {
     "isoName": "fa-ir",
+    "nativeName": "فارسی"
+  },
+  {
+    "isoName": "fa",
     "nativeName": "فارسی"
   },
   {

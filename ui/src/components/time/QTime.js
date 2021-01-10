@@ -48,7 +48,8 @@ export default Vue.extend({
       this.value,
       this.__getMask(),
       this.__getLocale(),
-      this.calendar
+      this.calendar,
+      this.__getDefaultDateModel()
     )
 
     let view = 'Hour'
@@ -75,7 +76,8 @@ export default Vue.extend({
         v,
         this.computedMask,
         this.computedLocale,
-        this.calendar
+        this.calendar,
+        this.defaultDateModel
       )
 
       if (
@@ -138,6 +140,10 @@ export default Vue.extend({
           ? '--'
           : pad(time.second)
       }
+    },
+
+    defaultDateModel () {
+      return this.__getDefaultDateModel()
     },
 
     computedFormat24h () {
@@ -288,7 +294,7 @@ export default Vue.extend({
     },
 
     __getValidValues (start, count, testFn) {
-      const values = Array.apply(null, { length: count })
+      const values = Array.apply(null, { length: count + 1 })
         .map((_, index) => {
           const i = index + start
           return {
@@ -337,6 +343,16 @@ export default Vue.extend({
       return this.calendar !== 'persian' && this.mask !== null
         ? this.mask
         : `HH:mm${this.withSeconds === true ? ':ss' : ''}`
+    },
+
+    __getDefaultDateModel () {
+      if (typeof this.defaultDate !== 'string') {
+        const date = this.__getCurrentDate(true)
+        date.dateHash = this.__getDayHash(date)
+        return date
+      }
+
+      return __splitDate(this.defaultDate, 'YYYY/MM/DD', void 0, this.calendar)
     },
 
     __click (evt) {

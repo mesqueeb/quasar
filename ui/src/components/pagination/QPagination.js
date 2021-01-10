@@ -4,16 +4,17 @@ import QBtn from '../btn/QBtn.js'
 import QInput from '../input/QInput.js'
 
 import DarkMixin from '../../mixins/dark.js'
+import ListenersMixin from '../../mixins/listeners.js'
 
 import { stop } from '../../utils/event.js'
 import { between } from '../../utils/format.js'
 import { isKeyCode } from '../../utils/key-composition.js'
-import { cache } from '../../utils/vm.js'
+import cache from '../../utils/cache.js'
 
 export default Vue.extend({
   name: 'QPagination',
 
-  mixins: [ DarkMixin ],
+  mixins: [ DarkMixin, ListenersMixin ],
 
   props: {
     value: {
@@ -44,6 +45,11 @@ export default Vue.extend({
 
     input: Boolean,
 
+    iconPrev: String,
+    iconNext: String,
+    iconFirst: String,
+    iconLast: String,
+
     toFn: Function,
 
     boundaryLinks: {
@@ -66,6 +72,25 @@ export default Vue.extend({
       type: Number,
       default: 0,
       validator: v => v >= 0
+    },
+
+    ripple: {
+      type: [Boolean, Object],
+      default: null
+    },
+
+    round: Boolean,
+    rounded: Boolean,
+
+    outline: Boolean,
+    unelevated: Boolean,
+    push: Boolean,
+    glossy: Boolean,
+
+    dense: Boolean,
+    padding: {
+      type: String,
+      default: '6px 5px'
     }
   },
 
@@ -76,11 +101,11 @@ export default Vue.extend({
   },
 
   watch: {
-    min (value) {
+    min () {
       this.model = this.value
     },
 
-    max (value) {
+    max () {
       this.model = this.value
     }
   },
@@ -122,12 +147,42 @@ export default Vue.extend({
 
     icons () {
       const ico = [
-        this.$q.iconSet.pagination.first,
-        this.$q.iconSet.pagination.prev,
-        this.$q.iconSet.pagination.next,
-        this.$q.iconSet.pagination.last
+        this.iconFirst || this.$q.iconSet.pagination.first,
+        this.iconPrev || this.$q.iconSet.pagination.prev,
+        this.iconNext || this.$q.iconSet.pagination.next,
+        this.iconLast || this.$q.iconSet.pagination.last
       ]
       return this.$q.lang.rtl === true ? ico.reverse() : ico
+    },
+
+    attrs () {
+      if (this.disable === true) {
+        return {
+          'aria-disabled': 'true'
+        }
+      }
+    },
+
+    btnProps () {
+      return {
+        round: this.round,
+        rounded: this.rounded,
+
+        outline: this.outline,
+        unelevated: this.unelevated,
+        push: this.push,
+        glossy: this.glossy,
+
+        dense: this.dense,
+        padding: this.padding,
+
+        color: this.color,
+        flat: true,
+        size: this.size,
+        ripple: this.ripple !== null
+          ? this.ripple
+          : true
+      }
     }
   },
 
@@ -153,9 +208,7 @@ export default Vue.extend({
 
     __getBtn (h, data, props, page) {
       data.props = {
-        color: this.color,
-        flat: true,
-        size: this.size,
+        ...this.btnProps,
         ...props
       }
 
@@ -282,8 +335,7 @@ export default Vue.extend({
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: this.min,
-          ripple: false
+          label: this.min
         }, this.min))
       }
       if (boundaryEnd) {
@@ -295,8 +347,7 @@ export default Vue.extend({
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: this.max,
-          ripple: false
+          label: this.max
         }, this.max))
       }
       if (ellipsesStart) {
@@ -305,7 +356,8 @@ export default Vue.extend({
           style
         }, {
           disable: this.disable,
-          label: '…'
+          label: '…',
+          ripple: false
         }, pgFrom - 1))
       }
       if (ellipsesEnd) {
@@ -314,7 +366,8 @@ export default Vue.extend({
           style
         }, {
           disable: this.disable,
-          label: '…'
+          label: '…',
+          ripple: false
         }, pgTo + 1))
       }
       for (let i = pgFrom; i <= pgTo; i++) {
@@ -326,8 +379,7 @@ export default Vue.extend({
           disable: this.disable,
           flat: !active,
           textColor: active ? this.textColor : null,
-          label: i,
-          ripple: false
+          label: i
         }, i))
       }
     }
@@ -335,7 +387,8 @@ export default Vue.extend({
     return h('div', {
       staticClass: 'q-pagination row no-wrap items-center',
       class: { disabled: this.disable },
-      on: this.$listeners
+      attrs: this.attrs,
+      on: { ...this.qListeners }
     }, [
       contentStart,
 

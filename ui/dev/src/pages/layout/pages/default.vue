@@ -22,7 +22,7 @@
 
     <q-page-sticky position="top" expand>
       <q-toolbar class="bg-white text-black">
-        <q-btn flat round dense icon="map" />
+        <q-btn flat round dense icon="map" @click="dialog = true" />
         <q-toolbar-title>Title</q-toolbar-title>
       </q-toolbar>
     </q-page-sticky>
@@ -30,6 +30,18 @@
     <q-page-scroller position="bottom">
       <q-btn fab icon="keyboard_arrow_up" color="red" />
     </q-page-scroller>
+
+    <q-page-scroller position="top" reverse :scroll-offset="2500">
+      <q-btn fab icon="keyboard_arrow_down" color="red" />
+    </q-page-scroller>
+
+    <q-dialog v-model="dialog">
+      <q-card>
+        <q-card-section>
+          hogehgoe
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -42,7 +54,8 @@
 export default {
   data () {
     return {
-      extra: true
+      extra: true,
+      dialog: false
     }
   }
 }

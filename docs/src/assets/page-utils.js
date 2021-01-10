@@ -12,6 +12,24 @@ export function copyToClipboard (text) {
 
 export function copyHeading (id) {
   const text = window.location.origin + window.location.pathname + '#' + id
+  const el = document.getElementById(id)
+
+  if (el) {
+    el.id = ''
+  }
+
+  if ('replaceState' in history) {
+    history.replaceState('', '', `${location.pathname}#${id}`)
+  }
+  else {
+    window.location.hash = '#' + id
+  }
+
+  if (el) {
+    setTimeout(() => {
+      el.id = id
+    }, 300)
+  }
 
   copyToClipboard(text)
 
@@ -20,7 +38,7 @@ export function copyHeading (id) {
     color: 'white',
     textColor: 'primary',
     position: 'top',
-    actions: [ { icon: 'close', color: 'primary' } ],
+    actions: [ { icon: 'close', color: 'primary', dense: true, round: true } ],
     timeout: 2000
   })
 }

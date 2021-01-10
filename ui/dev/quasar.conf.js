@@ -24,15 +24,14 @@ module.exports = function (ctx) {
 
     framework: {
       // iconSet: 'svg-mdi-v4',
-      all: true
+      // config: { ripple: { early: true } },
+      importStrategy: 'all'
     },
-
-    supportIE: true,
 
     build: {
       rtl: false,
       vueRouterMode: 'history',
-      showProgress: true,
+      // showProgress: false,
 
       chainWebpack (chain) {
         const path = require('path')
@@ -44,7 +43,12 @@ module.exports = function (ctx) {
           .set('quasar/icon-set', path.join(__dirname, '../icon-set'))
           .set('quasar/lang', path.join(__dirname, '../lang'))
           .set('quasar/src', path.join(__dirname, '../src/'))
-      }
+      },
+
+      transpileDependencies: [
+        'ansi-regex',
+        'strip-ansi'
+      ]
     },
 
     devServer: {
@@ -102,7 +106,6 @@ module.exports = function (ctx) {
 
     cordova: {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
-      id: 'org.cordova.quasar.dev-app'
     },
 
     capacitor: {
